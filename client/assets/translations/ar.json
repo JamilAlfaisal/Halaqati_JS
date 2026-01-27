@@ -1,0 +1,217 @@
+{
+  "app_name": "مدرسة التلاوة",
+  "students": "طالب",
+  "not_available": "هذا الخيار غير متوفر حاليا",
+  "user_type_selection":{
+    "login": "تسجيل الدخول"
+  },
+  "login_screen": {
+    "welcome_back": "مرحبًا بعودتك!",
+    "phone": "رقم الهاتف",
+    "hint_phone": "أدخل رقم هاتفك",
+    "password": "كلمة المرور",
+    "hint_password": "أدخل كلمة المرور الخاصة بك",
+    "forget_password": "هل نسيت كلمة المرور؟",
+    "login_button": "تسجيل الدخول",
+    "logging_in": "جارٍ تسجيل الدخول..."
+  },
+  "text_field_password":{
+    "empty":"كلمة المرور لا يمكن أن تكون فارغة",
+    "invalid_characters":"كلمة المرور يجب أن تحتوي على أحرف وأرقام فقط"
+  },
+  "text_phone":{
+    "invalid_phone":"رقم هاتف غير صالح",
+    "empty":"رقم الهاتف لا يمكن أن يكون فارغًا"
+  },
+  "home_app_bar": {
+    "home": "الصفحة الرئيسية",
+    "settings": "الإعدادات",
+    "profile": "الملف الشخصي"
+  },
+  "home_screen": {
+    "halaqati": "حلقاتي",
+    "create": "إنشاء حلقة",
+    "no_halaqat": "لا يوجد حلقات"
+  },
+  "profile_screen": {
+    "profile": "الملف الشخصي",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف"
+  },
+  "add_halaqah_screen":{
+    "create": "إنشاء حلقة",
+    "halaqa_name": "اسم الحلقة",
+    "enter_halaqa_name": "أدخل اسم الحلقة",
+    "create_button": "إنشاء",
+    "creating_halaqa": "جارٍ إنشاء الحلقة...",
+    "des":"الوصف",
+    "capacity":"السعة",
+    "localtion":"الموقع",
+    "enter_des":"أدخل الوصف",
+    "enter_capacity":"أدخل السعة",
+    "enter_location":"أدخل الموقع",
+    "invalid_capacity":"سعة غير صالحة",
+    "empty_des":"الوصف لا يمكن أن يكون فارغًا",
+    "empty_location":"الموقع لا يمكن أن يكون فارغًا",
+    "empty_halaqa_name":"هذا الحقل لا يمكن أن يكون فارغًا",
+    "creating_halaqa_error":"خطأ في إنشاء الحلقة",
+    "creating_halaqa_success":"تم إنشاء الحلقة بنجاح",
+    "only_letters_numbers":"يسمح فقط بالأحرف والأرقام",
+    "only_numbers":"الأرقام فقط مسموح بها",
+    "schedule":"الجدول",
+    "select_days":"اختر الأيام",
+    "start_time":"وقت البدء",
+    "end_time":"وقت الانتهاء",
+    "Monday":"الاثنين",
+    "Tuesday":"الثلاثاء",
+    "Wednesday":"الأربعاء",
+    "Thursday":"الخميس",
+    "Friday":"الجمعة",
+    "Saturday":"السبت",
+    "Sunday":"الأحد",
+    "error":"حدث خطا ما",
+    "update":"تحديث"
+  },
+  "halaqah_bottom_bar":{
+    "students":"التلاميذ",
+    "events":"الاحداث",
+    "halaqah":"الحلقه"
+  },
+  "halaqah_screen":{
+    "halaqah":{
+      "details":"معلومات الحلقه",
+      "":""
+    },
+    "students":{
+      "search":"ابحث عن تلاميذ",
+      "total_pages":"مجموع الصفحات المحفوظه",
+      "add_student":"اضافة تلميذ",
+      "no_students":"لا يوجد تلاميذ"
+    },
+    "events":{
+
+    }
+  },
+  "student_app_bar":{
+    "bar":{
+      "dashboard":"لوحة القيادة",
+      "events":"الأحداث",
+      "settings":"الإعدادات"
+    },
+    "events":{
+      "no_events":"لا توجد أحداث",
+      "title":"الأحداث"
+    },
+    "dashboard":{
+      "memorized_pages":"الصفحات المحفوظة",
+      "title":"لوحة القيادة"
+    },
+    "profile":{
+      "profile":"الملف الشخصي",
+      "name":"الاسم",
+      "email":"البريد الإلكتروني",
+      "phone":"رقم الهاتف"
+    }
+  },
+  "teacher_profile":{
+    "no_name":"لا يوجد اسم",
+    "no_email":"لا يوجد بريد إلكتروني",
+    "no_phone":"لا يوجد رقم هاتف",
+    "user_details": "معلومات المستخدم",
+    "email":"البريد الإلكتروني",
+    "password":"كلمة المرور",
+    "change_password":"عدل كلمه المرور",
+    "phone_number":"رقم الهاتف",
+    "DOB":"تاريخ الميلاد",
+    "no_DOB": "لا يوجد تاريخ ميلاد",
+    "halaqat_details": "معلومات الحلقات",
+    "halaqat_number": "عدد الحالقات",
+    "student_number": "عدد التلاميذ",
+    "student":"تلميذ",
+    "class":"صف"
+  },
+  "settings":{
+      "title": "الاعدادات",
+      "logout": "تسجيل الخروج",
+      "english": "الانجليزيه",
+      "about": "نبذة عنا",
+      "report":"التبليغ عن مشكله"
+    },
+    "student_bottom_appbar": {
+      "student_profile":"معلومات التلميذ",
+      "assignments": "الواجبات",
+      "profile":{
+        "profile":"معلومات التلميذ",
+        "memorized_pages":"الصفحات المحفوظة",
+        "pages":"الصفحات",
+        "no_name": "لا يوجد اسم",
+        "phone":"رقم الهاتف",
+        "no_phone":"لا يوجد رقم هاتف"
+      },
+      "assignment":{
+        "assignment":"الواجبات",
+        "new_assignment":"اضافه واجب"
+      },
+      "add_halaqah_screen":{
+        "title":"اضافه واجب",
+        "assignment_title":"العنوان",
+        "description":"الوصف",
+        "type":"النوع",
+        "pages":"الصفحات",
+        "due_date":"المهله الخيره",
+        "page_num_title":"أرقام الصفحات",
+        "page_num":"ادخل رقم الصفحه واضغط ↵↵",
+        "date_hint":"اختر تاريخ",
+        "revision":"مراجعه",
+        "memorization":"حفظ",
+        "reading":"قراءة",
+        "select_date": "من فضلك اختر تاريخ",
+        "success":"لقد نجحت في انشاء واجب جديد"
+      }
+    },
+    "dashboard_screen":{
+      "no_halaqat": "لا يوجد حلقات",
+      "no_assignments":"لايوجد وظائف",
+      "days":"الايام",
+      "time":"الوقت",
+      "location":"الموقع",
+      "student_count":"عدد التلاميذ",
+      "assignment_count":"عدد الوظائف",
+      "quran":"قرآن",
+      "more":"المزيد",
+      "read":"قراءة",
+      "halaqah_events":"أحداث الحلقه"
+    },
+    "student_profile_screen":{
+      "eamil_details":"معلومات المستخدم",
+      "un_defined":"غير معرف",
+      "password":"كلمة المرور",
+      "email":"البريد الإلكتروني",
+      "phone":"رقم الهاتف",
+      "memorized_pages":"الصفحات المحفوظة",
+      "dob":"تاريخ الميلاد"
+    },
+    "halaqah_details_screen":{
+      "halaqah_details":"معلومات الحلقه",
+      "error_loading":"حدث خطا اثناء التحميل",
+      "capacity":"السعه",
+      "halaqah_info":"معلومات الحلقه",
+      "location":"الموقع",
+      "time":"الوقت",
+      "weekly_schedule":"الجدول الاسبوعي",
+      "teacher_details":"معلومات الشيخ"
+    },
+    "event_details_screen":{
+      "event_details":"تفاصيل الوظيفة",
+      "pending":"قيد الانتظار",
+      "done":"تم الانجاز",
+      "type":"نوع الوظيفه",
+      "date":"موعد التسليم",
+      "teacher_instructions":"التعليمات",
+      "pages":"الصفحات المقرره",
+      "mark_as_complete":"حدد كمكتمل"
+    },
+  "not_defined":"غير معروف",
+  "hello": "مرحبا"
+}
