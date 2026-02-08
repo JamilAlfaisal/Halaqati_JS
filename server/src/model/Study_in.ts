@@ -15,6 +15,6 @@ export class StudyIn {
   @ManyToOne(() => Class, c => c.studyInRecords)
   class!: Class;
 
-  @Column({ type: "datetime", nullable: true })
+  @Column({ type: "datetime", nullable: false })
   registeredAt!: Date;
 }

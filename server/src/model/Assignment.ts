@@ -1,8 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTable, CreateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinTable, CreateDateColumn } from "typeorm";
 import { Student } from "./Student";
 import { User } from "./User";
 import { Class } from "./Class";
-
+import { HaveAssignment } from "./Have_assignment";
 @Entity()
 export class Assignment {
   
@@ -15,7 +15,7 @@ export class Assignment {
   @Column({ type: "text", nullable: true })
   description!: string;
 
-  @Column({ type: "simple-array", nullable: true })
+  @Column({ type: "simple-array", nullable: true, default:''})
   pages!: number[];
 
   @Column({
@@ -37,7 +37,6 @@ export class Assignment {
   @ManyToOne(() => Class, (classroom) => classroom.assignments)
   class!: Class;
 
-  @ManyToMany(() => Student, (student) => student.assignments)
-  @JoinTable({ name: "student_assignments" })
-  students!: Student[];
+  @OneToMany(() => HaveAssignment, (HaveAssignment) => HaveAssignment.assignment)
+  haveAssignment!: HaveAssignment[];
 }

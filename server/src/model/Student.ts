@@ -3,6 +3,7 @@ import { User } from "./User";
 import { Assignment } from "./Assignment";
 import { StudyIn } from "./Study_in";
 import { Attendance } from "./Attendance";
+import { HaveAssignment } from "./Have_assignment";
 
 @Entity("STUDENT")
 export class Student{
@@ -14,11 +15,11 @@ export class Student{
   @JoinColumn({ name: "user_id" })
   user!: User;
 
-  @Column({ type: "simple-array", nullable: true })
+  @Column({ type: "simple-array", nullable: true, default:'' })
   memorized_juz!: string[];
 
-  @ManyToMany(() => Assignment, (assignment) => assignment.students)
-  assignments!: Assignment[];
+  @OneToMany(() => HaveAssignment, (haveAssignment) => haveAssignment.student)
+  haveAssignment!: HaveAssignment[];
 
   @OneToMany(() => StudyIn, (studyIn) => studyIn.student)
   studyIn!: StudyIn[];
