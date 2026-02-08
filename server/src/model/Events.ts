@@ -7,7 +7,7 @@ export class Event {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
+  @Column({ type: "simple-array", nullable: false})
   title!: string;
 
   @Column({ type: "text", nullable: true })
@@ -24,5 +24,4 @@ export class Event {
 
   @ManyToOne(() => Class, (classroom) => classroom.events)
   class!: Class;
-
 }

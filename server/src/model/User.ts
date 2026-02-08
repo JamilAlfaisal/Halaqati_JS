@@ -16,19 +16,22 @@ export class User {
   @Column()
   name!: string;
 
-  @Column({ unique: true })
+  @Column({ unique: false, nullable: true })
   email!: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false, unique: true })
   phone!: string;
 
-  @Column({ type: "datetime", nullable: true })
+  @Column({ nullable: false, unique: false })
+  role!: string;
+
+  @Column({ type: "date", nullable: true })
   dob!: Date;
 
   @CreateDateColumn()
   createdAt!: Date;
 
-  @Column({ select: false })
+  @Column({ nullable: false})
   password!: string;
 
   @Column({ nullable: true })

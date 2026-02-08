@@ -1,15 +1,13 @@
 import express, { Request, Response } from "express";
 import "reflect-metadata";
 import { AppDataSource } from "./data-source";
+import dotenv from "dotenv";
 
+dotenv.config();
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("hello world");
-});
 
 AppDataSource.initialize()
   .then(() => {
@@ -22,3 +20,21 @@ AppDataSource.initialize()
   .catch((err) => {
     console.error("❌ Database connection failed:", err);
   });
+
+
+
+import authRouter from './router/authRouter';
+import classRouter from './router/classRouter';
+import attendanceRouter from './router/attendanceRouter';
+import studentClassRouter from './router/studentClassRouter';
+import juzRouter from './router/juzRouter';
+import assignmentRouter from './router/assignmentRouter';
+import eventRouter from './router/evenRouter';
+
+app.use('/api/auth', authRouter);
+app.use('/api/class', classRouter);
+app.use('/api/attendance', attendanceRouter);
+app.use('/api/student_class', studentClassRouter);
+app.use('/api/update_student', juzRouter);
+app.use('/api/assignment', assignmentRouter);
+app.use('/api/event', eventRouter);

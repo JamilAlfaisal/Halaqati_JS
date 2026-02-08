@@ -11,22 +11,22 @@ export class Class {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
+  @Column({ type: "text", nullable: false })
   name!: string;
 
   @Column({ type: "text", nullable: true })
   description!: string;
 
-  @Column()
+  @Column({ type: "text", nullable: true })
   location!: string;
 
-  @Column({ type: "simple-array" })
+  @Column({ type: "simple-array", default:'' })
   days!: string[];
 
-  @Column({ type: "datetime", nullable: true })
+  @Column({ type: "time", nullable: true })
   startTime!: string;
 
-  @Column({ type: "datetime", nullable: true })
+  @Column({ type: "time", nullable: true })
   endTime!: string;
 
   @ManyToOne(() => User, (user) => user.classes)
