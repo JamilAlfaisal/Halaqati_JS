@@ -3,308 +3,409 @@ import { AppDataSource } from '../data-source';
 import { User } from '../model/User';
 import { Student } from '../model/Student';
 import { Class } from '../model/Class';
-import { Assignment } from '../model/Assignment';
 import { Event } from '../model/Events';
 import { AuthRequest } from '../middleware/middleware';
-
+import { StudyIn } from '../model/Study_in';
+import { In } from 'typeorm';
 export const createEvent = async (req:AuthRequest, res:Response) => {
 
-    const queryRunner = AppDataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    const userRepository = queryRunner.manager.getRepository(User);
-    const classRepository = queryRunner.manager.getRepository(Class);
-    const assignmentRepository = queryRunner.manager.getRepository(Assignment);
+    const classRepository = AppDataSource.getRepository(Class);
+    const eventRepository = AppDataSource.getRepository(Event);
 
     try{
         const userId = req.user?.id;
         const role = req.user?.role;
+        const classId = Number(req.params.id);
+
         if (!userId) {
-            console.log("❌ http://localhost:3000/api/assignment/create");
+            console.log("❌ http://localhost:3000/api/event/create");
             return res.status(401).json({ message: "Unauthorized" });
         }
 
         if(role != "teacher"){
-            console.log("❌ http://localhost:3000/api/assignment/create");
+            console.log("❌ http://localhost:3000/api/event/create");
             return res.status(403).json({message:"Forbidden"})
         }
 
-        const { startTime, endTime, days, description, location, name } = req.body
+        if (isNaN(classId)){
+            console.log("❌ http://localhost:3000/api/event/create");
+            return res.status(400).json({ message: "Invalid class id" });
+        }
+
+        const existingClass = await classRepository.findOne({
+            where: { 
+                id: classId, 
+                teacher: { id: userId } 
+            }
+        });
+
+        if (!existingClass) {
+            console.log("❌ http://localhost:3000/api/event/create");
+            return res.status(403).json({ message: "Access denied or class not found" });
+        }
+
+        const { dueDate, description, title } = req.body
         
-        if(!name){
-            console.log("❌ http://localhost:3000/api/assignment/create");
-            return res.status(400).json({message:"Missing Required Fields"})
+        if (!title || !dueDate || !description) {
+            console.log("❌ http://localhost:3000/api/event/create");
+            return res.status(400).json({ message: "Missing required fields" });
         }
 
-        if (!Array.isArray(days)) {
-            console.log("❌ http://localhost:3000/api/assignment/create");
-            return res.status(400).json({ message: "Days must be an array" });
-        }
-
-        const teacher = await userRepository.findOneBy({id:userId});
-
-        if (!teacher){
-            console.log("❌ http://localhost:3000/api/assignment/create");
-            return res.status(404).json({message:"User not found"})
-        }
-
-        const newClass = classRepository.create({
-            name, days, startTime, endTime, description, teacher, location
+        const newEvent = eventRepository.create({
+            title, description, dueDate, class: {id: classId}, teacher: {id: userId}
         });
 
-        await queryRunner.manager.save(newClass);
-        await queryRunner.commitTransaction();
+        await eventRepository.save(newEvent);
 
-        console.log("✅ http://localhost:3000/api/assignment/create");
+        console.log("✅ http://localhost:3000/api/event/create");
         return res.status(201).json({
-            id: newClass.id,
-            name: newClass.name,
-            description: newClass.description,
-            location: newClass.location,
-            startTime: newClass.startTime,
-            endTime: newClass.endTime,
-            days: newClass.days
+            id: newEvent.id,
+            title: newEvent.title,
+            dueDate: newEvent.dueDate,
+            description: newEvent.description,
+            classId
         });
+
     }catch(e){
-        await queryRunner.rollbackTransaction();
-        console.log("❌ http://localhost:3000/api/class/create");
+        console.log("❌ http://localhost:3000/api/event/create");
         console.error(`❌ ${e}`);
-        return res.status(500).json({ message: "Failed to create class" });
-    }finally{
-        await queryRunner.release();
+        return res.status(500).json({ message: "Failed to create event" });
     }
 
 }
 
 export const updateEvent = async (req:AuthRequest, res:Response) => {
-    const queryRunner = AppDataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
 
-    const userRepository = queryRunner.manager.getRepository(User);
-    const classRepository = queryRunner.manager.getRepository(Class);
-    const assignmentRepository = queryRunner.manager.getRepository(Assignment);
+    const eventRepository = AppDataSource.getRepository(Event);
 
     try{
 
         const userId = req.user?.id;
         const role = req.user?.role;
-        const assignmentId = Number(req.params.id);
+        const eventId = Number(req.params.id);
 
         if (!userId) {
-            console.log("❌ http://localhost:3000/api/assignment/update");
+            console.log("❌ http://localhost:3000/api/event/update");
             return res.status(401).json({ message: "Unauthorized" });
         }
 
         if(role != "teacher"){
-            console.log("❌ http://localhost:3000/api/assignment/update");
+            console.log("❌ http://localhost:3000/api/event/update");
             return res.status(403).json({message:"Forbidden"})
         }
 
-        if (isNaN(assignmentId)) {
-            console.log("❌ http://localhost:3000/api/assignment/update");
-            return res.status(400).json({ message: "Invalid assignment id" });
+        if (isNaN(eventId)) {
+            console.log("❌ http://localhost:3000/api/event/update");
+            return res.status(400).json({ message: "Invalid event id" });
         }
 
-        const { createdAt, dueDate, days, description, pages, title, type , students} = req.body
-        
+        const { dueDate, description, title } = req.body;
 
-        if (days !== undefined && !Array.isArray(days)) {
-            console.log("❌ http://localhost:3000/api/class/update");
-            return res.status(400).json({ message: "Days must be an array" });
+        if (
+            title === undefined &&
+            description === undefined &&
+            dueDate === undefined
+        ) {
+        return res.status(400).json({ message: "No fields to update" });
         }
 
-        const teacher = await userRepository.findOneBy({id:userId});
-
-        if (!teacher){
-            console.log("❌ http://localhost:3000/api/class/update");
-            return res.status(404).json({message:"User not found"})
-        }
-
-        const existingAssignment = await assignmentRepository.findOne({
-            where: { id: assignmentId },
-            relations: ["teacher" , "class", "students"],
+        const event = await eventRepository.findOne({
+            where: {id:eventId},
+            relations: ['teacher', 'class']
         });
 
-        if (!existingAssignment) {
-            console.log("❌ http://localhost:3000/api/assignment/update");
-            return res.status(404).json({ message: "assignment not found" });
+        if (!event){
+            console.log("❌ http://localhost:3000/api/event/update");
+            return res.status(404).json({message:"Event not found"})
         }
 
-        if(existingAssignment.teacher.id != userId){
-            console.log("❌ http://localhost:3000/api/assignment/update");
-            return res.status(403).json({ message: "Not assignment owner" });
+        if (event.teacher.id !== userId){
+            console.log("❌ http://localhost:3000/api/event/update");
+            return res.status(403).json({message:"Forbidden"})
         }
 
-        if (title !== undefined) existingAssignment.title = title;
-        if (description !== undefined) existingAssignment.description = description;
-        if (pages !== undefined) existingAssignment.pages = pages;
-        if (createdAt !== undefined) existingAssignment.createdAt = createdAt;
-        if (dueDate !== undefined) existingAssignment.dueDate = dueDate;
-        if (type !== undefined) existingAssignment.type = type;
-        // if (students !== undefined) existingAssignment.students = students;
 
-        await queryRunner.manager.save(existingAssignment);
-        await queryRunner.commitTransaction();
 
-        console.log("✅ http://localhost:3000/api/assignment/update");
+        if (title !== undefined) event.title = title;
+        if (description !== undefined) event.description = description;
+        if (dueDate !== undefined) event.dueDate = dueDate;
+
+        await eventRepository.save(event);
+
+        console.log("✅ http://localhost:3000/api/event/update");
         return res.status(200).json({
-            id: existingAssignment.id,
-            title: existingAssignment.title,
-            description: existingAssignment.description,
-            // students: existingAssignment.students,
-            createdAt: existingAssignment.createdAt,
-            dueDate: existingAssignment.dueDate,
-            type: existingAssignment.type,
-            pages: existingAssignment.pages,
-            classId: existingAssignment.class.id,
+            id: event.id,
+            title: event.title,
+            dueDate: event.dueDate,
+            description: event.description,
+            classId: event.class.id
         });
 
     }catch(e){
-        await queryRunner.rollbackTransaction();
-        console.log("❌ http://localhost:3000/api/assignment/update");
+        console.log("❌ http://localhost:3000/api/event/update");
         console.error(`❌ ${e}`);
-        return res.status(500).json({ message: "Failed to update assignment" });
-    }finally{
-        await queryRunner.release();
+        return res.status(500).json({ message: "Failed to update event" });
     }
 }
 
 export const deleteEvent = async (req:AuthRequest, res:Response) => {
-    const queryRunner = AppDataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
 
-    const userRepository = queryRunner.manager.getRepository(User);
-    const classRepository = queryRunner.manager.getRepository(Class);
-    const assignmentRepository = queryRunner.manager.getRepository(Assignment);
+    const eventRepository = AppDataSource.getRepository(Event);
 
     try{
         const userId = req.user?.id;
         const role = req.user?.role;
-        const assignmentId = Number(req.params.id);
+        const eventId = Number(req.params.id);
         if (!userId) {
-            console.log("❌ http://localhost:3000/api/assignment/delete");
+            console.log("❌ http://localhost:3000/api/event/delete");
             return res.status(401).json({ message: "Unauthorized" });
         }
 
         if(role != "teacher"){
-            console.log("❌ http://localhost:3000/api/assignment/delete");
+            console.log("❌ http://localhost:3000/api/event/delete");
             return res.status(403).json({message:"Forbidden"})
         }
-        
 
-        const teacher = await userRepository.findOneBy({id:userId});
-
-        if (!teacher){
-            console.log("❌ http://localhost:3000/api/assignment/delete");
-            return res.status(404).json({message:"User not found"})
+        if (isNaN(eventId)) {
+            return res.status(400).json({ message: "Invalid event id" });
         }
 
-        const existingClass = await classRepository.findOne({
-            where: { id: assignmentId },
+        const event = await eventRepository.findOne({
+            where: { id: eventId },
             relations: ["teacher"],
         });
 
-        if (!existingClass) {
-            console.log("❌ http://localhost:3000/api/assignment/update");
-            return res.status(404).json({ message: "Class not found" });
+        if (!event) {
+            console.log("❌ http://localhost:3000/api/event/delete");
+            return res.status(404).json({ message: "Event not found" });
         }
 
-        if(existingClass.teacher.id != userId){
-            console.log("❌ http://localhost:3000/api/assignment/update");
-            return res.status(403).json({ message: "Not assignment owner" });
+        if(event.teacher.id != userId){
+            console.log("❌ http://localhost:3000/api/event/delete");
+            return res.status(403).json({ message: "Not event owner" });
         }
 
-        await queryRunner.manager
-            .createQueryBuilder()
-            .delete()
-            .from("student_assignment")
-            .where("attendanceId = :attendanceId", { assignmentId })
-            .execute();
-
-        await assignmentRepository.delete(assignmentId);
-
-        await queryRunner.commitTransaction();
+        await eventRepository.delete(eventId);
         
-        console.log("✅ http://localhost:3000/api/assignment/delete");
+        console.log("✅ http://localhost:3000/api/event/delete");
         return res.status(204).send();
 
     }catch(e){
-        await queryRunner.rollbackTransaction();
-        console.log("❌ http://localhost:3000/api/assignment/delete");
+        console.log("❌ http://localhost:3000/api/event/delete");
         console.error(`❌ ${e}`);
-        return res.status(500).json({ message: "Failed to delete assignment" });
-    }finally{
-        await queryRunner.release();
+        return res.status(500).json({ message: "Failed to delete event" });
     }
 }
 
-export const getEvents = async (req:AuthRequest, res: Response) => {
-
-    const assignmentRepository = AppDataSource.getRepository(Assignment);
-    try{
-        const userId = req.user?.id;
-        const role = req.user?.role;
-        if (!userId) {
-            console.log("❌ http://localhost:3000/api/assignment/get");
-            return res.status(401).json({ message: "Unauthorized" });
-        }
-
-        if(role != "teacher"){
-            console.log("❌ http://localhost:3000/api/assignment/get");
-            return res.status(403).json({message:"Forbidden"})
-        }
-
-        const allAssignments = await assignmentRepository.find({
-            where: { teacher: { id: userId } },
-        });
-
-        console.log("✅ http://localhost:3000/api/assignment/get");
-        return res.status(200).send({
-            assignments: allAssignments
-        });
-    }catch(e){
-        console.log("❌ http://localhost:3000/api/assignment/get");
-        console.error(`❌ ${e}`);
-        return res.status(500).json({ message: "Failed to get your assignments" });
-    }
-}
 
 export const getEventDetails = async (req:AuthRequest, res:Response) => {
-    const classRepository = AppDataSource.getRepository(Class);
-    const assignmentRepository = AppDataSource.getRepository(Assignment);
+    const classRepository = AppDataSource.getRepository(Class); 
+    const eventRepository = AppDataSource.getRepository(Event);
     try{
         const userId = req.user?.id;
         const role = req.user?.role;
-        const assignmentId = Number(req.params.id);
+        const eventId = Number(req.params.id);
         if (!userId) {
-            console.log("❌ http://localhost:3000/api/assignment/details");
+            console.log("❌ http://localhost:3000/api/event/details");
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        if (isNaN(eventId)) {
+            return res.status(400).json({ message: "Invalid event id" });
+        }
+        
+
+        const event = await eventRepository.findOne({
+            where: {id: eventId},
+            relations: ['class', 'teacher']
+        });
+
+        if (!event){
+            console.log("❌ http://localhost:3000/api/event/details");
+            return res.status(404).json({message:'event not found'})
+        }
+
+        if (role === 'teacher') {
+            if (event.teacher.id !== userId) {
+                return res.status(403).json({ message: "Forbidden" });
+            }
+        }
+
+        if (role === 'student') {
+            const isEnrolled = await classRepository.exist({
+                where: {
+                id: event.class.id,
+                studyInRecords: { student: { id: userId } },
+                },
+            });
+
+            if (!isEnrolled) {
+                return res.status(403).json({ message: "Forbidden" });
+            }
+        }
+        console.log("✅ http://localhost:3000/api/event/details");
+        return res.status(200).send({
+            id: event.id,
+            title: event.title,
+            dueDate: event.dueDate,
+            description: event.description,
+            class: {
+                id: event.class.id,
+                name: event.class.name
+            },
+            teacher: {
+                id: event.teacher.id,
+                name: event.teacher.name
+            }
+        });
+
+    }catch(e){
+        console.log("❌ http://localhost:3000/api/event/details");
+        console.error(`❌ ${e}`);
+        return res.status(500).json({ message: "Failed to get the event details" });
+    }
+}
+
+export const getTeacherEvents = async (req:AuthRequest, res: Response) => {
+    const eventRepository = AppDataSource.getRepository(Event);
+    const classRepository = AppDataSource.getRepository(Class);
+    try{
+        const userId = req.user.id;
+        const role = req.user.role;
+        const classId = Number(req.params.id);
+
+        if (!userId) {
+            console.log("❌ http://localhost:3000/api/event/get_teacher_events");
             return res.status(401).json({ message: "Unauthorized" });
         }
 
         if(role != "teacher"){
-            console.log("❌ http://localhost:3000/api/assignment/details");
+            console.log("❌ http://localhost:3000/api/event/get_teacher_events");
             return res.status(403).json({message:"Forbidden"})
         }
 
-        const assignment = await assignmentRepository.findOneBy({
-            id: assignmentId
-        });
-
-        if (!assignment){
-            console.log("❌ http://localhost:3000/api/assignment/details");
-            return res.status(404).json({message:'assignment not found'})
+        if (isNaN(classId)) {
+            console.log("❌ http://localhost:3000/api/event/get_teacher_events");
+            return res.status(400).json({ message: "Invalid class id" });
         }
 
-        console.log("✅ http://localhost:3000/api/assignment/details");
-        return res.status(200).send({
-            assignment: assignment
+        const ownsClass = await classRepository.exist({
+            where: {
+                id: classId,
+                teacher: { id: userId },
+            },
         });
+
+        if (!ownsClass) {
+            console.log("❌ http://localhost:3000/api/event/get_teacher_events");
+            return res.status(403).json({ message: "You do not own this class" });
+        }
+
+        const events = await eventRepository.find({
+            where: {teacher: {id: userId}, class: {id: classId}},
+            relations: ['class', 'teacher']
+        });
+
+        const eventsConsistantData = events.map((event) => {
+            return {
+                id: event.id,
+                title: event.title,
+                dueDate: event.dueDate,
+                description: event.description,
+                class: {
+                    id: event.class.id,
+                    name: event.class.name
+                },
+                teacher: {
+                    id: event.teacher.id,
+                    name: event.teacher.name
+                }
+            }
+        })
+
+        console.log("✅ http://localhost:3000/api/event/get_teacher_events");
+        return res.status(200).send({
+            events: eventsConsistantData
+        });
+
     }catch(e){
-        console.log("❌ http://localhost:3000/api/assignment/details");
+        console.log("❌ http://localhost:3000/api/event/get_teacher_events");
         console.error(`❌ ${e}`);
-        return res.status(500).json({ message: "Failed to get the assignment details" });
+        return res.status(500).json({ message: "Failed to get events" });
+    }
+}
+
+export const getStudentEvents = async (req:AuthRequest, res: Response) => {
+    const eventRepository = AppDataSource.getRepository(Event);
+    const studyInRepository = AppDataSource.getRepository(StudyIn);
+    const studentRepository = AppDataSource.getRepository(Student)
+    try{
+        const userId = req.user.id;
+        const role = req.user.role;
+
+        if (!userId) {
+            console.log("❌ http://localhost:3000/api/event/get_student_events");
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        if(role != "student"){
+            console.log("❌ http://localhost:3000/api/event/get_student_events");
+            return res.status(403).json({message:"Forbidden"})
+        }
+
+        const student = await studentRepository.findOneBy({
+            user: {id: userId}
+        });
+
+        if (!student){
+            console.log("❌ http://localhost:3000/api/event/get_student_events");
+            return res.status(404).json({ message: "Student profile not found" });
+        }
+
+        const studyInClasses = await studyInRepository.find({
+            where: {
+                student: {id: student.id},
+            },
+            relations: ['class']
+        });
+
+        const classIds = studyInClasses.map(s => s.class.id);
+
+        if (classIds.length === 0) {
+            console.log("✅ http://localhost:3000/api/event/get_student_events");
+            return res.status(200).json({ events: [] });
+        }
+
+        const events = await eventRepository.find({
+            where: {class: {id: In(classIds)}},
+            relations: ['class', 'teacher']
+        });
+
+        const eventsConsistantData = events.map((event) => {
+            return {
+                id: event.id,
+                title: event.title,
+                dueDate: event.dueDate,
+                description: event.description,
+                class: {
+                    id: event.class.id,
+                    name: event.class.name
+                },
+                teacher: {
+                    id: event.teacher.id,
+                    name: event.teacher.name
+                }
+            }
+        })
+
+        console.log("✅ http://localhost:3000/api/event/get_student_events");
+        return res.status(200).send({
+            events: eventsConsistantData
+        });
+
+    }catch(e){
+        console.log("❌ http://localhost:3000/api/event/get_student_events");
+        console.error(`❌ ${e}`);
+        return res.status(500).json({ message: "Failed to get events" });
     }
 }
