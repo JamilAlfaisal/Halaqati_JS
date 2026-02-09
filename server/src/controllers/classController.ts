@@ -4,6 +4,7 @@ import { User } from '../model/User';
 import { Student } from '../model/Student';
 import { Class } from '../model/Class';
 import { AuthRequest } from '../middleware/middleware';
+import { StudyIn } from '../model/Study_in';
 
 // const studentRepository = AppDataSource.getRepository(Student);
 // const userRepository = AppDataSource.getRepository(User);
@@ -258,7 +259,7 @@ export const deleteClass = async (req:AuthRequest, res:Response) => {
     }
 }
 
-export const getMyClasses = async (req:AuthRequest, res: Response) => {
+export const getTeacherClasses = async (req:AuthRequest, res: Response) => {
 
     const classRepository = AppDataSource.getRepository(Class);
     try{
@@ -291,6 +292,8 @@ export const getMyClasses = async (req:AuthRequest, res: Response) => {
 
 export const getClassDetails = async (req:AuthRequest, res:Response) => {
     const classRepository = AppDataSource.getRepository(Class);
+    const studyInRepository = AppDataSource.getRepository(StudyIn);
+    // const studentRepository = AppDataSource.getRepository(Student);
     try{
         const userId = req.user?.id;
         const role = req.user?.role;
@@ -300,27 +303,100 @@ export const getClassDetails = async (req:AuthRequest, res:Response) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if(role != "teacher"){
-            console.log("❌ http://localhost:3000/api/class/details");
-            return res.status(403).json({message:"Forbidden"})
-        }
-
-        const classDetails = await classRepository.findOneBy({
-            id: classId
+        const classDetails = await classRepository.findOne({
+           where: {id: classId},
+            relations: ["teacher"],
         });
 
         if (!classDetails){
             console.log("❌ http://localhost:3000/api/class/details");
             return res.status(404).json({message:'Class not found'})
         }
+        if (role === "teacher") {
+            if (classDetails.teacher.id !== userId) {
+                console.log("❌ http://localhost:3000/api/class/details");
+                return res.status(403).json({ message: "Forbidden" });
+            }
+            console.log("✅ http://localhost:3000/api/class/details");
+            return res.status(200).json({ class: classDetails });
+        }
 
-        console.log("✅ http://localhost:3000/api/class/details");
-        return res.status(200).send({
-            class: classDetails
-        });
+        if (role === "student") {
+            const enrollment = await studyInRepository.findOne({
+                where: { student: { user: { id: userId } }, class: { id: classId } },
+            });
+
+            if (!enrollment) {
+                console.log("❌ http://localhost:3000/api/class/details");
+                return res.status(403).json({ message: "Forbidden" });
+            }
+            console.log("✅ http://localhost:3000/api/class/details");
+            return res.status(200).json({ class: classDetails });
+        }
+
+        console.log("❌ http://localhost:3000/api/class/details");
+        return res.status(403).json({ message: "Forbidden" });
+
     }catch(e){
         console.log("❌ http://localhost:3000/api/class/details");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to get the class details" });
     }
 }
+
+export const getStudentClasses = async (req: AuthRequest, res: Response) => {
+    const studyInRepository = AppDataSource.getRepository(StudyIn);
+    const studentRepository = AppDataSource.getRepository(Student);
+
+    try {
+        const userId = req.user?.id;
+        const role = req.user?.role;
+
+        if (!userId) {
+            console.log("❌ http://localhost:3000/api/class/get_student_classes");
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        if (role !== "student") {
+            console.log("❌ http://localhost:3000/api/class/get_student_classes");
+            return res.status(403).json({ message: "Forbidden" });
+        }
+
+        const student = await studentRepository.findOne({
+            where: { user: { id: userId } },
+        });
+
+        if (!student) {
+            console.log("❌ http://localhost:3000/api/class/get_student_classes");
+            return res.status(404).json({ message: "Student not found" });
+        }
+
+        const studyInRecords = await studyInRepository.find({
+            where: { student: { id: student.id } },
+            relations: ["class", "class.teacher"],
+        });
+
+        const classes = studyInRecords.map((record) => ({
+            id: record.class.id,
+            name: record.class.name,
+            description: record.class.description,
+            location: record.class.location,
+            startTime: record.class.startTime,
+            endTime: record.class.endTime,
+            days: record.class.days,
+            teacher: {
+                id: record.class.teacher.id,
+                name: record.class.teacher.name,
+            },
+        }));
+
+        console.log("✅ http://localhost:3000/api/class/get_student_classes");
+        return res.status(200).json({
+            classes,
+        });
+    } catch (e) {
+        console.log("❌ http://localhost:3000/api/class/get_student_classes");
+        console.error(`❌ ${e}`);
+        return res.status(500).json({ message: "Failed to get student classes" });
+    }
+};

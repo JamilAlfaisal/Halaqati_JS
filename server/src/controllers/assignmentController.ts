@@ -351,6 +351,7 @@ export const getTeacherAssignments = async (req:AuthRequest, res: Response) => {
 
 export const getAssignmentDetails = async (req:AuthRequest, res:Response) => {
     const assignmentRepository = AppDataSource.getRepository(Assignment);
+    const haveAssignmentRepository = AppDataSource.getRepository(HaveAssignment);
     try{
         const userId = req.user?.id;
         const role = req.user?.role;
@@ -358,11 +359,6 @@ export const getAssignmentDetails = async (req:AuthRequest, res:Response) => {
         if (!userId) {
             console.log("❌ http://localhost:3000/api/assignment/details");
             return res.status(401).json({ message: "Unauthorized" });
-        }
-
-        if(role != "teacher"){
-            console.log("❌ http://localhost:3000/api/assignment/details");
-            return res.status(403).json({message:"Forbidden"})
         }
 
         if (isNaN(assignmentId)) {
@@ -380,23 +376,53 @@ export const getAssignmentDetails = async (req:AuthRequest, res:Response) => {
             return res.status(404).json({message:'assignment not found'})
         }
 
-        if (assignment.teacher.id !== userId){
-            console.log("❌ http://localhost:3000/api/assignment/details");
-            return res.status(403).json({message:"Forbidden"});
+        if (role === "teacher") {
+            if (assignment.teacher.id !== userId) {
+                return res.status(403).json({ message: "Forbidden" });
+            }
+            console.log("✅ http://localhost:3000/api/assignment/details");
+            return res.status(200).json({
+                id: assignment.id,
+                title: assignment.title,
+                description: assignment.description,
+                students: assignment.haveAssignment.map(ha => ({
+                id: ha.student.id,
+                isComplete: ha.isComplete,
+                })),
+                createdAt: assignment.createdAt,
+                dueDate: assignment.dueDate,
+                type: assignment.type,
+                pages: assignment.pages,
+                classId: assignment.class.id,
+            });
         }
 
-        console.log("✅ http://localhost:3000/api/assignment/details");
-        return res.status(200).send({
-            id: assignment.id,
-            title: assignment.title,
-            description: assignment.description,
-            studentsIds: assignment.haveAssignment.map(ass => ({id: ass.student.id, isComplete: ass.isComplete})),
-            createdAt: assignment.createdAt,
-            dueDate: assignment.dueDate,
-            type: assignment.type,
-            pages: assignment.pages,
-            classId: assignment.class.id,
-        });
+        if (role === "student") {
+            const haveAssignment = await haveAssignmentRepository.findOne({
+                where: {
+                assignment: { id: assignmentId },
+                student: { id: userId },
+                },
+            });
+
+            if (!haveAssignment) {
+                return res.status(403).json({ message: "Forbidden" });
+            }
+            console.log("✅ http://localhost:3000/api/assignment/details");
+            return res.status(200).json({
+                id: assignment.id,
+                title: assignment.title,
+                description: assignment.description,
+                createdAt: assignment.createdAt,
+                dueDate: assignment.dueDate,
+                type: assignment.type,
+                pages: assignment.pages,
+                classId: assignment.class.id,
+                isComplete: haveAssignment.isComplete,
+            });
+        }
+        console.log("❌ http://localhost:3000/api/assignment/details");
+        return res.status(403).json({ message: "Forbidden" });
     }catch(e){
         console.log("❌ http://localhost:3000/api/assignment/details");
         console.error(`❌ ${e}`);
@@ -461,5 +487,69 @@ export const markAsCompleteUncomplete = async (req: AuthRequest, res: Response) 
         console.log("❌ http://localhost:3000/api/assignment/mark_as_complete_uncomplete");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to change the assignment mark" });
+    }
+}
+
+export const getStudentsAssignment = async (req: AuthRequest, res: Response) => {
+    const haveAssignmentRepository = AppDataSource.getRepository(HaveAssignment);
+    const studentRepository = AppDataSource.getRepository(Student);
+    try{
+        const userId = req?.user.id;
+        const role = req?.user.role;
+
+        if (!userId) {
+            console.log("❌ http://localhost:3000/api/assignment/get_student_assignment");
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        if(role != "student"){
+            console.log("❌ http://localhost:3000/api/assignment/get_student_assignment");
+            return res.status(403).json({message:"Forbidden"})
+        }
+
+        const student = await studentRepository.findOneBy({
+            user: {id: userId}
+        });
+
+        if (!student){
+            console.log("❌ http://localhost:3000/api/event/get_student_assignment");
+            return res.status(404).json({ message: "Student profile not found" });
+        }
+
+        const haveAssignment = await haveAssignmentRepository.find({
+            where: {student: {id: student.id}},
+            relations: ['assignment', 'assignment.teacher', 'assignment.class']
+        });
+
+        const assignments = haveAssignment.map((ass) => {
+            return {
+                teacher: {
+                    id: ass.assignment.teacher.id,
+                    name: ass.assignment.teacher.name,
+                },
+                class: {
+                    id: ass.assignment.class.id,
+                    name: ass.assignment.class.name
+                },
+                assignmentId: ass.assignment.id,
+                title: ass.assignment.title,
+                description: ass.assignment.description,
+                type: ass.assignment.type,
+                pages: ass.assignment.pages,
+                created_date: ass.assignment.createdAt,
+                due_date: ass.assignment.dueDate,
+                isComplete: ass.isComplete
+            }
+        });
+        
+
+        console.log("✅ http://localhost:3000/api/assignment/get_student_assignment");
+        return res.status(200).json({
+            assignments  
+        });
+    }catch(e){
+        console.log("❌ http://localhost:3000/api/assignment/get_student_assignment");
+        console.error(`❌ ${e}`);
+        return res.status(500).json({ message: "Failed to get the assignment"});
     }
 }

@@ -7,7 +7,7 @@ export class Event {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: "simple-array", nullable: false})
+  @Column({ type: "text", nullable: false})
   title!: string;
 
   @Column({ type: "text", nullable: true })

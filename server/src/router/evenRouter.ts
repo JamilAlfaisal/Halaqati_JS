@@ -5,16 +5,18 @@ import {
     updateEvent, 
     deleteEvent,
     getEventDetails,
-    getEvents
+    getTeacherEvents,
+    getStudentEvents
   } from "../controllers/eventController";
 
 const router = Router();
 router.use(authenticate);
 
-router.post("/create", createEvent);
+router.post("/create/:id", createEvent);
 router.put("/update/:id", updateEvent);
 router.delete("/delete/:id", deleteEvent);
-router.get("/get", getEvents);
+router.get("/get_teacher_events/:id", getTeacherEvents);
+router.get("/get_student_events", getStudentEvents);
 router.get("/details/:id", getEventDetails);
 
 export default router;
