@@ -44,7 +44,7 @@ class StudentProfileLeft extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               Text(
-                "${"student_bottom_appbar.profile.pages".tr()}: ${student.memorizedPages?.length??0}/604",
+                "Juz: ${student.memorizedJuz.length}/30",
                 style: Theme.of(context).textTheme.titleSmall,
               ),
             ],

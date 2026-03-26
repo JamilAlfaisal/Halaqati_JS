@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:halqati/config/app_theme.dart';
 import 'package:halqati/screens/common_screens/login_screen.dart';
+import 'package:halqati/screens/teacher/halaqah/add_event_screen.dart';
+import 'package:halqati/screens/teacher/halaqah/event_details_screen.dart';
 import 'package:halqati/test/testing_widgets.dart';
 // import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -14,7 +16,7 @@ import 'package:halqati/screens/common_screens/root_screen.dart';
 import 'package:halqati/screens/teacher/student/student_bottom_appbar.dart';
 import 'package:halqati/screens/teacher/student/add_assignment_screen.dart';
 import 'package:halqati/screens/students/halaqa_details_screen.dart';
-import 'package:halqati/screens/students/event_details_screen.dart';
+import 'package:halqati/screens/students/assignment_details_screen.dart';
 
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -62,7 +64,9 @@ class MyApp extends StatelessWidget {
         '/student_bottom_appbar':(context) => const StudentBottomAppbar(),
         '/add_assignment_screen':(context) => const AddAssignmentScreen(),
         '/halaqa_details_screen':(context) => const HalaqaDetailsScreen(),
+        '/assignment_details_screen':(context) => const AssignmentDetailsScreen(),
         '/event_details_screen':(context) => const EventDetailsScreen(),
+        '/add_event_screen':(context) => const AddEventScreen(),
         '/root_screen': (context) => const RootScreen(),
       },
     );

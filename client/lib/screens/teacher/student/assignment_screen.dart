@@ -2,9 +2,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
-import 'package:halqati/models/assignment_class.dart';
+import 'package:halqati/models/assignment.dart';
 import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
+import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
 import 'package:halqati/widgets/buttons/filter_button.dart';
@@ -19,14 +20,13 @@ class AssignmentScreen extends ConsumerStatefulWidget {
 
 class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
 
-  late final List<AssignmentClass>? assignmentList = [];
-  late final List<AssignmentClass>? filteredAssignment = assignmentList;
+  late final List<Assignment>? filteredAssignment;
 
   @override
   Widget build(BuildContext context) {
 
-    final asyncAssignment = ref.read(assignmentProvider);
-    final int studentId = ref.watch(selectedStudentIdProvider)??0;
+    final asyncAssignment = ref.watch(assignmentProvider);
+    final String studentId = ref.watch(selectedStudentIdProvider)??"0";
 
     void handleGettingAssignments() async {
 
@@ -45,47 +45,52 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
       ),
       body: asyncAssignment.when(
         data: (assignments){
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    spacing: 10,
-                    children: [
-                      FilterButton(
-                        onPressed: (){},
-                        text: "All",
-                      ),
-                      FilterButton(
-                        onPressed: (){},
-                        text: "Last Week",
-                      ),
-                      FilterButton(
-                        onPressed: (){},
-                        text: "Last Month",
-                      ),
-                    ],
+          return RefreshIndicator(
+            onRefresh: ()async {
+              ref.invalidate(assignmentProvider);
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      spacing: 10,
+                      children: [
+                        FilterButton(
+                          onPressed: (){},
+                          text: "All",
+                        ),
+                        FilterButton(
+                          onPressed: (){},
+                          text: "Last Week",
+                        ),
+                        FilterButton(
+                          onPressed: (){},
+                          text: "Last Month",
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(height: 50,),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: filteredAssignment?.length??0,
-                    itemBuilder: (context, index) {
-                      return studentId == filteredAssignment?[index].studentId?
-                      AssignmentList(
-                          title: filteredAssignment?[index].title??"",
-                          dueDate: filteredAssignment?[index].dueDate??"",
-                          onPressed: (){}
-                      ):SizedBox();
-                    },
+                  SizedBox(height: 50,),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: assignments?.length??0,
+                      itemBuilder: (context, index) {
+                        return AssignmentList(
+                            title: assignments?[index].title??"",
+                            dueDate: HelperMethods.formatDate(assignments?[index].dueDate),
+                            onTap: (){},
+                            onDelete: (){}
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
-            )
+                ],
+              )
+            ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),

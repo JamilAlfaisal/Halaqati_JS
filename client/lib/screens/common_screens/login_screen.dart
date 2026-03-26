@@ -50,11 +50,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     if (userData != null) {
       await ref.read(tokenProvider.notifier).login(userData['token']);
-      // 🎉 Success!
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login Successful!')),
       );
-      // print("Login Screen: ");
 
       if (userData['role'] == 'teacher'){
         final Teacher teacher = Teacher.fromJson(userData['user']);
@@ -65,7 +63,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ref.read(studentProvider.notifier).setStudent(student);
         Navigator.of(context).pushNamed("/dashboard_app_bar");
       }
-      // Navigator.of(context).pushNamed("/root_screen");
     } else {
       // 🛑 Failure
       ScaffoldMessenger.of(context).showSnackBar(

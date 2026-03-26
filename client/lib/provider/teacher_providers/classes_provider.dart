@@ -2,20 +2,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
 import 'package:halqati/provider/api_service_provider.dart';
-import 'package:halqati/models/halaqa_class.dart';
+import 'package:halqati/models/class_model.dart';
 import 'package:halqati/provider/teacher_providers/profile_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
 
 
-final classesProvider = AsyncNotifierProvider<ClassesNotifier, List<HalaqaClass>?>(ClassesNotifier.new);
+final classesProvider = AsyncNotifierProvider<ClassesNotifier, List<ClassModel>?>(ClassesNotifier.new);
 
 
-class ClassesNotifier extends AsyncNotifier<List<HalaqaClass>?> {
+class ClassesNotifier extends AsyncNotifier<List<ClassModel>?> {
   @override
-  Future<List<HalaqaClass>?> build() async {
+  Future<List<ClassModel>?> build() async {
     final tokenAsync = ref.watch(tokenProvider);
 
-    // Wait for token to load
     if (tokenAsync.isLoading) {
       throw Exception('Token loading');
     }
@@ -23,13 +22,11 @@ class ClassesNotifier extends AsyncNotifier<List<HalaqaClass>?> {
     final token = tokenAsync.value;
     print("token class provider build: $token");
     if (token == null  || token.isEmpty) {
-      // throw UnauthorizedException();
       print("No token found, returning empty state to stop loop.");
       return [];
     }
 
     try {
-      print("try to get classes");
       return await ref.read(apiServiceProvider).getClasses(token);
     } catch (e) {
       print("error catched $e");
@@ -48,10 +45,10 @@ class ClassesNotifier extends AsyncNotifier<List<HalaqaClass>?> {
     {
       required String name,
       String description = "",
-      int capacity = 20,
       String roomNumber = "",
-      required List<String> scheduleDays,
-      required String scheduleTime
+      required List<int> scheduleDays,
+      required String startTime,
+      required String endTime,
     }
   ) async {
     final tokenAsync = ref.read(tokenProvider);
@@ -72,10 +69,10 @@ class ClassesNotifier extends AsyncNotifier<List<HalaqaClass>?> {
             token: token,
             name: name,
             description: description,
-            capacity: capacity,
             roomNumber: roomNumber,
             scheduleDays: scheduleDays,
-            scheduleTime: scheduleTime
+            startTime: startTime,
+            endTime: endTime,
         );
         ref.invalidateSelf();
     } catch(e){
@@ -84,6 +81,31 @@ class ClassesNotifier extends AsyncNotifier<List<HalaqaClass>?> {
         print('Clearing token due to auth/API error');
         await AuthHelper.handleLogout(ref);
         // ref.invalidate(authProvider);
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> deleteClass() async {
+    final tokenAsync = ref.read(tokenProvider);
+    final String classId = ref.watch(selectedClassIdProvider)??"0";
+
+    if (tokenAsync.isLoading) throw Exception('Token loading');
+
+    final token = tokenAsync.value;
+    if (token == null) throw UnauthorizedException();
+
+    try {
+      await ref.read(apiServiceProvider).deleteClass(token, classId);
+
+      if (state.hasValue) {
+        final updatedList = state.value?.where((item) => item.id != classId).toList();
+        state = AsyncData(updatedList);
+      }
+
+    } catch (e) {
+      if (e is UnauthorizedException) {
+        await AuthHelper.handleLogout(ref);
       }
       rethrow;
     }
@@ -99,7 +121,7 @@ final teacherStatsProvider = Provider((ref) {
 
       int classCount = classes.length;
       // Sum up students across all classes
-      int studentCount = classes.fold(0, (sum, item) => sum + (item.studentCount));
+      int studentCount = classes.fold(0, (sum, item) => sum + (item.studentCount()));
 
       return {
         'classCount': classCount,
@@ -111,11 +133,11 @@ final teacherStatsProvider = Provider((ref) {
 });
 
 
-class SelectedClassIdNotifier extends Notifier<int?> {
+class SelectedClassIdNotifier extends Notifier<String?> {
   @override
-  int? build() => null;
+  String build() => "0";
 
-  void select(int id) {
+  void select(String id) {
     state = id;
   }
 
@@ -124,19 +146,19 @@ class SelectedClassIdNotifier extends Notifier<int?> {
   }
 }
 
-final selectedClassIdProvider = NotifierProvider<SelectedClassIdNotifier, int?>(
+final selectedClassIdProvider = NotifierProvider<SelectedClassIdNotifier, String?>(
   SelectedClassIdNotifier.new,
 );
 
 
 final classDetailsProvider =
-AsyncNotifierProvider<ClassDetailsNotifier, HalaqaClass?>(
+AsyncNotifierProvider<ClassDetailsNotifier, ClassModel?>(
   ClassDetailsNotifier.new,
 );
 
-class ClassDetailsNotifier extends AsyncNotifier<HalaqaClass?> {
+class ClassDetailsNotifier extends AsyncNotifier<ClassModel?> {
   @override
-  Future<HalaqaClass?> build() async {
+  Future<ClassModel?> build() async {
     final classId = ref.watch(selectedClassIdProvider);
     if (classId == null) return null;
 
@@ -150,10 +172,10 @@ class ClassDetailsNotifier extends AsyncNotifier<HalaqaClass?> {
       {
         required String name, // Replace with form controller values
         String description = "",
-        int capacity = 20,
         String roomNumber = "",
-        required List<String> scheduleDays,
-        required String scheduleTime
+        required List<int> scheduleDays,
+        required String startTime,
+        required String endTime,
       }
       ) async {
     state = const AsyncLoading();
@@ -167,14 +189,14 @@ class ClassDetailsNotifier extends AsyncNotifier<HalaqaClass?> {
       if (token == null) return null;
       try{
         await ref.read(apiServiceProvider).updateClasses(
-            token: token,
-            name: name,
-            description: description,
-            capacity: capacity,
-            roomNumber: roomNumber,
-            scheduleDays: scheduleDays,
-            scheduleTime: scheduleTime,
-            id: classId
+          token: token,
+          name: name,
+          description: description,
+          roomNumber: roomNumber,
+          scheduleDays: scheduleDays,
+          startTime: startTime,
+          endTime: endTime,
+          id: classId
         );
 
         return await ref.read(apiServiceProvider).getClass(token, classId);

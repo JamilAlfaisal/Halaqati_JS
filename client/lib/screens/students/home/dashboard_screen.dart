@@ -5,7 +5,7 @@ import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/teacher.dart';
 import 'package:halqati/provider/student_providers/student_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
-import 'package:halqati/models/halaqa_class.dart';
+import 'package:halqati/models/class_model.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -41,9 +41,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             asyncStudentDashboard.when(
               data: (student){
-                final HalaqaClass halaqaClass = student?.halaqaClass??HalaqaClass(name: "", id: 0);
-                final Teacher teacher = student?.teacher ?? Teacher();
-                final assignmentCount = student?.assignmentClass?.length??0;
+                // final ClassModel halaqaClass = student?.ClassModel??ClassModel(name: "", id: "", description: '', location: '', startTime: '', endTime: '', days: [], students: [], events: [], assignments: [], attendanceRecords: []);
+                // final Teacher teacher = student?.teacher ?? Teacher();
+                // final assignmentCount = student?.assignmentClass?.length??0;
                 if (student == null) {
                   return RefreshIndicator(
                     onRefresh: () async {
@@ -80,7 +80,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         SizedBox(height: 10,),
                         // ClassInfo(classInfo: student.halaqaClass,),
                         Text(
-                          "${halaqaClass.name}",
+                          // "${halaqaClass.name}",
+                          "n/a",
                           style: Theme.of(context).textTheme.bodyLarge,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -92,11 +93,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               spacing: 2,
                               children: [
                                 Text(
-                                  "${teacher.name}",
+                                  // "${teacher.name}",
+                                  "n/a",
                                   style: Theme.of(context).textTheme.titleSmall,
                                 ),
                                 Text(
-                                  "${halaqaClass.time}",
+                                  // "${halaqaClass.time}",
+                                  "n/a",
                                   style: Theme.of(context).textTheme.titleSmall,
                                 ),
                               ],
@@ -130,7 +133,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   style: Theme.of(context).textTheme.bodyLarge,
                                 ),
                                 Text(
-                                  "${'dashboard_screen.assignment_count'.tr()}: $assignmentCount",
+                                  // "${'dashboard_screen.assignment_count'.tr()}: $assignmentCount",
+                                  "n/a",
                                   style: Theme.of(context).textTheme.titleSmall,
                                 ),
                               ],

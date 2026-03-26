@@ -17,7 +17,7 @@ class ProfileScreen extends ConsumerWidget {
     final Student? student = asyncStudent.value;
     final isLoading = asyncStudent.isLoading;
     final List<int> pages = List.generate(604, (index) => index + 1);
-    print(student?.dateOfBirth);
+    // print(student?.dateOfBirth);
 
     String displayDate(String? date){
       if (date == "" || date == null){
@@ -36,7 +36,18 @@ class ProfileScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             StudentProfileLeft(
-              student: student??Student(),
+              student: student??Student(
+                id: '',
+                name: '',
+                email: '',
+                role: '',
+                dob: DateTime(2017, 9, 7, 17, 30),
+                createdAt: DateTime(2017, 9, 7, 17, 30),
+                picProfile: '',
+                phone: '',
+                memorizedJuz: [],
+                enrolledClasses: []
+              ),
             ),
             SizedBox(height: 20,),
             Expanded(
@@ -61,7 +72,7 @@ class ProfileScreen extends ConsumerWidget {
                   SizedBox(height: 5,),
                   Text(
                     isLoading?"Loading...":
-                    "${"student_profile_screen.dob".tr()}: ${displayDate(student?.dateOfBirth)}",
+                    "${"student_profile_screen.dob".tr()}: ${displayDate(student?.dob as String?)}",
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   SizedBox(height: 20,),

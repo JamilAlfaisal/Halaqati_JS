@@ -10,6 +10,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/widgets/lists/student_list.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
+import 'package:halqati/widgets/textfields/text_phone.dart';
 
 class StudentScreen extends ConsumerStatefulWidget {
   const StudentScreen({super.key});
@@ -27,25 +28,24 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
   @override
   Widget build(BuildContext context) {
     final asyncStudents = ref.watch(studentsProvider);
-    final classId = ref.watch(selectedClassIdProvider);
-
     return Scaffold(
-      floatingActionButton: FloatingButtonIcon(text: "halaqah_screen.students.add_student".tr(), onPressed: (){}),
+      floatingActionButton: FloatingButtonIcon(
+        text: "halaqah_screen.students.add_student".tr(),
+        onPressed: (){
+          _showAddStudentSheet(context, ref);
+        }
+      ),
       appBar: AppbarWithButton(addBackButton: true, text: "Text",),
       body: asyncStudents.when(
           data: (studentList){
-            if(studentList != null){
-              students = studentList.where((student) => student.classId == classId).toList();
-            }else{
-              students = [];
-            }
+            students = studentList??[];
             return RefreshIndicator(
               onRefresh: () async {
                 final freshStudents = await ref.refresh(studentsProvider.future);
 
                 setState(() {
                   if (freshStudents != null) {
-                    students = freshStudents.where((s) => s.classId == classId).toList();
+                    students = studentList??[];
                     searchedStudents = students;
                   }
                   search.clear();
@@ -65,7 +65,7 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
                             searchedStudents = students;
                           }else{
                             final List<Student> filtered = students.where((student){
-                              return student.name != null && student.name!.toLowerCase().trim().contains(
+                              return student.name != null && student.name.toLowerCase().trim().contains(
                                   search.text.toLowerCase().trim());
                             }).toList();
                             searchedStudents = filtered;
@@ -80,9 +80,9 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
                           itemBuilder: (context, index){
                             return StudentList(
                                 name: searchedStudents[index].name ?? "Name not found",
-                                totalPagesMemorized: searchedStudents[index].memorizedPages?.length ?? 0,
+                                totalPagesMemorized: searchedStudents[index].memorizedJuz?.length ?? 0,
                                 onTap: (){
-                                  ref.watch(selectedStudentIdProvider.notifier).select(searchedStudents[index].id??0);
+                                  ref.watch(selectedStudentIdProvider.notifier).select(searchedStudents[index].id??"0");
                                   Navigator.of(context).pushNamed('/student_bottom_appbar');
                                 }
                             );
@@ -140,3 +140,69 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
   }
 }
 
+void _showAddStudentSheet(BuildContext context, WidgetRef ref) {
+  final TextEditingController phoneController = TextEditingController();
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          left: 20,
+          right: 20,
+          top: 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Add Student".tr(),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 15),
+            TextPhone(
+              hintText: "enter student phone number",
+              textController: phoneController,
+              title: "student phone number"
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final phone = phoneController.text.trim();
+                  if (phone.isEmpty) return;
+
+                  try {
+                    await ref.read(studentsProvider.notifier).addStudent(phone);
+
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Student added successfully')),
+                      );
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+                    );
+                  }
+                },
+                child: Text("create".tr()),
+              ),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).padding.bottom,
+            )
+          ],
+        ),
+      );
+    },
+  );
+}

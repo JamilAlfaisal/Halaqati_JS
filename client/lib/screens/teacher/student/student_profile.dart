@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
+import 'package:halqati/widgets/appbar/appbar_rermove_student.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/page_number.dart';
 import 'package:halqati/widgets/cards/user_details.dart';
@@ -20,30 +21,44 @@ class StudentProfile extends ConsumerStatefulWidget {
 }
 
 class _StudentProfileState extends ConsumerState<StudentProfile> {
-  final List<int> pages = List.generate(604, (index) => index + 1);
+  final List<int> pages = List.generate(30, (index) => index + 1);
 
   @override
   Widget build(BuildContext context) {
     final studentsAsync = ref.watch(studentsProvider);
-    final int ?studentId = ref.watch(selectedStudentIdProvider)??0;
-
+    final String studentId = ref.watch(selectedStudentIdProvider)??"0";
+    late final studentPhoneNumber;
     return Scaffold(
-      appBar: AppbarWithButton(
+      appBar: AppbarRemoveStudent(
         text: "student_bottom_appbar.student_profile".tr(),
+        onPress: (){
+          ref.read(studentsProvider.notifier).removeStudent(studentPhoneNumber);
+          Navigator.of(context).pop();
+        },
         addBackButton: true,
       ),
       body: studentsAsync.when(
           data: (students){
-
             final Student student = students!.firstWhere(
-                  (s) => s.id == studentId,
-              orElse: () => new Student(), // Returns null if no match is found
+              (s) => s.id == studentId,
+              orElse: () => new Student(
+                id: '',
+                name: '',
+                email: '',
+                role: '',
+                dob: DateTime(2017, 9, 7, 17, 30),
+                createdAt: DateTime(2017, 9, 7, 17, 30),
+                picProfile: '',
+                phone: '',
+                memorizedJuz: [],
+                enrolledClasses: []
+              ),
             );
-
+            List<String> memorizedJuz = student.memorizedJuz;
+            studentPhoneNumber = student.phone;
             return  Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
               child: ListView(
-                // crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   StudentProfileLeft(student: student,),
                   SizedBox(height: 20,),
@@ -55,31 +70,44 @@ class _StudentProfileState extends ConsumerState<StudentProfile> {
                   UserDetails(
                     email: student.email??"teacher_profile.no_email".tr(),
                     phone: student.phone??"student_bottom_appbar.profile.no_phone".tr(),
-                    dob: student.dateOfBirth,
+                    dob: student.dob,
                   ),
                   SizedBox(height: 20,),
                   Text(
                     "student_bottom_appbar.profile.memorized_pages".tr(),
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
+                  SizedBox(height: 20,),
                   SizedBox(
-                    height: 250,
+                    height: 200,
                     child: GridView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: pages.length,
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 5,       // Number of columns (e.g., 4 page numbers per row)
-                          crossAxisSpacing: 10,    // Horizontal space between items
-                          mainAxisSpacing: 10,     // Vertical space between items
-                          childAspectRatio: 1,     // Makes the items square
-                        ),
-                        itemBuilder: (context, index){
-                          return PageNumber(
-                              onPressed: (){},
-                              num: pages[index],
-                              selected: false
-                          );
-                        }
+                      scrollDirection: Axis.horizontal,
+                      itemCount: pages.length,
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                        crossAxisSpacing: 5,
+                        mainAxisSpacing:5,
+                        childAspectRatio: 1.1,
+                      ),
+                      itemBuilder: (context, index){
+                        return PageNumber(
+                          onPressed: (){
+                            setState(() {
+                              if (memorizedJuz.contains(pages[index].toString())){
+                                memorizedJuz.remove(pages[index].toString());
+                              }else{
+                                memorizedJuz.add(pages[index].toString());
+                              }
+                            });
+                            ref.watch(studentsProvider.notifier).updateMemorizedJuz(
+                              studentId: student.id,
+                              newJuzList: memorizedJuz
+                            );
+                          },
+                          num: pages[index],
+                          selected: memorizedJuz.contains(pages[index].toString()),
+                        );
+                      }
                     ),
                   ),
                 ],

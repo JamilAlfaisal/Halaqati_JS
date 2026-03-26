@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
-import 'package:halqati/models/assignment_class.dart';
-import 'package:halqati/models/halaqa_class.dart';
+import 'package:halqati/models/class_model.dart';
 import 'package:halqati/models/teacher.dart';
 import 'package:halqati/provider/student_providers/selected_assignment_notifier.dart';
 import 'package:halqati/provider/student_providers/student_provider.dart';
@@ -72,10 +71,11 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
             ),
             asyncStudentDashboard.when(
               data: (student){
-                final HalaqaClass halaqaClass = student?.halaqaClass??HalaqaClass(name: "", id: 0);
-                final Teacher teacher = student?.teacher ?? Teacher();
-                final List<AssignmentClass> assignmentClass = student?.assignmentClass??[];
-                final assignmentCount = student?.assignmentClass?.length??0;
+                // final HalaqaClass halaqaClass = student?.halaqaClass??HalaqaClass(name: "", id: 0);
+                // final Teacher teacher = student?.teacher ?? Teacher();
+                // final List<AssignmentClass> assignmentClass = student?.assignmentClass??[];
+                // final assignmentCount = student?.assignmentClass?.length??0;
+                final assignmentCount = 0;
                 if (student == null || assignmentCount == 0) {
                   return Expanded(
                     child: RefreshIndicator(
@@ -107,21 +107,22 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                     },
                     child: ListView.builder(
                       padding: EdgeInsets.symmetric(vertical: 10),
-                      itemCount: assignmentClass.length,
+                      // itemCount: assignmentClass.length,
+                      itemCount: 0,
                       itemBuilder: (context, index){
                         return GestureDetector(
                           onTap: (){
-                            selectAssignment.select(assignmentClass[index].id??0);
+                            // selectAssignment.select(assignmentClass[index].id??0);
                             Navigator.of(context).pushNamed("/event_details_screen");
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5),
-                            child: EventsList(
-                              title: assignmentClass[index].title??"",
-                              date: displayDate(assignmentClass[index].dueDate),
-                              description: assignmentClass[index].description??"",
-                              isComplete: assignmentClass[index].isCompleted??false,
-                            ),
+                            // child: EventsList(
+                            //   title: assignmentClass[index].title??"",
+                            //   date: displayDate(assignmentClass[index].dueDate),
+                            //   description: assignmentClass[index].description??"",
+                            //   isComplete: assignmentClass[index].isCompleted??false,
+                            // ),
                           ),
                         );
                       },

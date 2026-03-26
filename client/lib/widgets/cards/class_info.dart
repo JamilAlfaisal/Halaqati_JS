@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:halqati/models/halaqa_class.dart';
+import 'package:halqati/models/class_model.dart';
 import 'package:halqati/models/student.dart';
 
 class ClassInfo extends StatelessWidget {
-  final HalaqaClass? classInfo;
+  final ClassModel? classInfo;
   const ClassInfo({super.key, required this.classInfo});
 
   @override
@@ -20,11 +20,11 @@ class ClassInfo extends StatelessWidget {
     };
 
     final String className = classInfo?.name??"not_defined".tr();
-    final int studentCount = classInfo?.studentCount??0;
-    final String time = classInfo?.time??"not_defined".tr();
-    final String location = classInfo?.roomNumber??"not_defined".tr();
+    final int studentCount = classInfo?.studentCount()??0;
+    final String time = classInfo?.startTime??"not_defined".tr();
+    final String location = classInfo?.location??"not_defined".tr();
     final List<String> days = classInfo?.days ??[];
-    final int capacity = classInfo?.capacity??0;
+    final int capacity = 0;
 
     late final List<String> localDays;
     late final List<String> startEndTime;

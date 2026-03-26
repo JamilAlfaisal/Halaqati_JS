@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
+import 'package:halqati/widgets/appbar/appbar_delete_button.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
 import 'package:halqati/widgets/buttons/verse_number.dart';
@@ -11,7 +12,7 @@ import 'package:halqati/widgets/textfields/text_area.dart';
 import 'package:halqati/widgets/textfields/text_field_normal.dart';
 import 'package:halqati/widgets/textfields/text_field_time.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
-import 'package:halqati/models/halaqa_class.dart';
+import 'package:halqati/models/class_model.dart';
 
 class HalaqahScreen extends ConsumerStatefulWidget {
 
@@ -29,10 +30,14 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
   TextEditingController cap = TextEditingController();
   TextEditingController startTime = TextEditingController();
   TextEditingController endTime = TextEditingController();
-  List<String> days = [];
+  List<int> days = [];
   final _formKey = GlobalKey<FormState>();
 
   List<Map<String, dynamic>> weekDaysData = [
+    {
+      'day': 'add_halaqah_screen.Sunday'.tr(),
+      'selected': false,
+    },
     {
       'day': 'add_halaqah_screen.Monday'.tr(),
       'selected': false,
@@ -57,11 +62,18 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
       'day': 'add_halaqah_screen.Saturday'.tr(),
       'selected': false,
     },
-    {
-      'day': 'add_halaqah_screen.Sunday'.tr(),
-      'selected': false,
-    },
   ];
+
+  final List<Map<int, String>> daysObject = [
+    {1: "weekdays.1".tr()},
+    {2: "weekdays.2".tr()},
+    {3: "weekdays.3".tr()},
+    {4: "weekdays.4".tr()},
+    {5: "weekdays.5".tr()},
+    {6: "weekdays.6".tr()},
+    {7: "weekdays.7".tr()},
+  ];
+
   Map<String, String> enDays = {
     "الاثنين":"Monday",
     "الثلاثاء":"Tuesday",
@@ -86,10 +98,10 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
       await ref.read(classDetailsProvider.notifier).updateHalaqah(
         name: name.text,
         description: des.text,
-        capacity: int.tryParse(cap.text) ?? 20,
         roomNumber: loc.text,
         scheduleDays: days, // Your list of strings
-        scheduleTime: '${startTime.text}-${endTime.text}',
+        startTime: startTime.text,
+        endTime: endTime.text,
       );
 
       // 2. Handle the result
@@ -104,9 +116,13 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
 
 
     return Scaffold(
-      appBar: AppbarWithButton(
+      appBar: AppbarDeleteButton(
         text: "halaqah_screen.halaqah.details".tr(),
         addBackButton: true,
+        onPress: (){
+          ref.watch(classesProvider.notifier).deleteClass();
+          Navigator.of(context).pop();
+        },
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
@@ -114,32 +130,19 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
             data: (halaqa) {
               if (!_initialized && halaqa != null) {
                 _initialized = true;
-                final List<String> start_end_time =
-                    halaqa.time != null?halaqa.time!.split('-'):["", ""];
 
-                name.text = halaqa.name ?? '';
-                des.text = halaqa.description ?? '';
-                loc.text = halaqa.roomNumber ?? '';
-                cap.text = halaqa.capacity.toString();
-                startTime.text = start_end_time[0];
-                endTime.text = start_end_time[1];
 
-                if (halaqa.days != null){
-                  if(Localizations.localeOf(context).languageCode == 'en'){
-                    weekDaysData.forEach((day){
-                      print(day);
-                      if(halaqa.days!.contains(day['day'])){
-                        day['selected'] = true;
-                      }
-                    });
-                  }else{
-                    weekDaysData.forEach((day){
-                      if(halaqa.days!.contains(enDays[day['day']])){
-                        day['selected'] = true;
-                      }
-                    });
-                  }
-                }
+                name.text = halaqa.name;
+                des.text = halaqa.description;
+                loc.text = halaqa.location;
+                startTime.text = halaqa.startTime;
+                endTime.text = halaqa.endTime;
+
+
+                halaqa.days.forEach((day){
+                  weekDaysData[int.parse(day)-1]['selected'] = true;
+                });
+
               }
               return SingleChildScrollView(
                 child: Form(
@@ -186,23 +189,10 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
                                           setState(() {
                                             weekDaysData[index]["selected"] =
                                             !weekDaysData[index]["selected"];
-                                            if (weekDaysData[index]["selected"] &&
-                                                context.locale.languageCode == 'en') {
-                                              days.add(weekDaysData[index]["day"]);
-                                            } else
-                                            if (weekDaysData[index]["selected"] &&
-                                                context.locale.languageCode == 'ar') {
-                                              days.add(
-                                                  enDays[weekDaysData[index]["day"]] ??
-                                                      "الاثنين");
-                                            } else
-                                            if (!weekDaysData[index]["selected"] &&
-                                                context.locale.languageCode == 'ar') {
-                                              days.remove(
-                                                  enDays[weekDaysData[index]["day"]] ??
-                                                      "الاثنين");
-                                            } else {
-                                              days.remove(weekDaysData[index]["day"]);
+                                            if (weekDaysData[index]["selected"]){
+                                              days.add(index+1);
+                                            }else{
+                                              days.remove(index+1);
                                             }
                                           });
                                         },
@@ -214,8 +204,6 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
                           ),
                         ],
                       ),
-                      NumTextField(textController: cap,
-                        title: "add_halaqah_screen.capacity".tr(),),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.end,
