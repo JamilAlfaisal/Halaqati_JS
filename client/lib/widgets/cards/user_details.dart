@@ -1,10 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:halqati/utils/helper_methods.dart';
 
 class UserDetails extends StatelessWidget {
   final String email;
   final String phone;
-  final String? dob;
+  final DateTime? dob;
   const UserDetails({
     super.key,
     required this.phone,
@@ -15,14 +16,6 @@ class UserDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    String getDOB(String ?date){
-
-      if(date == null){
-        return "teacher_profile.no_DOB".tr();
-      }else{
-        return date.split('T')[0];
-      }
-    }
 
 
     return Container(
@@ -66,7 +59,7 @@ class UserDetails extends StatelessWidget {
             children: [
               Icon(Icons.date_range_sharp, size: 20,),
               Text(
-                getDOB(dob),
+                HelperMethods.formatDate(dob),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],

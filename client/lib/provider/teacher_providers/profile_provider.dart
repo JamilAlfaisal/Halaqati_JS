@@ -8,6 +8,7 @@ import 'package:halqati/models/teacher.dart';
 import 'package:halqati/provider/teacher_providers/teacher_provider.dart';
 import 'package:halqati/provider/teacher_providers/student_provider.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
+import 'package:halqati/test/printJson.dart';
 // lib/providers/auth_provider.dart
 
 final authProvider = AsyncNotifierProvider<AuthNotifier, AuthUser?>(AuthNotifier.new);
@@ -24,12 +25,11 @@ class AuthNotifier extends AsyncNotifier<AuthUser?> {
 
     try {
       final profileData = await ref.read(apiServiceProvider).getProfile(token);
-      print('profile data downloaded successfully: $profileData');
-
+      // print('profile data downloaded successfully: $profileData');
       if (profileData == null) return null;
-
-      if (profileData['role'] == 'teacher') {
+      if (profileData['user']['role'] == 'teacher') {
         final teacher = Teacher.fromJson(profileData['user']);
+        print(teacher);
         ref.read(teacherProvider.notifier).setTeacher(teacher);
         return AuthTeacher(teacher);
       } else {

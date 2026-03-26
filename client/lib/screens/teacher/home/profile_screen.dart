@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:halqati/models/halaqa_class.dart';
+import 'package:halqati/models/class_model.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,7 +50,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               UserDetails(
                 phone: teacher?.phone??"teacher_profile.no_phoneno_phone".tr(),
                 email: teacher?.email??"teacher_profile.no_email".tr(),
-                dob: teacher?.dateOfBirth
+                dob: teacher!.dob,
               ),
               SizedBox(height: 20,),
               Text(

@@ -9,6 +9,7 @@ class PageNumber extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: onPressed,
       child: Container(
         alignment: AlignmentGeometry.center,
         decoration: BoxDecoration(

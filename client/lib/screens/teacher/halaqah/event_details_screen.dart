@@ -1,0 +1,157 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:halqati/core/exceptions/api_exceptions.dart';
+import 'package:halqati/provider/teacher_providers/events_provider.dart';
+import 'package:halqati/utils/helper_methods.dart';
+import 'package:halqati/widgets/appbar/appbar_with_button.dart';
+import 'package:halqati/widgets/buttons/elevated_dark.dart';
+import 'package:halqati/widgets/textfields/custome_date_picker.dart';
+import 'package:halqati/widgets/textfields/text_area.dart';
+import 'package:halqati/widgets/textfields/text_field_normal.dart';
+
+class EventDetailsScreen extends ConsumerStatefulWidget {
+  const EventDetailsScreen({super.key});
+
+  @override
+  ConsumerState<EventDetailsScreen> createState() => _EventDetailsScreenState();
+}
+
+class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
+  TextEditingController title = TextEditingController();
+  TextEditingController des = TextEditingController();
+  TextEditingController date = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  bool _initialized = false;
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    final asyncEvent = ref.watch(eventDetailsProvider);
+
+    void updateEvent() async {
+
+      await ref.read(eventDetailsProvider.notifier).updateEventDetails(
+        title: title.text,
+        description: des.text,
+        dueDate: date.text,
+      );
+      final state = ref.read(eventDetailsProvider);
+
+      if (state.hasError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update event: ${state.error}'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      } else {
+        ref.read(eventProvider.notifier).updateEvent(
+          id: asyncEvent.value?.id??"0", title: title.text, description: des.text, dueDate: HelperMethods.parseDate(date.text)
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Event updated successfully!')),
+        );
+        Navigator.pop(context);
+      }
+    }
+
+    bool ability = true;
+
+    return Scaffold(
+      appBar: AppbarWithButton(
+          text: "event_details_screen.event_details".tr(),
+          addBackButton: true
+      ),
+      body: asyncEvent.when(
+        data: (event){
+          if (!_initialized && event != null) {
+            print("event details screen renders are being watched");
+            _initialized = true;
+            print(event.title);
+            des.text = event.description;
+            title.text = event.title;
+            date.text = HelperMethods.formatDate(event.dueDate);
+          }
+
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              _initialized = false;
+              ref.invalidate(eventDetailsProvider);
+              await ref.refresh(eventDetailsProvider.future);
+            },
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).padding.bottom,
+                  right: 20,
+                  left: 20,
+                  top: 20
+                ),
+                children: [
+                  TextFieldNormal(
+                      hintText: "student_bottom_appbar.add_halaqah_screen.assignment_title".tr(),
+                      textController: title,
+                      title: "student_bottom_appbar.add_halaqah_screen.assignment_title".tr()
+                  ),
+                  TextArea(
+                      textController: des,
+                      title: "student_bottom_appbar.add_halaqah_screen.description".tr()
+                  ),
+                  SizedBox(height: 20,),
+                  CustomDatePicker(
+                    label: "Due Date",
+                    onDateSelected: (selectedDate){
+                      setState(() {
+                        date.text = HelperMethods.formatDate(selectedDate);
+                      });
+                    },
+                    selectedDate: HelperMethods.parseDate(date.text),
+                  ),
+                  SizedBox(height: 20,),
+                  ElevatedDark(
+                    onPressed: () {
+                      updateEvent();
+                    },
+                    text: "add_halaqah_screen.update".tr(),
+                    ability: ability,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, stack) {
+          print("error in the event screen: ${e}");
+          if (e is UnauthorizedException) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Error loading events",
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () async{
+                    ref.invalidate(eventProvider);
+                    await ref.refresh(eventProvider.future);
+                  },
+                  child: Text("home_screen.retry".tr()),
+                ),
+              ],
+            ),
+          );
+        },
+      )
+    );
+  }
+}

@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:halqati/models/teacher.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:shimmer/shimmer.dart';
 
 class TeacherProfile extends StatelessWidget {
   final Teacher? teacher;
@@ -19,13 +21,39 @@ class TeacherProfile extends StatelessWidget {
       child: Row(
         spacing: 10,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(50),
-            child: Image.asset(
-              'assets/images/profile.png',
-              fit: BoxFit.cover,
-              width: 100,
-              height: 100,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: CachedNetworkImage(
+                  imageUrl: (teacher?.picProfile)??"",
+                  height: 100,
+                  width: 100,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(color: Colors.white),
+                  ),
+                  errorWidget: (context, url, error) {
+                    return Container(
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.broken_image, color: Colors.grey),
+                  );
+                  },
+                )
+              )
             ),
           ),
           Column(

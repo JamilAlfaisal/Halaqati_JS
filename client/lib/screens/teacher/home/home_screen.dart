@@ -7,7 +7,7 @@ import 'package:halqati/widgets/lists/halaqat_list.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/main.dart';
-import 'package:halqati/models/halaqa_class.dart';
+import 'package:halqati/models/class_model.dart';
 
 
 
@@ -132,10 +132,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RouteAware{
                       Navigator.of(context).pushNamed(
                         '/halaqah_bottom_bar',
                       );
-                      ref.read(selectedClassIdProvider.notifier).select(halaqat[index].id??0);
+                      ref.read(selectedClassIdProvider.notifier).select(halaqat[index].id);
                     },
                     title: halaqat[index].name!,
-                    studentNumber: halaqat[index].studentCount,
+                    studentNumber: halaqat[index].studentCount(),
                   );
                 },
               ),

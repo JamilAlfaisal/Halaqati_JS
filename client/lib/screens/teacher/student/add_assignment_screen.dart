@@ -4,12 +4,12 @@ import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
 import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
+import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/textfields/text_field_normal.dart';
 import 'package:halqati/widgets/textfields/text_area.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:halqati/models/assignment_class.dart';
 
 class AddAssignmentScreen extends ConsumerStatefulWidget {
   const AddAssignmentScreen({super.key});
@@ -48,15 +48,15 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
     }
   }
 
-  List<int> pageNumbers = [];
+  List<String> pageNumbers = [];
   final TextEditingController _pageController = TextEditingController();
 
   void _addPage(String value) {
     final int? page = int.tryParse(value.trim());
     if (page != null && !pageNumbers.contains(page)) {
       setState(() {
-        pageNumbers.add(page);
-        _pageController.clear(); // Clear input for the next number
+        pageNumbers.add(page.toString());
+        _pageController.clear();
       });
     } else {
       _pageController.clear(); // Clear even if invalid
@@ -66,13 +66,14 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
   @override
   Widget build(BuildContext context) {
     final assignmentNotifier = ref.read(assignmentProvider.notifier);
-    final int ?studentId = ref.watch(selectedStudentIdProvider)??0;
+    final studentId = ref.watch(selectedStudentIdProvider);
 
     final List<Map<String, String>> dropdownItems = [
       {'value': 'revision', 'label': 'student_bottom_appbar.add_halaqah_screen.revision'.tr()},
       {'value': 'memorizing', 'label': 'student_bottom_appbar.add_halaqah_screen.memorization'.tr()},
       {'value': 'reading', 'label': 'student_bottom_appbar.add_halaqah_screen.reading'.tr()},
     ];
+
     void handleCreateAssignment() async {
       if(selectedDate == null){
         ScaffoldMessenger.of(context).showSnackBar(
@@ -96,14 +97,12 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
       try{
         print(dateText);
         await assignmentNotifier.createAssignment(
-          AssignmentClass(
-            title: title.text,
-            description: des.text,
-            assignedDate: dateText,
-            pages: pageNumbers,
-            studentId: studentId,
-            type: selectedValue
-          )
+          title: title.text,
+          description: des.text,
+          pages: pageNumbers,
+          type: selectedValue??"",
+          studentsIds: [studentId??""],
+          dueDate: HelperMethods.formatDate(selectedDate)
         );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -159,6 +158,8 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
         }
       }
     }
+
+
     return Scaffold(
       appBar: AppbarWithButton(
         text: "student_bottom_appbar.add_halaqah_screen.title".tr(),

@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
-import 'package:halqati/models/halaqa_class.dart';
+import 'package:halqati/models/class_model.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/models/teacher.dart';
 import 'package:halqati/provider/student_providers/student_provider.dart';
@@ -25,10 +25,10 @@ class HalaqaDetailsScreen extends ConsumerWidget {
       ),
       body: asyncStudentDashboard.when(
         data: (student){
-          final HalaqaClass halaqaClass = student?.halaqaClass??HalaqaClass(name: "", id: 0);
-          final Teacher teacher = student?.teacher ?? Teacher();
-          final assignmentCount = student?.assignmentClass?.length??0;
-          final List<String> days = halaqaClass.days??[];
+          // final HalaqaClass halaqaClass = student?.halaqaClass??HalaqaClass(name: "", id: 0);
+          // final Teacher teacher = student?.teacher ?? Teacher();
+          // final assignmentCount = student?.assignmentClass?.length??0;
+          // final List<String> days = halaqaClass.days??[];
           // print(days);
           if(student == null){
             return Center(
@@ -43,9 +43,9 @@ class HalaqaDetailsScreen extends ConsumerWidget {
             padding: EdgeInsets.symmetric(horizontal: 10),
             children: [
               HalaqahInfoCard(
-                description: halaqaClass.description??'not_defined'.tr(),
-                name: halaqaClass.name??'not_defined'.tr(),
-                capacity: halaqaClass.capacity??0,
+                description: 'not_defined'.tr(),
+                name: 'not_defined'.tr(),
+                capacity: 0,
               ),
               SizedBox(height: 20,),
               Text(
@@ -54,8 +54,8 @@ class HalaqaDetailsScreen extends ConsumerWidget {
               ),
               SizedBox(height: 5,),
               StudyTimeCard(
-                location: halaqaClass.roomNumber??'not_defined'.tr(),
-                hours: halaqaClass.time??'not_defined'.tr()
+                location: 'not_defined'.tr(),
+                hours: 'not_defined'.tr()
               ),
               SizedBox(height: 10),
               Text(
@@ -67,7 +67,7 @@ class HalaqaDetailsScreen extends ConsumerWidget {
                 spacing: 16.0,    // Gap between cards horizontally
                 runSpacing: 16.0, // Gap between lines vertically
                 alignment: WrapAlignment.start, // How to align cards in a row
-                children: days!=[]?days.map((day) {
+                children: false?[].map((day) {
                   return Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primary,
@@ -100,9 +100,9 @@ class HalaqaDetailsScreen extends ConsumerWidget {
               ),
               SizedBox(height: 10,),
               TeacherDetailsCard(
-                name: teacher.name??"not_defined".tr(),
-                email: teacher.email??"not_defined".tr(),
-                phone: teacher.phone??"not_defined".tr(),
+                name: "not_defined".tr(),
+                email: "not_defined".tr(),
+                phone: "not_defined".tr(),
               ),
             ],
           );

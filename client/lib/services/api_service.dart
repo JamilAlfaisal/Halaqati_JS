@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
-import 'package:halqati/models/assignment_class.dart';
+import 'package:halqati/models/assignment.dart';
+import 'package:halqati/models/event.dart';
 import 'package:http/http.dart' as http;
 import 'package:halqati/models/student.dart';
-import 'package:halqati/models/halaqa_class.dart';
+import 'package:halqati/models/class_model.dart';
 import 'package:halqati/test/printJson.dart';
 
 class ApiService {
@@ -13,64 +14,48 @@ class ApiService {
   // Android Emulator: 10.0.2.2
   // iOS Simulator: 127.0.0.1 (or localhost)
   // Physical Device (if on same network): Your PC's local IP (e.g., 192.168.1.10)
-  static const String _baseUrl = 'https://unnotional-jayme-gamophyllous.ngrok-free.dev/api';
+  static const String _baseUrl = 'http://localhost:3000/api';
 
   Future <Map<String, dynamic>?> login(String phone, String pin) async {
-    // print("this is the base url in the service page $_baseUrl");
-    final url = Uri.parse('$_baseUrl/auth/login');
+
+    final url = Uri.parse('$_baseUrl/auth/login/user');
 
     try {
       final response = await http.post(
         url,
-        // Crucial headers to tell Laravel to expect JSON data (Content-Type)
-        // and return a JSON response (Accept)
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        // Encode the Dart Map into a JSON String for the request body
         body: jsonEncode({
           'phone': phone,
-          'pin': pin,
+          'password': pin,
         }),
       );
 
+      print("statusCode: ${response.statusCode}");
       final responseBody = jsonDecode(response.body);
-
       if (response.statusCode == 200) {
-        // ✅ Successful Login
-        // final token = responseBody['token'] as String?;
-        // print('Login Success! Token: $token');
-        // print(responseBody);
         return responseBody;
 
       } else if (response.statusCode >= 400 && response.statusCode < 500) {
-        // ❌ Client Error (403 Unauthorized, 422 Validation)
-        // Check for specific error message structure from Laravel
         final message = responseBody['message'] ?? 'Authentication failed.';
         print('Login Failed: $message');
-
-        // You might want to extract and display validation errors here:
-        // final errors = responseBody['errors'];
-
         return null;
 
       } else {
-        // ❌ Server Error (5xx)
         print('Server Error: ${response.statusCode}');
         return null;
       }
 
     } catch (e) {
-      // ❌ Network/Connection Error
       print('Network connection failed or data invalid: $e');
       return null;
     }
   }
 
   Future<Map<String, dynamic>?> getProfile(String token) async {
-    final url = Uri.parse('$_baseUrl/auth/me');
-
+    final url = Uri.parse('$_baseUrl/auth/auth_me/user');
     try {
       print("profile method has been called");
       print("token: $token");
@@ -82,7 +67,7 @@ class ApiService {
           'Accept': 'application/json',
         },
       );
-
+      print("status code: ${response.statusCode}");
       // ✅ CHECK STATUS CODE FIRST!
       if (response.statusCode == 401) {
         print("Unauthorized - invalid token");
@@ -92,7 +77,7 @@ class ApiService {
       // ✅ Only decode JSON if status is success
       if (response.statusCode == 200) {
         final responseBody = jsonDecode(response.body);
-        print("Response: $responseBody");
+        printJson(responseBody, "auth me method");
         return responseBody;
       } else {
         // For other errors, try to decode or return raw body
@@ -167,24 +152,21 @@ class ApiService {
     required String token,
     required String name,
     required String description,
-    required int capacity,
     required String roomNumber,
-    required List<String> scheduleDays, // List of days
-    required String scheduleTime,       // Time string
+    required List<int> scheduleDays,
+    required String startTime,
+    required String endTime,
   }) async {
-    final url = Uri.parse(
-        '$_baseUrl/classes'); // Assuming your endpoint is /api/classes
+    final url = Uri.parse('$_baseUrl/class/create');
 
     // 1. Construct the complete request body Map
     final Map<String, dynamic> requestBody = {
       "name": name,
       "description": description,
-      "capacity": capacity,
-      "room_number": roomNumber,
-      "schedule": {
-        "days": scheduleDays,
-        "time": scheduleTime,
-      },
+      "location": roomNumber,
+      "startTime":startTime,
+      "endTime":endTime,
+      "days":scheduleDays,
     };
 
     try {
@@ -239,9 +221,8 @@ class ApiService {
     }
   }
 
-  Future<List<HalaqaClass>> getClasses(String token) async {
-    final url = Uri.parse('$_baseUrl/classes');
-    printString(token);
+  Future<List<ClassModel>> getClasses(String token) async {
+    final url = Uri.parse('$_baseUrl/class/get_teacher_classes');
     try {
       final response = await http.get(
         url,
@@ -251,18 +232,18 @@ class ApiService {
         },
       ).timeout(Duration(seconds: 10));
 
+
       if(response.statusCode == 401){
         throw UnauthorizedException();
       }
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        if (data != null && data is List) {
-          return data.map((json)
-          {
-            return HalaqaClass.fromJson(json["class"]);
-          }
+        if (data['classes'] != null && data['classes'] is List) {
+          List<ClassModel> listHalaqatiClass =  (data['classes'] as List).map((json)
+          => ClassModel.fromJson(json)
           ).toList();
+          return listHalaqatiClass;
         }
         return []; // Empty but valid response
       } else {
@@ -287,8 +268,8 @@ class ApiService {
     }
   }
 
-  Future<HalaqaClass> getClass(String token, int id) async {
-    final url = Uri.parse('$_baseUrl/classes/$id');
+  Future<ClassModel> getClass(String token, String id) async {
+    final url = Uri.parse('$_baseUrl/class/details/$id');
 
     try {
       final response = await http.get(
@@ -306,11 +287,21 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data != null) {
-          return HalaqaClass.fromJson(data['class']);
+          return ClassModel.fromJson(data['class']);
         }
-        return new HalaqaClass(
-          id: 0,
+        return new ClassModel(
+          id: "",
           name: "",
+          description: '',
+          location: '',
+          startTime: '',
+          endTime: '',
+          days: [],
+          students: [],
+          events: [],
+          assignments: [],
+          attendanceRecords: [],
+          teacherId: ""
         );
       } else {
         throw ApiException(
@@ -333,30 +324,59 @@ class ApiService {
     }
   }
 
+  Future<void> deleteClass(String token, String classId) async {
+    final url = Uri.parse('$_baseUrl/class/delete/$classId');
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 401) {
+        throw UnauthorizedException();
+      }
+      if (response.statusCode == 204 || response.statusCode == 200) {
+        print('Class $classId deleted successfully');
+        return;
+      }
+      final responseBody = jsonDecode(response.body);
+      throw ApiException(
+        responseBody['message'] ?? 'Failed to delete class',
+        statusCode: response.statusCode,
+      );
+    } on SocketException {
+      throw NetworkException();
+    } on TimeoutException {
+      throw NetworkException();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<bool> updateClasses({
     required String token,
     required String name,
     required String description,
-    required int capacity,
     required String roomNumber,
-    required List<String> scheduleDays,
-    required String scheduleTime,
-    required int id
+    required List<int> scheduleDays,
+    required String startTime,
+    required String endTime,
+    required String id
   }) async {
 
-    final url = Uri.parse(
-        '$_baseUrl/classes/$id');
+    final url = Uri.parse('$_baseUrl/class/update/$id');
 
-    // 1. Construct the complete request body Map
     final Map<String, dynamic> requestBody = {
       "name": name,
       "description": description,
-      "capacity": capacity,
-      "room_number": roomNumber,
-      "schedule": {
-        "days": scheduleDays,
-        "time": scheduleTime,
-      },
+      "location": roomNumber,
+      "startTime":startTime,
+      "endTime":endTime,
+      "days":scheduleDays
     };
 
     try {
@@ -410,8 +430,8 @@ class ApiService {
     }
   }
 
-  Future<List<Student>> getStudents(String token) async {
-    final url = Uri.parse('$_baseUrl/teacher/students');
+  Future<List<Student>> getStudents(String token,String classId) async {
+    final url = Uri.parse('$_baseUrl/student_class/get/$classId');
 
     try {
       final response = await http.get(
@@ -430,8 +450,9 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        if (data != null && data is List) {
-          return data.map((json) => Student.fromJson(json)).toList();
+        final students = data["students"]??[];
+        if (students != null && students is List) {
+          return students.map((json) => Student.fromJson(json)).toList();
         }
         return []; // Empty but valid response
       } else {
@@ -456,10 +477,135 @@ class ApiService {
     }
   }
 
-  Future<AssignmentClass> createAssignment (String token, AssignmentClass assignment)async{
-    final url = Uri.parse('$_baseUrl/assignments');
+  Future<bool> addStudentToClass({
+    required String token,
+    required String classId,
+    required String phone,
+  }) async {
+    // Matches your structure: {{base_url}}/student_class/add/{{class_id}}
+    final url = Uri.parse('$_baseUrl/student_class/add/$classId');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({"phone": phone}),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 201) {
+        return true;
+      } else if (response.statusCode == 401) {
+        throw UnauthorizedException();
+      } else if (response.statusCode == 404) {
+        throw ApiException('Class not found', statusCode: 404);
+      }
+
+      final responseBody = jsonDecode(response.body);
+      throw ApiException(
+        responseBody['message'] ?? 'Failed to add student',
+        statusCode: response.statusCode,
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> removeStudentFromClass({
+    required String token,
+    required String classId,
+    required String phone,
+  }) async {
+    final url = Uri.parse('$_baseUrl/student_class/remove/$classId');
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({"phone": phone}),
+      ).timeout(const Duration(seconds: 10));
+      print("response.statusCode: ${response.statusCode}");
+      if (response.statusCode == 204) {
+        return true;
+      } else if (response.statusCode == 401) {
+        throw UnauthorizedException();
+      }
+
+      final responseBody = jsonDecode(response.body);
+      throw ApiException(
+        responseBody['message'] ?? 'Failed to remove student',
+        statusCode: response.statusCode,
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> updateStudentJuz({
+    required String token,
+    required String studentId,
+    required List<String> juzList,
+  }) async {
+    final url = Uri.parse('$_baseUrl/update_student/juz/$studentId');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({
+          "memorized_juz": juzList,
+        }),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return true;
+      } else if (response.statusCode == 401) {
+        throw UnauthorizedException();
+      }
+
+      final responseBody = jsonDecode(response.body);
+      throw ApiException(
+        responseBody['message'] ?? 'Failed to update Juz',
+        statusCode: response.statusCode,
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Assignment> createAssignment (
+      {
+        required String classId,
+        required String token,
+        required String title,
+        required String description,
+        required String dueDate,
+        required List<String> studentsIds,
+        required List<String> pages,
+        required String type,
+      }
+      )async{
+    final url = Uri.parse('$_baseUrl/assignment/create/${classId}');
     try{
-      final Map<String, dynamic> data = assignment.toJson();
+      final Map<String, dynamic> data = {
+        "title": title,
+        "description":description,
+        "dueDate":dueDate,
+        "studentsIds":studentsIds,
+        "pages": pages,
+        "type": type
+      };
       final response = await http.post(
         url,
         headers:{
@@ -478,9 +624,9 @@ class ApiService {
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
         if (data != null) {
-          return AssignmentClass.fromJson(data);
+          return Assignment.fromJson(data);
         }
-        return AssignmentClass();
+        return Assignment(id: '', title: '', dueDate: DateTime(2017, 9, 7, 17, 30), type: '', description: '', pages: [], createdDate: DateTime(2017, 9, 7, 17, 30), students: []);
       }
 
       if (response.statusCode == 422) {
@@ -512,8 +658,34 @@ class ApiService {
     }
   }
 
-  Future<List<AssignmentClass>?> getAssignments(String token) async {
-    final url = Uri.parse('$_baseUrl/assignments');
+  Future<void> deleteAssignment(String token, String assignmentId) async {
+    final url = Uri.parse('$_baseUrl/assignment/delete/$assignmentId');
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 401) throw UnauthorizedException();
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        final responseBody = jsonDecode(response.body);
+        throw ApiException(
+          responseBody['message'] ?? 'Failed to delete assignment',
+          statusCode: response.statusCode,
+        );
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Assignment>?> getAssignmentOneStudentIassignments(String token, String studentId) async {
+    final url = Uri.parse('$_baseUrl/assignment/get_student_assignment/${studentId}');
 
     try {
       final response = await http.get(
@@ -533,7 +705,15 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data != null && data is List) {
-          return data.map((json) => AssignmentClass.fromJson(json)).toList();
+          return data.map((json) => Assignment.fromJson(json)).toList();
+        }else if(data != null && data["assignments"] is List ){
+          print("data is not null and it is list");
+          final List<dynamic> list = data["assignments"];
+          final List<Assignment> assignments =  list.map((json) {
+            return Assignment.fromJson(json);
+          }).toList();
+          print("api service: ${assignments}");
+          return assignments;
         }
         return [];
       } else {
@@ -579,7 +759,7 @@ class ApiService {
         final data = jsonDecode(response.body);
         return Student.fromJson(data);
       }
-      return Student();
+      return Student(id: '', name: '', email: '', role: '', dob: DateTime(2017, 9, 7, 17, 30), createdAt: DateTime(2017, 9, 7, 17, 30), picProfile: '', phone: '', memorizedJuz: [], enrolledClasses: []);
 
       } on SocketException{
         throw NetworkException();
@@ -652,6 +832,146 @@ class ApiService {
       rethrow;
     } on ValidationException {
       rethrow;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Event>> getEvents(String token, String classId) async {
+    final url = Uri.parse('$_baseUrl/event/get_teacher_events/$classId');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 401) throw UnauthorizedException();
+
+      if (response.statusCode == 200) {
+        final  data = jsonDecode(response.body);
+        print("get all events: ${data}");
+        final eventsJsonList = data["events"]??[];
+        if (eventsJsonList != null && eventsJsonList is List){
+          return eventsJsonList.map((json) => Event.fromJson(json)).toList();
+        }
+        return [];
+      } else {
+        throw ApiException('Failed to fetch events', statusCode: response.statusCode);
+      }
+    } on SocketException {
+      throw NetworkException();
+    } on TimeoutException {
+      throw NetworkException();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Inside your ApiService class:
+
+  Future<void> deleteEvent(String token, String eventId) async {
+    final url = Uri.parse('$_baseUrl/event/delete/$eventId');
+    try {
+      final response = await http.delete(
+        url,
+        headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
+      );
+
+      if (response.statusCode == 401) throw UnauthorizedException();
+      if (response.statusCode != 204) {
+        throw ApiException('Failed to delete event', statusCode: response.statusCode);
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> updateEvent({required String token, required Event event}) async {
+    final url = Uri.parse('$_baseUrl/event/update/${event.id}');
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(event.toJson()),
+      );
+
+      if (response.statusCode == 401) throw UnauthorizedException();
+      if (response.statusCode != 200) {
+        throw ApiException('Failed to update event', statusCode: response.statusCode);
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Event> getEventDetails(String token, String eventId) async {
+    final url = Uri.parse('$_baseUrl/event/details/$eventId');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 401) throw UnauthorizedException();
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        printJson(data, "getting the event details");
+        return Event.fromJson(data);
+      } else {
+        throw ApiException('Failed to load event details', statusCode: response.statusCode);
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> createEvent({
+    required String token,
+    required String title,
+    required String description,
+    required String dueDate,
+    required String classId,
+    // Add other fields as needed (e.g. priority, category)
+  }) async {
+    final url = Uri.parse('$_baseUrl/event/create/${classId}');
+
+    final Map<String, dynamic> requestBody = {
+      "title": title,
+      "description": description,
+      "dueDate": dueDate,
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return true;
+      } else if (response.statusCode == 401) {
+        throw UnauthorizedException();
+      } else if (response.statusCode == 422) {
+        throw ValidationException();
+      }
+
+      throw ApiException('Failed to create event', statusCode: response.statusCode);
     } catch (e) {
       rethrow;
     }

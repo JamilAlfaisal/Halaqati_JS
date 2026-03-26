@@ -2,8 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
-import 'package:halqati/models/assignment_class.dart';
-import 'package:halqati/models/halaqa_class.dart';
+import 'package:halqati/models/class_model.dart';
 import 'package:halqati/models/teacher.dart';
 import 'package:halqati/provider/student_providers/selected_assignment_notifier.dart';
 import 'package:halqati/provider/student_providers/student_provider.dart';
@@ -13,14 +12,14 @@ import 'package:halqati/widgets/cards/date_type_card.dart';
 import 'package:halqati/widgets/buttons/page_number.dart';
 import 'package:halqati/provider/api_service_provider.dart';
 
-class EventDetailsScreen extends ConsumerStatefulWidget {
-  const EventDetailsScreen({super.key});
+class AssignmentDetailsScreen extends ConsumerStatefulWidget {
+  const AssignmentDetailsScreen({super.key});
 
   @override
-  ConsumerState<EventDetailsScreen> createState() => _EventDetailsScreenState();
+  ConsumerState<AssignmentDetailsScreen> createState() => _EventDetailsScreenState();
 }
 
-class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
+class _EventDetailsScreenState extends ConsumerState<AssignmentDetailsScreen> {
 
   String displayDate(String? date){
     if (date == "" || date == null){
@@ -44,15 +43,15 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
       ),
       body: asyncStudentDashboard.when(
         data: (student){
-          final HalaqaClass halaqaClass = student?.halaqaClass??HalaqaClass(name: "", id: 0);
-          final Teacher teacher = student?.teacher ?? Teacher();
-          final List<AssignmentClass> assignments = student?.assignmentClass ?? [];
-          final AssignmentClass assignmentDetails = assignments.firstWhere(
-              (assignment){
-                return assignment.id == selectAssignment;
-              }
-          );
-          final List<int> pages = assignmentDetails.pages??[];
+          // final HalaqaClass halaqaClass = student?.halaqaClass??HalaqaClass(name: "", id: 0);
+          // final Teacher teacher = student?.teacher ?? Teacher();
+          // final List<AssignmentClass> assignments = student?.assignmentClass ?? [];
+          // final AssignmentClass assignmentDetails = assignments.firstWhere(
+          //     (assignment){
+          //       return assignment.id == selectAssignment;
+          //     }
+          // );
+          // final List<int> pages = assignmentDetails.pages??[];
           if(student == null){
             return Center(
               child: Text(
@@ -73,14 +72,16 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              assignmentDetails.title??"not_defined".tr(),
+                              // assignmentDetails.title??"not_defined".tr(),
+                              "n/a",
                               style: Theme.of(context).textTheme.bodyLarge,
                             ),
                           ),
                           Container(
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: (assignmentDetails.isCompleted??false)?
+                              // color: (assignmentDetails.isCompleted??false)?
+                              color: false?
                               Theme.of(context).colorScheme.primary:
                               Theme.of(context).colorScheme.secondary,
                               borderRadius: BorderRadius.circular(16)
@@ -88,7 +89,8 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                             child: Row(
                               children: [
                                 Icon(
-                                  (assignmentDetails.isCompleted??false)?
+                                  // (assignmentDetails.isCompleted??false)?
+                                  false?
                                   Icons.timer_off_outlined
                                   :Icons.timer_outlined,
                                   size: 20,
@@ -96,7 +98,8 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                                 ),
                                 SizedBox(width: 20,),
                                 Text(
-                                  assignmentDetails.isCompleted??false?
+                                  // assignmentDetails.isCompleted??false?
+                                  false?
                                   "event_details_screen.done".tr():
                                   "event_details_screen.pending".tr(),
                                   style: Theme.of(context).textTheme.titleLarge,
@@ -107,10 +110,10 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                         ],
                       ),
                       SizedBox(height: 30,),
-                      DateTypeCard(
-                        date: displayDate(assignmentDetails.dueDate),
-                        type: assignmentDetails.type??"not_defined".tr(),
-                      ),
+                      // DateTypeCard(
+                      //   date: displayDate(assignmentDetails.dueDate),
+                      //   type: assignmentDetails.type??"not_defined".tr(),
+                      // ),
                       SizedBox(height: 10,),
                       Text(
                         "event_details_screen.teacher_instructions".tr(),
@@ -127,7 +130,8 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                           ],
                         ),
                         child: Text(
-                          assignmentDetails.description??"not_defined".tr(),
+                          // assignmentDetails.description??"not_defined".tr(),
+                          "n/a",
                         ),
                       ),
                       SizedBox(height: 10,),
@@ -140,7 +144,7 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                         height: 50,
                         width: double.infinity,
                         child: ListView.builder(
-                          itemCount: pages.length,
+                          itemCount: 0,
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context, index){
                             return Padding(
@@ -150,7 +154,8 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                                 height: 50,
                                 child: PageNumber(
                                   onPressed: (){},
-                                  num: pages[index],
+                                  // num: pages[index],
+                                    num: 0,
                                   selected: false
                                 ),
                               ),
@@ -165,8 +170,8 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
               Padding(
                 padding: EdgeInsets.all(16),
                 child: GestureDetector(
-                  onTap: assignmentDetails.isCompleted??false?null:!submitting?() async {
-
+                  // onTap: assignmentDetails.isCompleted??false?null:!submitting?() async {
+                  onTap: false?null:!submitting?() async {
                     setState(() {
                       submitting = true;
                     });
@@ -189,7 +194,8 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
-                      color: assignmentDetails.isCompleted??false?
+                      // color: assignmentDetails.isCompleted??false?
+                      color: false?
                       Colors.grey.shade300:
                       Theme.of(context).colorScheme.secondary,
                     ),

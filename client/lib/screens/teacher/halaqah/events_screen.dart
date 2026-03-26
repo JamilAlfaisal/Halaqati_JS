@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
+import 'package:halqati/provider/teacher_providers/events_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
+import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
+import 'package:halqati/widgets/buttons/floating_button_icon.dart';
 import 'package:halqati/widgets/lists/assignment_list.dart';
 
 class EventsScreen extends ConsumerStatefulWidget {
@@ -16,28 +19,27 @@ class EventsScreen extends ConsumerStatefulWidget {
 
 class _EventsScreenState extends ConsumerState<EventsScreen> {
 
-  String displayDate(String? date){
-    if (date == "" || date == null){
-      return "00-00-00";
-    }
-    return date.split("T")[0];
-  }
 
 
   @override
   Widget build(BuildContext context) {
 
-    final asyncAssignment = ref.watch(assignmentProvider);
-    final int studentId = ref.watch(selectedStudentIdProvider)??0;
+    final asyncEvents = ref.watch(eventProvider);
     return Scaffold(
+      floatingActionButton: FloatingButtonIcon(
+        onPressed: (){
+          Navigator.of(context).pushNamed("/add_event_screen");
+      }, text: "Add Event"
+    ),
       appBar: AppbarWithButton(
           text: "event_details_screen.event_details".tr(),
           addBackButton: true
       ),
-      body: asyncAssignment.when(
-        data: (assignments){
-
-          if(assignments == null){
+      body: asyncEvents.when(
+        data: (events){
+          print("events now is list");
+          print(events);
+          if(events == null){
             return Center(
               child: Text(
                 'halaqah_details_screen.error_loading'.tr(),
@@ -46,23 +48,44 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
             );
           }
 
-          return Expanded(
-            child: ListView.builder(
-              itemCount: assignments.length,
-              itemBuilder: (context, index) {
-                return studentId == assignments[index].studentId?
-                AssignmentList(
-                    title: assignments[index].title??"",
-                    dueDate: assignments[index].dueDate??"",
-                    onPressed: (){}
-                ):SizedBox();
-              },
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(eventProvider);
+            },
+            child: Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).padding.bottom,
+                      top: 20,
+                      left: 20,
+                      right: 20
+                    ),
+                    itemCount: events.length,
+                    itemBuilder: (context, index) {
+                      return AssignmentList(
+                        title: events[index].title??"",
+                        dueDate: HelperMethods.formatDate(events[index].dueDate)??"",
+                        onTap: (){
+                          ref.read(selectedEventIdProvider.notifier).select(events[index].id);
+                          Navigator.of(context).pushNamed("/event_details_screen");
+                        },
+                        onDelete: (){
+                          ref.read(eventProvider.notifier).deleteEvent(events[index].id);
+                        }
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           );
 
         },
-        loading: () => Expanded(child: const Center(child: CircularProgressIndicator())),
+        loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, stack) {
+          print("error in the event screen: ${e}");
           if (e is UnauthorizedException) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -72,12 +95,15 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "Error loading halaqat",
+                  "Error loading events",
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () => ref.invalidate(assignmentProvider),
+                  onPressed: () async{
+                    ref.invalidate(eventProvider);
+                    await ref.refresh(eventProvider.future);
+                  },
                   child: Text("home_screen.retry".tr()),
                 ),
               ],
