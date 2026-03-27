@@ -28,7 +28,7 @@ export class Assignment {
   @CreateDateColumn({ type: "datetime", nullable: true })
   createdAt!: Date;
 
-  @Column({ type: "datetime", nullable: true })
+  @Column({ type: "date", nullable: true })
   dueDate!: Date;
 
   @ManyToOne(() => User, (user) => user.assignments)

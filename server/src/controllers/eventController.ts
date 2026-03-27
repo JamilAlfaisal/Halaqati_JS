@@ -306,12 +306,16 @@ export const getTeacherEvents = async (req:AuthRequest, res: Response) => {
             relations: ['class', 'teacher']
         });
 
+        console.log("this is the getAll events: ");
+        console.log(events);
+
         const eventsConsistantData = events.map((event) => {
             return {
                 id: event.id,
                 title: event.title,
                 dueDate: event.dueDate,
                 description: event.description,
+                createdAt: event.createdAt,
                 class: {
                     id: event.class.id,
                     name: event.class.name

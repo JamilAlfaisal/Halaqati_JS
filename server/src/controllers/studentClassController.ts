@@ -265,12 +265,11 @@ export const getClassStudents = async (req:AuthRequest, res: Response) => {
             where: {class: {id: classId}},
             relations: ["student", "student.user"]
         });
-
-        const students = studyInStudents.map(({ student }) => {
-            const { password, ...userWithoutPassword } = student.user;
-            return userWithoutPassword;
+        
+        
+        const students = studyInStudents.map((studyIn) => {
+            return {"memorizedJuz":studyIn.student.memorized_juz, "registeredAt":studyIn.registeredAt,...studyIn.student.user};
         });
-
 
         console.log("✅ http://localhost:3000/api/student_class/get");
         return res.status(200).send({

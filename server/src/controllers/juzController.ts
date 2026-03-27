@@ -31,7 +31,7 @@ export const updateMemorizedJuz = async(req:AuthRequest, res: Response) => {
 
         if (
             !Array.isArray(memorizedJuz) ||
-            !memorizedJuz.every(j => Number.isInteger(j) && j >= 1 && j <= 30)
+            memorizedJuz.length > 30
             ) {
             return res.status(400).json({
                 message: "memorized_juz must be an array of numbers between 1 and 30"
