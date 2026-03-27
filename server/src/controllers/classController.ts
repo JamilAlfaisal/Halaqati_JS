@@ -33,6 +33,7 @@ export const createClass = async (req:AuthRequest, res:Response) => {
         }
 
         const { startTime, endTime, days, description, location, name } = req.body
+        console.log(days);
         
         if(!name){
             console.log("❌ http://localhost:3000/api/class/create");
@@ -66,7 +67,8 @@ export const createClass = async (req:AuthRequest, res:Response) => {
             location: newClass.location,
             startTime: newClass.startTime,
             endTime: newClass.endTime,
-            days: newClass.days
+            days: newClass.days,
+            students: []
         });
     }catch(e){
         await queryRunner.rollbackTransaction();
@@ -125,7 +127,7 @@ export const updateClass = async (req:AuthRequest, res:Response) => {
 
         const existingClass = await classRepository.findOne({
             where: { id: classId },
-            relations: ["teacher"],
+            relations: ["teacher", "studyInRecords", "studyInRecords.student"],
         });
 
         if (!existingClass) {
@@ -156,7 +158,13 @@ export const updateClass = async (req:AuthRequest, res:Response) => {
             location: existingClass.location,
             startTime: existingClass.startTime,
             endTime: existingClass.endTime,
-            days: existingClass.days
+            days: existingClass.days,
+            students: existingClass.studyInRecords.map((s) => {
+                return {
+                    id: s.student.id,
+                    registeredAt: s.registeredAt
+                }
+            }),
         });
 
     }catch(e){
@@ -205,12 +213,12 @@ export const deleteClass = async (req:AuthRequest, res:Response) => {
         });
 
         if (!existingClass) {
-            console.log("❌ http://localhost:3000/api/class/update");
+            console.log("❌ http://localhost:3000/api/class/delete");
             return res.status(404).json({ message: "Class not found" });
         }
 
         if(existingClass.teacher.id != userId){
-            console.log("❌ http://localhost:3000/api/class/update");
+            console.log("❌ http://localhost:3000/api/class/delete");
             return res.status(403).json({ message: "Not class owner" });
         }
 
@@ -246,7 +254,7 @@ export const deleteClass = async (req:AuthRequest, res:Response) => {
 
         await queryRunner.commitTransaction();
         
-        console.log("✅ http://localhost:3000/api/class/update");
+        console.log("✅ http://localhost:3000/api/class/delete");
         return res.status(204).send();
 
     }catch(e){
@@ -277,11 +285,64 @@ export const getTeacherClasses = async (req:AuthRequest, res: Response) => {
 
         const allClasses = await classRepository.find({
             where: { teacher: { id: userId } },
+            relations: [
+                'teacher', 
+                'events',
+                'attendances',
+                'assignments',
+                'assignments.haveAssignment', 
+                'assignments.haveAssignment.student',
+                'assignments.haveAssignment.student.user',
+                'studyInRecords',
+                'studyInRecords.student'
+            ]
+        });
+
+        const properJson = allClasses.map((classes) => {
+            return {
+                id: classes.id,
+                name:classes.name,
+                description: classes.description,
+                days: classes.days,
+                teacherId: classes.teacher.id,
+                startTime: classes.startTime,
+                endTime: classes.endTime,
+                location: classes.location,
+                events: classes.events.map(event => ({
+                    eventId: event.id,
+                    title: event.title,
+                    dueDate: event.dueDate,
+                    createdDate: event.createdAt,
+                    description: event.description
+                })),
+                assignments: classes.assignments.map(assignment => ({
+                    assignmentId: assignment.id,
+                    title: assignment.title,
+                    description: assignment.description,
+                    dueDate: assignment.dueDate,
+                    pages: assignment.pages,
+                    type: assignment.type,
+                    createdAt: assignment.createdAt,
+                    haveAssignment: assignment.haveAssignment.map(record => ({
+                        isComplete: record.isComplete,
+                        studentId: record.student.id,
+                        memorizedJuz: record.student.memorized_juz,
+                        studentName: record.student.user.name,
+                        picProfile: record.student.user.picProfile
+                        
+                    })),
+                })),
+                attendances: classes.attendances.map(attendance => ({
+                    attendanceId: attendance.id,
+                    date: attendance.date
+                })),
+                students: classes.studyInRecords.map((record)=>record.student)
+            }
         });
 
         console.log("✅ http://localhost:3000/api/class/get_my_classes");
         return res.status(200).send({
-            classes: allClasses
+            classes: properJson,
         });
     }catch(e){
         console.log("❌ http://localhost:3000/api/class/get_my_classes");

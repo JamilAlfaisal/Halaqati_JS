@@ -22,7 +22,7 @@ export class User {
   @Column({ nullable: false, unique: true })
   phone!: string;
 
-  @Column({ nullable: false, unique: false })
+  @Column({ nullable: false, unique: false, select:true })
   role!: string;
 
   @Column({ type: "date", nullable: true })
@@ -31,7 +31,8 @@ export class User {
   @CreateDateColumn()
   createdAt!: Date;
 
-  @Column({ nullable: false})
+
+  @Column({ nullable: false, select: false})
   password!: string;
 
   @Column({ nullable: true })

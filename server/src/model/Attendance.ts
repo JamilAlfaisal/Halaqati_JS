@@ -9,7 +9,7 @@ export class Attendance {
 @PrimaryGeneratedColumn()
   id!: number;
 
-  @CreateDateColumn({ type: "datetime", nullable: false })
+  @CreateDateColumn({ type: "date", nullable: false })
   date!: Date;
 
   @ManyToOne(() => Class, (classroom) => classroom.attendances)

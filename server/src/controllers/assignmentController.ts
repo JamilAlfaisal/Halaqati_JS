@@ -23,6 +23,7 @@ export const createAssignment = async (req:AuthRequest, res:Response) => {
         const userId = req.user?.id;
         const role = req.user?.role;
         const classId = Number(req.params?.id);
+        console.log(classId);
 
         if (!userId) {
             console.log("❌ http://localhost:3000/api/assignment/create");
@@ -41,7 +42,7 @@ export const createAssignment = async (req:AuthRequest, res:Response) => {
 
         const existingClass = await classRepository.findOne({
             where: {id:classId},
-            relations: ['teacher', 'studyInRecords', 'studyInRecords.student']
+            relations: ['teacher', 'studyInRecords', 'studyInRecords.student', 'studyInRecords.student.user']
         });
         
 
@@ -79,7 +80,7 @@ export const createAssignment = async (req:AuthRequest, res:Response) => {
 
         const allStudentsBelongToClass = studentsIds.every((student) => {
             return existingClass?.studyInRecords.some((record)=>{
-                return record.student.id === student
+                return record.student.user.id === parseInt(student)
             });
         });
 
@@ -553,3 +554,55 @@ export const getStudentsAssignment = async (req: AuthRequest, res: Response) => 
         return res.status(500).json({ message: "Failed to get the assignment"});
     }
 }
+
+export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Response) => {
+    const haveAssignmentRepository = AppDataSource.getRepository(HaveAssignment);
+    const studentRepository = AppDataSource.getRepository(Student);
+
+    try {
+        const userId = req?.user.id;
+        const role = req?.user.role;
+        // 1. Get studentId from params (e.g. /api/assignment/student/:studentId)
+        const studentUserId  = req.params.id;
+
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        // 2. Security Check: Only teachers can access this specific route
+        if (role !== "teacher") {
+            return res.status(403).json({ message: "Forbidden: Teachers only" });
+        }
+
+        if (!studentUserId) {
+            return res.status(400).json({ message: "Student ID is required" });
+        }
+
+        // 3. Find student by their profile ID
+        const student = await studentRepository.findOne({
+            where: { user: { id: parseInt(studentUserId) } },
+            relations: ['haveAssignment', 'haveAssignment.assignment']
+         });
+
+         console.log(student)
+
+        if (!student) {
+            return res.status(404).json({ message: "Student not found" });
+        }
+
+        const properJson = student.haveAssignment.map((item) => {
+            return {
+                ...item.assignment,
+                isComplete: item.isComplete,
+            }
+        })
+
+        console.log(`✅ Teacher ${userId} fetched assignments for student ${studentUserId}`);
+        return res.status(200).json({ assignments: properJson });
+
+    } catch (e) {
+        console.error(`❌ Error fetching student assignments: ${e}`);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+

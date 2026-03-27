@@ -93,7 +93,20 @@ export const login = async (req:Request, res:Response) => {
     queryRunner.startTransaction();
 
     try{
-        const user = await userRepository.findOneBy({phone});
+        const user = await userRepository.findOne({
+            where: { phone },
+            select: {
+                id: true,
+                phone: true,
+                password: true,
+                role: true,
+                email: true,
+                dob: true,
+                createdAt: true,
+                name: true,
+                picProfile: true
+            },
+        });
 
         if(!user){
             console.log("❌ http://localhost:3000/api/auth/login/user");
@@ -156,11 +169,11 @@ export const verifyUsers = async (req:AuthRequest, res: Response) => {
             return res.status(404).json({message:"User Does not Exist"})
         }
         
-        const {password:_, ...userWithoutPassword} = user
+
         if (role == "teacher"){
             console.log("✅ http://localhost:3000/api/auth/auth_me/user");
             return res.status(200).json({
-                user: userWithoutPassword
+                user
             });
         }else{
             const student = await studentRepository.findOneBy({
@@ -174,7 +187,7 @@ export const verifyUsers = async (req:AuthRequest, res: Response) => {
 
             console.log("✅ http://localhost:3000/api/auth/auth_me/user");
             return res.status(200).json({
-                user: userWithoutPassword,
+                user,
                 memorized_juz: student?.memorized_juz
             });
         }
