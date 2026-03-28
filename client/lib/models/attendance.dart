@@ -1,4 +1,6 @@
 import 'package:halqati/models/student.dart';
+import 'package:halqati/test/printJson.dart';
+import 'package:halqati/utils/helper_methods.dart';
 
 class Attendance {
   final String id;
@@ -11,7 +13,6 @@ class Attendance {
     required this.students,
   });
 
-  /// Creates a copy of this Attendance record with updated attributes
   Attendance copyWith({
     String? id,
     DateTime? date,
@@ -26,10 +27,11 @@ class Attendance {
 
   /// Factory constructor to create an Attendance instance from JSON
   factory Attendance.fromJson(Map<String, dynamic> json) {
+    printJson(json, "attendanceModel");
     return Attendance(
-      id: json['id'] as String,
+      id: HelperMethods.getTerms(json, ["id", "attendanceId"]).toString(),
       date: DateTime.parse(json['date']),
-      students: (json['students'] as List)
+      students: ((json['students']??[]) as List)
           .map((studentJson) => Student.fromJson(studentJson))
           .toList(),
     );

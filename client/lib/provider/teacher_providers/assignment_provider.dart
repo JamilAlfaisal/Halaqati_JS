@@ -9,97 +9,131 @@ import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
 
-final assignmentProvider = AsyncNotifierProvider<AssignmentNotifier, List<Assignment>?>(AssignmentNotifier.new);
+final assignmentProvider = AsyncNotifierProvider<AssignmentNotifier, List<Assignment>?>(
+    AssignmentNotifier.new
+);
 
-class AssignmentNotifier extends AsyncNotifier<List<Assignment>?>{
+class AssignmentNotifier extends AsyncNotifier<List<Assignment>?> {
   @override
   FutureOr<List<Assignment>?> build() async {
     final tokenAsync = ref.watch(tokenProvider);
-    final studentId = ref.watch(selectedStudentIdProvider)??"0";
+    final studentId = ref.watch(selectedStudentIdProvider) ?? "0";
 
-    if (tokenAsync.isLoading) {
-      throw Exception('Token loading');
-    }
+    if (tokenAsync.isLoading) return null;
 
     final token = tokenAsync.value;
-    print("token class provider build: $token");
-    if (token == null  || token.isEmpty) {
-      // throw UnauthorizedException();
-      print("No token found, returning empty state to stop loop.");
-      return [];
-    }
-    try{
-      print("try to get assignment List");
-      final List<Assignment> assignments = await ref.read(apiServiceProvider).getAssignmentOneStudentIassignments(token, studentId)??[];
-      print(assignments);
-      return assignments;
-    }catch(e){
-      if (e is UnauthorizedException) {
-        await AuthHelper.handleLogout(ref);
-      }
-      rethrow;
-    }
-    return [];
-  }
-  Future<void> createAssignment (
-    {
-      required String title,
-      required String description,
-      required String dueDate,
-      required List<String> studentsIds,
-      required List<String> pages,
-      required String type,
-    }) async {
-    final tokenAsync = ref.read(tokenProvider);
-    final classId = ref.watch(selectedClassIdProvider)??"0";
+    if (token == null || token.isEmpty) return [];
 
-    if (tokenAsync.isLoading) {
-      throw Exception('Token loading');
-    }
-
-    final token = tokenAsync.value;
-    if (token == null) {
-      throw UnauthorizedException();
-    }
-
-    try{
-      await ref.read(apiServiceProvider)
-          .createAssignment(
-            classId: classId,
-            token: token,
-            title: title,
-            description: description,
-            dueDate: dueDate,
-            studentsIds: studentsIds,
-            pages:pages,
-            type: type,
-          );
-      ref.invalidateSelf();
-    } catch(e){
-      //e is ApiException
-      if (e is UnauthorizedException) {
-        print('Clearing token due to auth/API error');
-        await AuthHelper.handleLogout(ref);
-        // ref.invalidate(authProvider);
-      }
+    try {
+      return await ref.read(apiServiceProvider).getAssignmentOneStudentIassignments(token, studentId);
+    } catch (e) {
+      if (e is UnauthorizedException) await AuthHelper.handleLogout(ref);
       rethrow;
     }
   }
 
-  Future<void> deleteAssignment() async {
+  // --- HELPER: Get currently selected assignment from the list ---
+  Assignment? getSelectedAssignment() {
+    final selectedId = ref.read(selectedAssignmentProvider).toString();
+    return state.value?.firstWhere(
+          (a) => a.id.toString() == selectedId,
+      orElse: () => throw Exception("Assignment not found in list"),
+    );
+  }
+
+
+
+  // --- CREATE ---
+  Future<void> createAssignment({
+    required String title,
+    required String description,
+    required String dueDate,
+    required List<String> studentsIds,
+    required List<String> pages,
+    required String type,
+  }) async {
     final token = ref.read(tokenProvider).value;
-    final assignmentId = ref.watch(selectedAssignmentProvider)??"";
+    final classId = ref.read(selectedClassIdProvider) ?? "0";
+    if (token == null) throw UnauthorizedException();
+
+    try {
+      await ref.read(apiServiceProvider).createAssignment(
+        classId: classId,
+        token: token,
+        title: title,
+        description: description,
+        dueDate: dueDate,
+        studentsIds: studentsIds,
+        pages: pages,
+        type: type,
+      );
+      ref.invalidateSelf();
+    } catch (e) {
+      if (e is UnauthorizedException) await AuthHelper.handleLogout(ref);
+      rethrow;
+    }
+  }
+
+  // --- UPDATE ---
+  Future<void> updateAssignmentDetails({
+    required String title,
+    required String description,
+    required String type,
+    required List<int> pages,
+    required String dueDate,
+    required List<int> studentsIds,
+  }) async {
+    final assignmentId = ref.read(selectedAssignmentProvider).toString();
+    final token = ref.read(tokenProvider).value;
+    if (token == null) throw UnauthorizedException();
+
+    try {
+
+      await ref.read(apiServiceProvider).updateAssignment(
+        token: token,
+        id: assignmentId,
+        title: title,
+        description: description,
+        dueDate: dueDate,
+        pages: pages,
+        type: type,
+        studentsIds: studentsIds,
+      );
+
+      if (state.hasValue) {
+        state = AsyncData(state.value!.map((a) {
+          if (a.id.toString() == assignmentId) {
+            // Use copyWith to update the local object
+            return a.copyWith(
+              title: title,
+              description: description,
+              type: type,
+              pages: pages.map((e) => e.toString()).toList(),
+              dueDate: DateTime.parse(dueDate),
+            );
+          }
+          return a;
+        }).toList());
+      }
+
+      // 3. Background sync
+      ref.invalidateSelf();
+    } catch (e) {
+      if (e is UnauthorizedException) await AuthHelper.handleLogout(ref);
+      rethrow;
+    }
+  }
+
+  // --- DELETE ---
+  Future<void> deleteAssignment(String assignmentId) async {
+    final token = ref.read(tokenProvider).value;
     if (token == null) throw UnauthorizedException();
 
     try {
       if (state.hasValue) {
-        final currentAssignments = state.value ?? [];
-        final updatedList = currentAssignments
-            .where((assignment) => assignment.id.toString() != assignmentId.toString())
-            .toList();
-        state = AsyncData(updatedList);
+        state = AsyncData(state.value!.where((a) => a.id.toString() != assignmentId).toList());
       }
-      await ref.read(apiServiceProvider).deleteAssignment(token, assignmentId.toString());
+      await ref.read(apiServiceProvider).deleteAssignment(token, assignmentId);
     } catch (e) {
       ref.invalidateSelf();
       if (e is UnauthorizedException) await AuthHelper.handleLogout(ref);
@@ -107,3 +141,12 @@ class AssignmentNotifier extends AsyncNotifier<List<Assignment>?>{
     }
   }
 }
+
+final activeAssignmentProvider = Provider<Assignment?>((ref) {
+  final assignmentsAsync = ref.watch(assignmentProvider);
+  final selectedId = ref.watch(selectedAssignmentProvider).toString();
+
+  return assignmentsAsync.whenData((list) =>
+      list?.firstWhere((a) => a.id.toString() == selectedId)
+  ).value;
+});

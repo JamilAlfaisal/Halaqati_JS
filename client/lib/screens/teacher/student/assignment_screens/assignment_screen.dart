@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/assignment.dart';
+import 'package:halqati/provider/student_providers/selected_assignment_notifier.dart';
 import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
@@ -10,6 +11,7 @@ import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
 import 'package:halqati/widgets/buttons/filter_button.dart';
 import 'package:halqati/widgets/lists/assignment_list.dart';
+import 'package:collection/collection.dart';
 
 class AssignmentScreen extends ConsumerStatefulWidget {
   const AssignmentScreen({super.key});
@@ -27,10 +29,6 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
 
     final asyncAssignment = ref.watch(assignmentProvider);
     final String studentId = ref.watch(selectedStudentIdProvider)??"0";
-
-    void handleGettingAssignments() async {
-
-    }
 
     return Scaffold(
       appBar: AppbarWithButton(
@@ -79,11 +77,22 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
                     child: ListView.builder(
                       itemCount: assignments?.length??0,
                       itemBuilder: (context, index) {
+                        final students = assignments?[index].students;
+                        final AssignedStudents? assignedStudent = students?.firstWhereOrNull(
+                          (student) => student.student.id.toString() == studentId.toString(),
+                        );
+
                         return AssignmentList(
                             title: assignments?[index].title??"",
+                            isComplete: assignedStudent?.isComplete??false,
                             dueDate: HelperMethods.formatDate(assignments?[index].dueDate),
-                            onTap: (){},
-                            onDelete: (){}
+                            onTap: (){
+                              ref.read(selectedAssignmentProvider.notifier).select(int.parse(assignments?[index].id.toString()??"0"));
+                              Navigator.of(context).pushNamed("/update_assignment_screen");
+                            },
+                            onDelete: (){
+                              ref.read(assignmentProvider.notifier).deleteAssignment(assignments?[index].id??"0");
+                            }
                         );
                       },
                     ),

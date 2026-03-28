@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:halqati/config/app_theme.dart';
 import 'package:halqati/screens/common_screens/login_screen.dart';
-import 'package:halqati/screens/teacher/halaqah/add_event_screen.dart';
-import 'package:halqati/screens/teacher/halaqah/event_details_screen.dart';
+import 'package:halqati/screens/teacher/halaqah/event_screens/add_event_screen.dart';
+import 'package:halqati/screens/teacher/halaqah/event_screens/event_details_screen.dart';
+import 'package:halqati/screens/teacher/student/assignment_screens/update_assignment_screen.dart';
 import 'package:halqati/test/testing_widgets.dart';
 // import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -14,9 +15,12 @@ import 'package:halqati/screens/teacher/halaqah/halaqah_bottom_bar.dart';
 import 'package:halqati/screens/students/home/dashboard_app_bar.dart';
 import 'package:halqati/screens/common_screens/root_screen.dart';
 import 'package:halqati/screens/teacher/student/student_bottom_appbar.dart';
-import 'package:halqati/screens/teacher/student/add_assignment_screen.dart';
+import 'package:halqati/screens/teacher/student/assignment_screens/add_assignment_screen.dart';
 import 'package:halqati/screens/students/halaqa_details_screen.dart';
 import 'package:halqati/screens/students/assignment_details_screen.dart';
+import 'package:halqati/screens/teacher/halaqah/attendance_screens/attendacne_details_sceen.dart';
+import 'package:halqati/screens/teacher/halaqah/attendance_screens/attendance_screen.dart';
+import 'package:halqati/screens/teacher/halaqah/attendance_screens/take_attendance_screen.dart';
 
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -65,8 +69,12 @@ class MyApp extends StatelessWidget {
         '/add_assignment_screen':(context) => const AddAssignmentScreen(),
         '/halaqa_details_screen':(context) => const HalaqaDetailsScreen(),
         '/assignment_details_screen':(context) => const AssignmentDetailsScreen(),
+        '/update_assignment_screen':(context) => const UpdateAssignmentScreen(),
         '/event_details_screen':(context) => const EventDetailsScreen(),
         '/add_event_screen':(context) => const AddEventScreen(),
+        '/attendacne_details_sceen':(context) => const AttendacneDetailsSceen(),
+        '/attendance_screen':(context) => const AttendanceScreen(),
+        '/take_attendance_screen':(context) => const TakeAttendanceScreen(),
         '/root_screen': (context) => const RootScreen(),
       },
     );

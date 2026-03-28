@@ -25,7 +25,7 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
   TextEditingController loc = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool ability = true;
-  String? selectedValue = 'memorizing';
+  String? selectedValue = 'Memorization';
   DateTime? selectedDate;
 
   String get dateText {
@@ -69,9 +69,9 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
     final studentId = ref.watch(selectedStudentIdProvider);
 
     final List<Map<String, String>> dropdownItems = [
-      {'value': 'revision', 'label': 'student_bottom_appbar.add_halaqah_screen.revision'.tr()},
-      {'value': 'memorizing', 'label': 'student_bottom_appbar.add_halaqah_screen.memorization'.tr()},
-      {'value': 'reading', 'label': 'student_bottom_appbar.add_halaqah_screen.reading'.tr()},
+      {'value': 'Revision', 'label': 'student_bottom_appbar.add_halaqah_screen.revision'.tr()},
+      {'value': 'Memorization', 'label': 'student_bottom_appbar.add_halaqah_screen.memorization'.tr()},
+      {'value': 'Reading', 'label': 'student_bottom_appbar.add_halaqah_screen.reading'.tr()},
     ];
 
     void handleCreateAssignment() async {
@@ -95,12 +95,11 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
       }
 
       try{
-        print(dateText);
         await assignmentNotifier.createAssignment(
           title: title.text,
           description: des.text,
           pages: pageNumbers,
-          type: selectedValue??"",
+          type: selectedValue??"Memorization",
           studentsIds: [studentId??""],
           dueDate: HelperMethods.formatDate(selectedDate)
         );

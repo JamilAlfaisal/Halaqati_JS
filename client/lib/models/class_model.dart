@@ -69,8 +69,10 @@ class ClassModel {
     late String teacherId;
     if (json['teacherId'] != null){
       teacherId = json['teacherId'].toString();
-    }else{
+    }else if (json['teacher'] != null && json['teacher']['id'] != null){
       teacherId = json['teacher']['id'].toString();
+    }else{
+      teacherId = "";
     }
 
     printJson(json, "class_model");

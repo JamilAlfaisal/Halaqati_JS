@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:halqati/models/class_model.dart';
 import 'package:halqati/screens/teacher/halaqah/student_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:halqati/screens/teacher/student/assignment_screen.dart';
+import 'package:halqati/screens/teacher/student/assignment_screens/assignment_screen.dart';
 import 'package:halqati/screens/teacher/student/student_profile.dart';
 
 class StudentBottomAppbar extends StatefulWidget {

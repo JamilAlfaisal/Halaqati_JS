@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/models/class_model.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
+import 'package:halqati/provider/token_notifier.dart';
 import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/models/teacher.dart';
@@ -33,14 +34,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppbarWithLogo(text: "profile_screen.profile".tr()),
+      appBar: AppbarWithLogo(
+        text: "profile_screen.profile".tr(),
+        onLogout: (){
+          ref.read(tokenProvider.notifier).logout();
+        },
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30,vertical: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TeacherProfile(teacher: teacher),
+              TeacherProfile(
+                teacher: teacher,
+
+              ),
               SizedBox(height: 20,),
               Text(
                 "teacher_profile.user_details".tr(),
