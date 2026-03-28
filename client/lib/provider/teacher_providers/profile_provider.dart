@@ -39,9 +39,6 @@ class AuthNotifier extends AsyncNotifier<AuthUser?> {
       }
     } catch (e) {
       print('Error in AuthNotifier: $e');
-      // ✅ For ANY error when fetching profile, clear the token
-      // This prevents infinite retries with a bad token
-      //e is ApiException
       if (e is UnauthorizedException) {
         print('Clearing token due to auth/API error');
         await AuthHelper.handleLogout(ref);

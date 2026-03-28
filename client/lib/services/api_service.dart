@@ -110,43 +110,43 @@ class ApiService {
     }
   }
 
-  Future<void> logout(String token) async {
-    final url = Uri.parse('$_baseUrl/auth/logout');
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        },
-      ).timeout(const Duration(seconds: 10));
-
-      // ✅ CHECK STATUS CODE FIRST!
-      if (response.statusCode == 401) {
-        // await _clearLocalData();
-        return;
-      }
-
-      // ✅ Only decode JSON if status is success
-      if (response.statusCode == 200) {
-        // await _clearLocalData();
-        print("Logout successful");
-      } else {
-        throw ApiException('Failed to logout', statusCode: response.statusCode);
-      }
-
-    } on SocketException {
-      print("Network error - no internet connection");
-      throw NetworkException();
-    } on NetworkException {
-      rethrow;
-    } catch (e) {
-      print("Unexpected error in logout: $e");
-      if (e is ApiException) rethrow;
-      throw ApiException('Unexpected error: $e');
-    }
-  }
+  // Future<void> logout(String token) async {
+  //   final url = Uri.parse('$_baseUrl/auth/logout');
+  //
+  //   try {
+  //     final response = await http.post(
+  //       url,
+  //       headers: {
+  //         'Authorization': 'Bearer $token',
+  //         'Accept': 'application/json',
+  //       },
+  //     ).timeout(const Duration(seconds: 10));
+  //
+  //     // ✅ CHECK STATUS CODE FIRST!
+  //     if (response.statusCode == 401) {
+  //       // await _clearLocalData();
+  //       return;
+  //     }
+  //
+  //     // ✅ Only decode JSON if status is success
+  //     if (response.statusCode == 200) {
+  //       // await _clearLocalData();
+  //       print("Logout successful");
+  //     } else {
+  //       throw ApiException('Failed to logout', statusCode: response.statusCode);
+  //     }
+  //
+  //   } on SocketException {
+  //     print("Network error - no internet connection");
+  //     throw NetworkException();
+  //   } on NetworkException {
+  //     rethrow;
+  //   } catch (e) {
+  //     print("Unexpected error in logout: $e");
+  //     if (e is ApiException) rethrow;
+  //     throw ApiException('Unexpected error: $e');
+  //   }
+  // }
 
   Future<bool> createClass({
     required String token,
@@ -240,11 +240,14 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['classes'] != null && data['classes'] is List) {
+          print("classes we got: ${data['classes']}");
           List<ClassModel> listHalaqatiClass =  (data['classes'] as List).map((json)
           => ClassModel.fromJson(json)
           ).toList();
+
           return listHalaqatiClass;
         }
+        print("getting empty list");
         return []; // Empty but valid response
       } else {
         throw ApiException(
@@ -684,6 +687,103 @@ class ApiService {
     }
   }
 
+  Future<Assignment> getAssignmentDetails(String token, String assignmentId) async {
+    final url = Uri.parse('$_baseUrl/assignment/details/$assignmentId');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 10));
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // printJson(data, "getAssignmentDetails");
+        final Assignment assignment = Assignment.fromJson(data);
+        // print("assignment instance: ${assignment}");
+        return assignment;
+      } else if (response.statusCode == 401) {
+        throw UnauthorizedException();
+      }
+      throw ApiException('Failed to fetch details', statusCode: response.statusCode);
+    } catch (e) {
+      print("getAssignmentDetailsError: ${e}");
+      rethrow;
+    }
+  }
+
+  Future<bool> updateAssignment({
+    required String token,
+    required String id,
+    required String title,
+    required String description,
+    required String dueDate,
+    required List<int> pages,
+    required String type,
+    required List<int> studentsIds,
+  }) async {
+    final url = Uri.parse('$_baseUrl/assignment/update/$id');
+
+    final Map<String, dynamic> requestBody = {
+      "title": title,
+      "description": description,
+      "dueDate": dueDate,
+      "type": type,
+      "pages": pages,
+      "studentsIds": studentsIds,
+    };
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      ).timeout(const Duration(seconds: 10));
+
+      print("response: ${response}");
+
+      if (response.statusCode == 401) {
+        throw UnauthorizedException();
+      }
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print('Assignment updated successfully!');
+        return true;
+      }
+
+      if (response.statusCode == 422) {
+        throw ValidationException();
+      }
+
+      final responseBody = jsonDecode(response.body);
+      throw ApiException(
+        responseBody['message'] ?? 'Failed to update assignment',
+        statusCode: response.statusCode,
+      );
+    } on SocketException {
+      print("Network error - no internet connection");
+      throw NetworkException();
+    } on TimeoutException {
+      print("Network timeout");
+      throw NetworkException();
+    } on UnauthorizedException {
+      rethrow;
+    } on NetworkException {
+      rethrow;
+    } on ValidationException {
+      rethrow;
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
   Future<List<Assignment>?> getAssignmentOneStudentIassignments(String token, String studentId) async {
     final url = Uri.parse('$_baseUrl/assignment/get_student_assignment/${studentId}');
 
@@ -754,7 +854,7 @@ class ApiService {
       if (response.statusCode == 401){
         throw UnauthorizedException();
       }
-      
+
       if(response.statusCode == 200){
         final data = jsonDecode(response.body);
         return Student.fromJson(data);

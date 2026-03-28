@@ -55,7 +55,6 @@ class RootScreen extends ConsumerWidget {
               fit: BoxFit.fill,
             ),
           ),
-
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Column(
