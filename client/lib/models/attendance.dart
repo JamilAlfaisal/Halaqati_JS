@@ -25,7 +25,6 @@ class Attendance {
     );
   }
 
-  /// Factory constructor to create an Attendance instance from JSON
   factory Attendance.fromJson(Map<String, dynamic> json) {
     printJson(json, "attendanceModel");
     return Attendance(
@@ -37,7 +36,6 @@ class Attendance {
     );
   }
 
-  /// Converts the Attendance instance into a Map (JSON)
   Map<String, dynamic> toJson() {
     return {
       'id': id,
