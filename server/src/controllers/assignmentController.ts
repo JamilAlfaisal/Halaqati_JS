@@ -23,7 +23,7 @@ export const createAssignment = async (req:AuthRequest, res:Response) => {
         const userId = req.user?.id;
         const role = req.user?.role;
         const classId = Number(req.params?.id);
-        console.log(classId);
+
 
         if (!userId) {
             console.log("❌ http://localhost:3000/api/assignment/create");
@@ -364,7 +364,7 @@ export const getAssignmentDetails = async (req:AuthRequest, res:Response) => {
 
         if (isNaN(assignmentId)) {
             console.log("❌ http://localhost:3000/api/assignment/details");
-            return res.status(400).json({ message: "Invalid assignment id" });
+            return res.status(400).json({ message: "Invalid assignment id" }); 
         }
 
         const assignment = await assignmentRepository.findOne({

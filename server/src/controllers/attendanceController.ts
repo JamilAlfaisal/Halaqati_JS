@@ -151,6 +151,7 @@ export const updateAttendance = async (req:AuthRequest, res:Response) => {
         }
 
         if (isNaN(attendanceId)) {
+            console.log("❌ http://localhost:3000/api/attendance/update");
             return res.status(400).json({ message: "Invalid attendance id" });
         }
 
@@ -185,7 +186,15 @@ export const updateAttendance = async (req:AuthRequest, res:Response) => {
 
         const today = new Date();
 
-        if (existingAttendance.date.getDate !== today.getDate) {
+        const todayString = today.toISOString().split('T')[0]; 
+
+        const recordDate = existingAttendance.date; 
+
+        console.log("Record Date:", recordDate);
+        console.log("Today's Date:", todayString);
+
+        if (recordDate.toString() !== todayString) {
+            console.log("❌ Attendance update rejected: Date mismatch.");
             return res.status(409).json({
                 message: "Attendance can only be updated on the same day",
             });
