@@ -72,7 +72,7 @@ class MyApp extends StatelessWidget {
         '/update_assignment_screen':(context) => const UpdateAssignmentScreen(),
         '/event_details_screen':(context) => const EventDetailsScreen(),
         '/add_event_screen':(context) => const AddEventScreen(),
-        '/attendacne_details_sceen':(context) => const AttendacneDetailsSceen(),
+        '/attendance_details_screen':(context) => const AttendacneDetailsSceen(),
         '/attendance_screen':(context) => const AttendanceScreen(),
         '/take_attendance_screen':(context) => const TakeAttendanceScreen(),
         '/root_screen': (context) => const RootScreen(),
