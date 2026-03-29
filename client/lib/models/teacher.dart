@@ -44,19 +44,34 @@ class Teacher extends User {
       );
 
   factory Teacher.fromJson(Map<String, dynamic> json) {
-    final List <ClassModel> classes = ((json['createdClasses'] ?? []) as List)
-      .map((e) => ClassModel.fromJson(e)).toList();
+    /// Safe parsing for classes
+    final List<ClassModel> classes = ((json['createdClasses'] ?? []) as List)
+        .map((e) => ClassModel.fromJson(e))
+        .toList();
+
+    /// Safe Date Parsing Helper
+    DateTime parseDate(String? value) {
+      if (value == null || value.isEmpty) {
+        return DateTime(1970); // default fallback
+      }
+      try {
+        return DateTime.parse(value);
+      } catch (_) {
+        return DateTime(1970);
+      }
+    }
+
     return Teacher(
-      id: json['id'].toString(),
-      name: json['name'],
-      email: json['email'],
-      role: json['role'],
-      phone: json['phone'],
-      dob: DateTime.parse(json['dob']),
-      createdAt: DateTime.parse(json['createdAt']),
-      picProfile: json['picProfile']??"",
+      id: json['id']?.toString() ?? "",
+      name: json['name'] ?? "",
+      email: json['email'] ?? "",
+      role: json['role'] ?? "",
+      phone: json['phone'] ?? "",
+      dob: parseDate(json['dob']),
+      createdAt: parseDate(json['createdAt']),
+      picProfile: json['picProfile'] ?? "",
       createdClasses: classes,
-      );
+    );
   }
 
   Map<String, dynamic> toJson() =>

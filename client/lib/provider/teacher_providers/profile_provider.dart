@@ -25,15 +25,15 @@ class AuthNotifier extends AsyncNotifier<AuthUser?> {
 
     try {
       final profileData = await ref.read(apiServiceProvider).getProfile(token);
-      // print('profile data downloaded successfully: $profileData');
+      print('profile data downloaded successfully: $profileData');
       if (profileData == null) return null;
       if (profileData['user']['role'] == 'teacher') {
         final teacher = Teacher.fromJson(profileData['user']);
-        print(teacher);
         ref.read(teacherProvider.notifier).setTeacher(teacher);
         return AuthTeacher(teacher);
       } else {
-        final student = Student.fromJson(profileData['user']);
+        print("this is studetn ");
+        final student = Student.fromJson(profileData);
         ref.read(studentProvider.notifier).setStudent(student);
         return AuthStudent(student);
       }

@@ -5,6 +5,7 @@ import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/attendance.dart';
 import 'package:halqati/models/event.dart';
+import 'package:halqati/models/teacher.dart';
 import 'package:http/http.dart' as http;
 import 'package:halqati/models/student.dart';
 import 'package:halqati/models/class_model.dart';
@@ -305,7 +306,9 @@ class ApiService {
           events: [],
           assignments: [],
           attendanceRecords: [],
-          teacherId: ""
+          teacher: Teacher(id: '', name: '', phone: '', email: '', role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: []
+            
+          )
         );
       } else {
         throw ApiException(
@@ -840,7 +843,7 @@ class ApiService {
   }
 
   Future<Student> getStudentDashboard (String token) async {
-    final url = Uri.parse('$_baseUrl/student/dashboard');
+    final url = Uri.parse('$_baseUrl/auth/auth_me/user');
     try{
       final response = await http.get(
         url,
@@ -858,9 +861,10 @@ class ApiService {
 
       if(response.statusCode == 200){
         final data = jsonDecode(response.body);
-        return Student.fromJson(data);
+        printJson(data, "this is the students");
+        return Student.fromJson(data["user"]);
       }
-      return Student(id: '', name: '', email: '', role: '', dob: DateTime(2017, 9, 7, 17, 30), createdAt: DateTime(2017, 9, 7, 17, 30), picProfile: '', phone: '', memorizedJuz: [], enrolledClasses: []);
+      return Student(id: '', name: '', email: '', role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', phone: '', memorizedJuz: [], enrolledClasses: []);
 
       } on SocketException{
         throw NetworkException();
@@ -1299,6 +1303,60 @@ class ApiService {
       throw ApiException('Unexpected error: $e');
     }
   }
+
+  Future<List<ClassModel>> getStudentClasses(String token) async {
+    final url = Uri.parse('$_baseUrl/class/get_student_classes');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 401) {
+        throw UnauthorizedException();
+      }
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['classes'] != null && data['classes'] is List) {
+          print("student classes we got: ${data['classes']}");
+
+          List<ClassModel> classes = (data['classes'] as List)
+              .map((json) => ClassModel.fromJson(json))
+              .toList();
+
+          return classes;
+        }
+
+        print("getting empty student classes list");
+        return [];
+      } else {
+        throw ApiException(
+          'Failed to fetch student classes: ${response.statusCode}',
+          statusCode: response.statusCode,
+        );
+      }
+    } on SocketException {
+      throw NetworkException();
+    } on TimeoutException {
+      throw NetworkException();
+    } on UnauthorizedException {
+      rethrow;
+    } on NetworkException {
+      rethrow;
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Unexpected error: $e');
+    }
+  }
+
+
 
 //   Future<List<Student>?> getStudentsByClass(String token, int classId)async{
 //     final url = Uri.parse('$_baseUrl/classes');

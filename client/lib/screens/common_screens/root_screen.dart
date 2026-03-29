@@ -37,7 +37,7 @@ class RootScreen extends ConsumerWidget {
     return authState.when(
       data: (user) {
         print("being triggered root screen");
-        print(user);
+        print("user: ${user}");
         if (user == null) return const LoginScreen();
         return switch (user) {
           AuthTeacher() => HomeAppBar(),

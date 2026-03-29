@@ -59,15 +59,6 @@ class _AddHalaqahScreenState extends ConsumerState<AddHalaqahScreen> {
       'selected': false,
     },
   ];
-  Map<String, String> enDays = {
-    "الاثنين":"Monday",
-    "الثلاثاء":"Tuesday",
-    "الأربعاء":"Wednesday",
-    "الخميس":"Thursday",
-    "الجمعة":"Friday",
-    "السبت":"Saturday",
-    "الأحد":"Sunday"
-  };
 
   final List<Map<int, String>> daysObject = [
     {1: "weekdays.1".tr()},

@@ -1,136 +1,134 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:halqati/core/exceptions/api_exceptions.dart';
-import 'package:halqati/models/class_model.dart';
-import 'package:halqati/models/student.dart';
-import 'package:halqati/models/teacher.dart';
-import 'package:halqati/provider/student_providers/student_provider.dart';
+import 'package:halqati/provider/student_providers/student_classes_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/cards/halaqah_info_card.dart';
 import 'package:halqati/widgets/cards/study_time_card.dart';
 import 'package:halqati/widgets/cards/teacher_details_card.dart';
-
 
 class HalaqaDetailsScreen extends ConsumerWidget {
   const HalaqaDetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncStudentDashboard = ref.watch(studentDashboard);
+    final selectedClass =
+    ref.watch(studentClassesProvider.notifier).getSelectedClass();
+
+    final List<Map<int, String>> daysObject = [
+      {1: "weekdays.1".tr()},
+      {2: "weekdays.2".tr()},
+      {3: "weekdays.3".tr()},
+      {4: "weekdays.4".tr()},
+      {5: "weekdays.5".tr()},
+      {6: "weekdays.6".tr()},
+      {7: "weekdays.7".tr()},
+    ];
+
+    if (selectedClass == null) {
+      return Scaffold(
+        appBar: AppbarWithButton(
+          text: 'halaqah_details_screen.halaqah_details'.tr(),
+          addBackButton: true,
+        ),
+        body: Center(
+          child: Text(
+            'halaqah_details_screen.error_loading'.tr(),
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ),
+      );
+    }
+
+    final days = selectedClass.days ?? [];
+
     return Scaffold(
       appBar: AppbarWithButton(
         text: 'halaqah_details_screen.halaqah_details'.tr(),
-        addBackButton: true
+        addBackButton: true,
       ),
-      body: asyncStudentDashboard.when(
-        data: (student){
-          // final HalaqaClass halaqaClass = student?.halaqaClass??HalaqaClass(name: "", id: 0);
-          // final Teacher teacher = student?.teacher ?? Teacher();
-          // final assignmentCount = student?.assignmentClass?.length??0;
-          // final List<String> days = halaqaClass.days??[];
-          // print(days);
-          if(student == null){
-            return Center(
-              child: Text(
-                'halaqah_details_screen.error_loading'.tr(),
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-            );
-          }
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        children: [
+          /// 🔹 Halaqah Info
+          HalaqahInfoCard(
+            description:
+            selectedClass.description ?? 'not_defined'.tr(),
+            name: selectedClass.name ?? 'not_defined'.tr(),
+          ),
 
-          return ListView(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            children: [
-              HalaqahInfoCard(
-                description: 'not_defined'.tr(),
-                name: 'not_defined'.tr(),
-                capacity: 0,
-              ),
-              SizedBox(height: 20,),
-              Text(
-                "halaqah_details_screen.halaqah_info".tr(),
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              SizedBox(height: 5,),
-              StudyTimeCard(
-                location: 'not_defined'.tr(),
-                hours: 'not_defined'.tr()
-              ),
-              SizedBox(height: 10),
-              Text(
-                'halaqah_details_screen.weekly_schedule'.tr(),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              SizedBox(height: 10),
-              Wrap(
-                spacing: 16.0,    // Gap between cards horizontally
-                runSpacing: 16.0, // Gap between lines vertically
-                alignment: WrapAlignment.start, // How to align cards in a row
-                children: false?[].map((day) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.all(Radius.circular(5))
-                    ),
-                    padding: EdgeInsets.all(5),
-                    child: Text(
-                      day,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  );
-                }).toList():[
-                  Container(
-                    decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.all(Radius.circular(5))
-                    ),
-                    padding: EdgeInsets.all(5),
-                    child: Text(
-                      "not_defined".tr(),
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+          const SizedBox(height: 20),
+
+          Text(
+            "halaqah_details_screen.halaqah_info".tr(),
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+
+          const SizedBox(height: 5),
+
+          /// 🔹 Study Time
+          StudyTimeCard(
+            location:
+            selectedClass.location ?? 'not_defined'.tr(),
+            hours:
+            "${selectedClass.startTime ?? '-'} - ${selectedClass.endTime ?? '-'}",
+          ),
+
+          const SizedBox(height: 10),
+
+          /// 🔹 Weekly Schedule
+          Text(
+            'halaqah_details_screen.weekly_schedule'.tr(),
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+
+          const SizedBox(height: 10),
+
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: days.isNotEmpty
+                ? days.map((day) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 6),
+                child: Text(
+                  daysObject[(int.tryParse(day)??1)-1][int.tryParse(day)]??"",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
                   ),
-                ],
-              ),
-              SizedBox(height: 20,),
-              Text(
-                "halaqah_details_screen.teacher_details".tr(),
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              SizedBox(height: 10,),
-              TeacherDetailsCard(
-                name: "not_defined".tr(),
-                email: "not_defined".tr(),
-                phone: "not_defined".tr(),
+                ),
+              );
+            }).toList()
+                : [
+              Container(
+                padding: const EdgeInsets.all(8),
+                child: Text("not_defined".tr()),
               ),
             ],
-          );
-        },
-        loading: () => Expanded(child: const Center(child: CircularProgressIndicator())),
-        error: (e, stack) {
-          if (e is UnauthorizedException) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          ),
 
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Error loading halaqat",
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const SizedBox(height: 16),
-                // ✅ Add retry button for errors
-                ElevatedButton(
-                  onPressed: () => ref.invalidate(studentDashboard),
-                  child: Text("home_screen.retry".tr()),
-                ),
-              ],
-            ),
-          );
-        },
+          const SizedBox(height: 20),
+
+          /// 🔹 Teacher Details
+          Text(
+            "halaqah_details_screen.teacher_details".tr(),
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+
+          const SizedBox(height: 10),
+
+          TeacherDetailsCard(
+            name: selectedClass.teacher?.name ?? 'not_defined'.tr(),
+            email: selectedClass.teacher?.email ?? 'not_defined'.tr(),
+            phone: selectedClass.teacher?.phone ?? 'not_defined'.tr(),
+          ),
+        ],
       ),
     );
   }
