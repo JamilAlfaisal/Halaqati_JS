@@ -386,6 +386,7 @@ export const getStudentEvents = async (req:AuthRequest, res: Response) => {
             return {
                 id: event.id,
                 title: event.title,
+                createdAt: event.createdAt,
                 dueDate: event.dueDate,
                 description: event.description,
                 class: {

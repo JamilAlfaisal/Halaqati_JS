@@ -37,4 +37,4 @@ app.use('/api/attendance', attendanceRouter);
 app.use('/api/student_class', studentClassRouter);
 app.use('/api/update_student', juzRouter);
 app.use('/api/assignment', assignmentRouter);
-app.use('/api/event', eventRouter);
+app.use('/api/event', eventRouter); 

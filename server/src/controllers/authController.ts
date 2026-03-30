@@ -88,6 +88,8 @@ export const login = async (req:Request, res:Response) => {
         return res.status(400).json({message:"Missing Required Fields"})
     }
 
+    console.log(phone);
+
     const queryRunner = AppDataSource.createQueryRunner();
     queryRunner.connect();
     queryRunner.startTransaction();

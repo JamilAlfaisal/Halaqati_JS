@@ -537,9 +537,14 @@ export const getStudentsAssignment = async (req: AuthRequest, res: Response) => 
                 description: ass.assignment.description,
                 type: ass.assignment.type,
                 pages: ass.assignment.pages,
-                created_date: ass.assignment.createdAt,
-                due_date: ass.assignment.dueDate,
-                isComplete: ass.isComplete
+                createdAt: ass.assignment.createdAt,
+                dueDate: ass.assignment.dueDate,
+                haveAssignment:
+                    [
+                        {
+                            isComplete: ass.isComplete
+                        }
+                    ]
             }
         });
         
@@ -593,7 +598,13 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
         const properJson = student.haveAssignment.map((item) => {
             return {
                 ...item.assignment,
-                isComplete: item.isComplete,
+                haveAssignment:
+                    [
+                        {
+                            isComplete: item.isComplete,
+                            id: studentUserId
+                        }
+                    ]
             }
         })
 

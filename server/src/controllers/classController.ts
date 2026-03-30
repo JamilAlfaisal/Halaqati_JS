@@ -448,7 +448,8 @@ export const getStudentClasses = async (req: AuthRequest, res: Response) => {
             teacher: {
                 id: record.class.teacher.id,
                 name: record.class.teacher.name,
-                phone: record.class.teacher.phone
+                phone: record.class.teacher.phone,
+                email: record.class.teacher.email
             },
         }));
 
