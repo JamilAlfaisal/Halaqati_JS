@@ -186,10 +186,14 @@ export const verifyUsers = async (req:AuthRequest, res: Response) => {
             }
 
             console.log("✅ http://localhost:3000/api/auth/auth_me/user");
-            return res.status(200).json({
-                user,
-                memorized_juz: student?.memorized_juz
-            });
+            return res.status(200).json(
+                {
+                    user:{
+                        ...user,
+                        memorized_juz: student?.memorized_juz
+                    }
+                }
+            );
         }
 
     }catch(e){
