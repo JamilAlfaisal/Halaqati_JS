@@ -7,6 +7,7 @@ import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/models/teacher.dart';
 import 'package:halqati/provider/teacher_providers/teacher_provider.dart';
+import 'package:halqati/widgets/cards/personal_user_details.dart';
 import 'package:halqati/widgets/profile/teacher_profile.dart';
 import 'package:intl/intl.dart';
 import 'package:halqati/widgets/cards/user_details.dart';
@@ -42,7 +43,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30,vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -56,7 +57,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               SizedBox(height: 10,),
-              UserDetails(
+              PersonalUserDetails(
                 phone: teacher?.phone??"teacher_profile.no_phoneno_phone".tr(),
                 email: teacher?.email??"teacher_profile.no_email".tr(),
                 dob: teacher!.dob,
@@ -68,10 +69,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
               SizedBox(height: 10,),
               Center(
-                child: Wrap(
-                  direction: Axis.horizontal,
-                  spacing: 40,
-                  runSpacing: 40,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                   children: [
                     Container(
                       padding: EdgeInsets.all(16),
@@ -96,6 +96,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ],
                       ),
                     ),
+
                     Container(
                       padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(

@@ -170,14 +170,13 @@ class ClassDetailsNotifier extends AsyncNotifier<ClassModel?> {
 
   Future<void> updateHalaqah(
       {
-        required String name, // Replace with form controller values
+        required String name,
         String description = "",
         String roomNumber = "",
         required List<int> scheduleDays,
         required String startTime,
         required String endTime,
-      }
-      ) async {
+      }) async {
     state = const AsyncLoading();
 
     state = await AsyncValue.guard(() async {

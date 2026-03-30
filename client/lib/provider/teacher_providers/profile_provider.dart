@@ -9,7 +9,6 @@ import 'package:halqati/provider/teacher_providers/teacher_provider.dart';
 import 'package:halqati/provider/teacher_providers/student_provider.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/test/printJson.dart';
-// lib/providers/auth_provider.dart
 
 final authProvider = AsyncNotifierProvider<AuthNotifier, AuthUser?>(AuthNotifier.new);
 
@@ -27,16 +26,20 @@ class AuthNotifier extends AsyncNotifier<AuthUser?> {
       final profileData = await ref.read(apiServiceProvider).getProfile(token);
       print('profile data downloaded successfully: $profileData');
       if (profileData == null) return null;
+      print("profile data is not null");
       if (profileData['user']['role'] == 'teacher') {
+        print("it is teacher");
         final teacher = Teacher.fromJson(profileData['user']);
+        print("user data set in the model");
         ref.read(teacherProvider.notifier).setTeacher(teacher);
+        print("provider now is holding teacher data");
         return AuthTeacher(teacher);
-      } else {
+      } else if (profileData['user']['role'] == 'student'){
         print("this is studetn ");
         final student = Student.fromJson(profileData);
         ref.read(studentProvider.notifier).setStudent(student);
         return AuthStudent(student);
-      }
+      }else return null;
     } catch (e) {
       print('Error in AuthNotifier: $e');
       if (e is UnauthorizedException) {

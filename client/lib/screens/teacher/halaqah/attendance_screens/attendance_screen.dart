@@ -5,6 +5,7 @@ import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/provider/teacher_providers/attendance_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
+import 'package:halqati/widgets/empty_state_view.dart';
 import 'package:halqati/widgets/lists/attendance_list.dart';
 
 class AttendanceScreen extends ConsumerStatefulWidget {
@@ -36,20 +37,8 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
         },
         child: attendancesAsync.when(
           data: (attendances) {
-            if (attendances == null || attendances.isEmpty) {
-              print("wow it is empty");
-              return ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: const [
-                  SizedBox(height: 200),
-                  Center(
-                    child: Text(
-                      "No attendance records found",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ],
-              );
+            if (attendances == null || attendances.length == 0) {
+              return EmptyStateView();
             }
 
             return ListView.builder(

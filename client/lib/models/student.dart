@@ -71,8 +71,8 @@ class Student extends User {
       phone: json['phone']?.toString() ?? "",
       dob: DateTime.tryParse(json['dob'] ?? "") ?? DateTime.now(),
       createdAt: DateTime.tryParse(json['createdAt'] ?? "") ?? DateTime.now(),
-      memorizedJuz: json['memorized_juz'] != null
-          ? List<String>.from(json['memorized_juz'])
+      memorizedJuz: json['memorizedJuz'] != null
+          ? List<String>.from(json['memorizedJuz'])
           : [],
       enrolledClasses: (json['enrolledClasses'] as List?)
           ?.map((e) => ClassModel.fromJson(e as Map<String, dynamic>))

@@ -1,59 +1,92 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 
 class StudentList extends StatelessWidget {
   final String name;
   final int totalPagesMemorized;
-  final String imgUrl;
-  final Function onTap;
+  final String? profileUrl; // ✅ NEW
+  final VoidCallback onTap;
+
   const StudentList({
     super.key,
     required this.name,
     required this.totalPagesMemorized,
     required this.onTap,
-    this.imgUrl = "assets/images/profile.png",
+    this.profileUrl,
   });
+
+  String getInitial() {
+    if (name.isEmpty) return "?";
+    return name.trim()[0].toUpperCase(); // ✅ First letter
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return GestureDetector(
-      onTap: ()=> onTap(),
+      onTap: onTap,
       child: Container(
-        margin: EdgeInsets.only(top: 20),
-        padding: EdgeInsets.all(16),
+        margin: const EdgeInsets.only(top: 20),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           color: Colors.white,
-          boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 5,spreadRadius: 1),
+          boxShadow: const [
+            BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 1),
           ],
         ),
-        child: Row (
-          spacing: 5,
-          children:[
+        child: Row(
+          children: [
+            /// 🔥 Profile Image OR Initial
             Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
+              height: 56,
+              width: 56,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: theme.primaryColor.withOpacity(.1),
+              ),
+              child: profileUrl != null && profileUrl!.isNotEmpty
+                  ? ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Image.network(
+                  profileUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _buildInitial(theme),
                 ),
-                height: 56,
-                width:  56,
-                child: Image.asset(imgUrl, fit: BoxFit.cover,)
+              )
+                  : _buildInitial(theme),
             ),
+
+            const SizedBox(width: 10),
+
+            /// 🔹 Info
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   name,
-                  style: TextTheme.of(context).bodyLarge,
+                  style: theme.textTheme.bodyLarge,
                 ),
                 Text(
                   "Total pages memorized: $totalPagesMemorized",
-                  style: TextTheme.of(context).titleSmall,
+                  style: theme.textTheme.titleSmall,
                 ),
               ],
             ),
-          ]
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 🔥 Initial Avatar
+  Widget _buildInitial(ThemeData theme) {
+    return Center(
+      child: Text(
+        getInitial(),
+        style: theme.textTheme.bodyLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: theme.primaryColor,
         ),
       ),
     );

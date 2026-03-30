@@ -1,12 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 
 class HalaqatList extends StatelessWidget {
   final String title;
   final int studentNumber;
   final VoidCallback? onTap;
+
   const HalaqatList({
     super.key,
     required this.title,
@@ -16,37 +15,98 @@ class HalaqatList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.only(bottom: 20),
-        padding: EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(18),
           color: Colors.white,
-          boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 5,spreadRadius: 1),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 8,
+              spreadRadius: 1,
+              offset: Offset(0, 3),
+            ),
           ],
         ),
         child: Row(
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 5,
+            /// 🔹 Left Icon
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: theme.primaryColor.withOpacity(.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.menu_book_rounded,
+                color: theme.primaryColor,
+                size: 22,
+              ),
+            ),
+
+            const SizedBox(width: 12),
+
+            /// 🔹 Text Content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.people_alt_outlined,
+                        size: 14,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "$studentNumber ${'students'.tr()}",
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            /// 🔹 Arrow + Indicator
+            Row(
               children: [
-                Text(
-                  title,
-                  style: TextTheme.of(context).bodyLarge,
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: Colors.green, // you can make dynamic later
+                    shape: BoxShape.circle,
+                  ),
                 ),
-                Text(
-                  "$studentNumber ${'students'.tr()}",
-                  style: TextTheme.of(context).titleSmall,
+                const SizedBox(width: 10),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 18,
+                  color: Colors.grey[600],
                 ),
               ],
             ),
-            Spacer(),
-            Icon(Icons.arrow_forward_rounded)
           ],
         ),
       ),

@@ -56,62 +56,60 @@ class _StudentProfileState extends ConsumerState<StudentProfile> {
             );
             List<String> memorizedJuz = student.memorizedJuz;
             studentPhoneNumber = student.phone;
-            return  Padding(
+            return  ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-              child: ListView(
-                children: [
-                  StudentProfileLeft(student: student,),
-                  SizedBox(height: 20,),
-                  Text(
-                    "student_bottom_appbar.profile.profile".tr(),
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  SizedBox(height: 10,),
-                  UserDetails(
-                    email: student.email??"teacher_profile.no_email".tr(),
-                    phone: student.phone??"student_bottom_appbar.profile.no_phone".tr(),
-                    dob: student.dob,
-                  ),
-                  SizedBox(height: 20,),
-                  Text(
-                    "student_bottom_appbar.profile.memorized_pages".tr(),
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  SizedBox(height: 20,),
-                  SizedBox(
-                    height: 200,
-                    child: GridView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: pages.length,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4,
-                        crossAxisSpacing: 5,
-                        mainAxisSpacing:5,
-                        childAspectRatio: 1.1,
-                      ),
-                      itemBuilder: (context, index){
-                        return PageNumber(
-                          onPressed: (){
-                            setState(() {
-                              if (memorizedJuz.contains(pages[index].toString())){
-                                memorizedJuz.remove(pages[index].toString());
-                              }else{
-                                memorizedJuz.add(pages[index].toString());
-                              }
-                            });
-                            ref.watch(studentsProvider.notifier).updateMemorizedJuz(
-                              studentId: student.id,
-                              newJuzList: memorizedJuz
-                            );
-                          },
-                          num: pages[index],
-                          selected: memorizedJuz.contains(pages[index].toString()),
-                        );
-                      }
+              children: [
+                StudentProfileLeft(student: student,),
+                SizedBox(height: 20,),
+                Text(
+                  "student_bottom_appbar.profile.profile".tr(),
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                SizedBox(height: 10,),
+                UserDetails(
+                  email: student.email??"teacher_profile.no_email".tr(),
+                  phone: student.phone??"student_bottom_appbar.profile.no_phone".tr(),
+                  dob: student.dob,
+                ),
+                SizedBox(height: 20,),
+                Text(
+                  "student_bottom_appbar.profile.memorized_pages".tr(),
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                SizedBox(height: 20,),
+                SizedBox(
+                  height: 200,
+                  child: GridView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: pages.length,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      crossAxisSpacing: 5,
+                      mainAxisSpacing:5,
+                      childAspectRatio: 1.1,
                     ),
+                    itemBuilder: (context, index){
+                      return PageNumber(
+                        onPressed: (){
+                          setState(() {
+                            if (memorizedJuz.contains(pages[index].toString())){
+                              memorizedJuz.remove(pages[index].toString());
+                            }else{
+                              memorizedJuz.add(pages[index].toString());
+                            }
+                          });
+                          ref.watch(studentsProvider.notifier).updateMemorizedJuz(
+                            studentId: student.id,
+                            newJuzList: memorizedJuz
+                          );
+                        },
+                        num: pages[index],
+                        selected: memorizedJuz.contains(pages[index].toString()),
+                      );
+                    }
                   ),
-                ],
-              ),
+                ),
+              ],
             );
           },
           error: (e, stack) {

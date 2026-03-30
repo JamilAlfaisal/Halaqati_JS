@@ -10,6 +10,7 @@ import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
 import 'package:halqati/widgets/buttons/filter_button.dart';
+import 'package:halqati/widgets/empty_state_view.dart';
 import 'package:halqati/widgets/lists/assignment_list.dart';
 import 'package:collection/collection.dart';
 
@@ -43,62 +44,77 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
       ),
       body: asyncAssignment.when(
         data: (assignments){
+
+
+          if(assignments == null || assignments.length == 0){
+            return RefreshIndicator(
+                onRefresh: ()async {
+                  ref.invalidate(assignmentProvider);
+                  await ref.refresh(assignmentProvider.future);
+                },
+              child: EmptyStateView(),
+            );
+          }
+
           return RefreshIndicator(
             onRefresh: ()async {
               ref.invalidate(assignmentProvider);
+              await ref.refresh(assignmentProvider.future);
             },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      spacing: 10,
-                      children: [
-                        FilterButton(
-                          onPressed: (){},
-                          text: "All",
-                        ),
-                        FilterButton(
-                          onPressed: (){},
-                          text: "Last Week",
-                        ),
-                        FilterButton(
-                          onPressed: (){},
-                          text: "Last Month",
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 50,),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: assignments?.length??0,
-                      itemBuilder: (context, index) {
-                        final students = assignments?[index].students;
-                        final AssignedStudents? assignedStudent = students?.firstWhereOrNull(
-                          (student) => student.student.id.toString() == studentId.toString(),
-                        );
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // SingleChildScrollView(
+                //   scrollDirection: Axis.horizontal,
+                //   child: Row(
+                //     spacing: 10,
+                //     children: [
+                //       FilterButton(
+                //         onPressed: (){},
+                //         text: "All",
+                //       ),
+                //       FilterButton(
+                //         onPressed: (){},
+                //         text: "Last Week",
+                //       ),
+                //       FilterButton(
+                //         onPressed: (){},
+                //         text: "Last Month",
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                // SizedBox(height: 50,),
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: assignments?.length??0,
+                    itemBuilder: (context, index) {
+                      final students = assignments?[index].students;
+                      final AssignedStudents? assignedStudent = students?.firstWhereOrNull(
+                        (student) {
+                          return student.student.id.toString() == studentId.toString();
+                        },
+                      );
 
-                        return AssignmentList(
-                            title: assignments?[index].title??"",
-                            isComplete: assignedStudent?.isComplete??false,
-                            dueDate: HelperMethods.formatDate(assignments?[index].dueDate),
-                            onTap: (){
-                              ref.read(selectedAssignmentProvider.notifier).select(int.parse(assignments?[index].id.toString()??"0"));
-                              Navigator.of(context).pushNamed("/update_assignment_screen");
-                            },
-                            onDelete: (){
-                              ref.read(assignmentProvider.notifier).deleteAssignment(assignments?[index].id??"0");
-                            }
-                        );
-                      },
-                    ),
+                      print(assignedStudent?.isComplete);
+
+                      return AssignmentList(
+                          title: assignments?[index].title??"",
+                          isComplete: assignedStudent?.isComplete??false,
+                          dueDate: HelperMethods.formatDate(assignments?[index].dueDate),
+                          onTap: (){
+                            ref.read(selectedAssignmentProvider.notifier).select(int.parse(assignments?[index].id.toString()??"0"));
+                            Navigator.of(context).pushNamed("/update_assignment_screen");
+                          },
+                          onDelete: (){
+                            ref.read(assignmentProvider.notifier).deleteAssignment(assignments?[index].id??"0");
+                          }
+                      );
+                    },
                   ),
-                ],
-              )
+                ),
+              ],
             ),
           );
         },

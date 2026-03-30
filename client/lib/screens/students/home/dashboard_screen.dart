@@ -9,6 +9,7 @@ import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
 import 'package:halqati/models/class_model.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
+import 'package:halqati/widgets/empty_state_view.dart';
 import 'package:halqati/widgets/lists/class_list_item.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -26,19 +27,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     final classesAsync = ref.watch(studentClassesProvider);
 
+
     return Scaffold(
       appBar: AppbarWithLogo(text: "student_app_bar.dashboard.title".tr()),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: RefreshIndicator(
-          onRefresh: () async {
-            ref.refresh(studentDashboard);
-            await Future.delayed(Duration(seconds: 1));
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.refresh(studentClassesProvider);
+          await Future.delayed(Duration(seconds: 1));
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
                 height: 200,
                 width: double.maxFinite,
                 decoration: BoxDecoration(
@@ -49,75 +51,61 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   fit: BoxFit.fill,
                 ),
               ),
-              classesAsync.when(
-                data: (classes){
-                  if (classes == null) {
-                    return SizedBox(
-                      width: 200,
-                      height: 100,
-                      child: ListView(
-                        children: [
-                          Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 50),
-                              child: Center(
-                                child: Text(
-                                  "home_screen.no_halaqat".tr(),
-                                  style: Theme.of(context).textTheme.bodyLarge,
-                                ),
-                              )
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  return Expanded(
-                    child: ListView.builder(
-                      padding: EdgeInsets.only(
-                        top: 20,
-                        bottom: MediaQuery.of(context).padding.bottom
-                      ),
-                      itemCount: classes.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return ClassListItem(
-                          onTap: (){
-                            ref.read(selectedClassIdProvider.notifier).select(classes[index].id);
-                            Navigator.of(context).pushNamed("/halaqa_details_screen");
-                          },
-                          name: classes[index].name,
-                          description: classes[index].description,
-                          room: classes[index].location,
-                        );
-                      },
+            ),
+            classesAsync.when(
+              data: (classes){
+                if (classes == null || (classes.length) == 0) {
+                  return Expanded(child: EmptyStateView());
+                }
+                return Expanded(
+                  child: ListView.builder(
+                    padding: EdgeInsets.only(
+                      top: 20,
+                      left: 16,
+                      right: 16,
+                      bottom: MediaQuery.of(context).padding.bottom
                     ),
-                  );
-                },
-                loading: () => Expanded(child: const Center(child: CircularProgressIndicator())),
-                error: (e, stack) {
-                  if (e is UnauthorizedException) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+                    itemCount: classes.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ClassListItem(
+                        onTap: (){
+                          ref.read(selectedClassIdProvider.notifier).select(classes[index].id);
+                          Navigator.of(context).pushNamed("/halaqa_details_screen");
+                        },
+                        name: classes[index].name,
+                        description: classes[index].description,
+                        room: classes[index].location,
+                      );
+                    },
+                  ),
+                );
+              },
+              loading: () => Expanded(child: const Center(child: CircularProgressIndicator())),
+              error: (e, stack) {
+                if (e is UnauthorizedException) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Error loading halaqat",
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                        const SizedBox(height: 16),
-                        // ✅ Add retry button for errors
-                        ElevatedButton(
-                          onPressed: () => ref.invalidate(studentDashboard),
-                          child: Text("home_screen.retry".tr()),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Error loading halaqat",
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 16),
+                      // ✅ Add retry button for errors
+                      ElevatedButton(
+                        onPressed: () => ref.invalidate(studentDashboard),
+                        child: Text("home_screen.retry".tr()),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );

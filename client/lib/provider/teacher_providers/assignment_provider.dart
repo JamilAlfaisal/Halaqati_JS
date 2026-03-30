@@ -32,7 +32,6 @@ class AssignmentNotifier extends AsyncNotifier<List<Assignment>?> {
     }
   }
 
-  // --- HELPER: Get currently selected assignment from the list ---
   Assignment? getSelectedAssignment() {
     final selectedId = ref.read(selectedAssignmentProvider).toString();
     return state.value?.firstWhere(
@@ -41,9 +40,6 @@ class AssignmentNotifier extends AsyncNotifier<List<Assignment>?> {
     );
   }
 
-
-
-  // --- CREATE ---
   Future<void> createAssignment({
     required String title,
     required String description,
@@ -74,7 +70,6 @@ class AssignmentNotifier extends AsyncNotifier<List<Assignment>?> {
     }
   }
 
-  // --- UPDATE ---
   Future<void> updateAssignmentDetails({
     required String title,
     required String description,
@@ -86,9 +81,7 @@ class AssignmentNotifier extends AsyncNotifier<List<Assignment>?> {
     final assignmentId = ref.read(selectedAssignmentProvider).toString();
     final token = ref.read(tokenProvider).value;
     if (token == null) throw UnauthorizedException();
-
     try {
-
       await ref.read(apiServiceProvider).updateAssignment(
         token: token,
         id: assignmentId,
@@ -124,7 +117,6 @@ class AssignmentNotifier extends AsyncNotifier<List<Assignment>?> {
     }
   }
 
-  // --- DELETE ---
   Future<void> deleteAssignment(String assignmentId) async {
     final token = ref.read(tokenProvider).value;
     if (token == null) throw UnauthorizedException();

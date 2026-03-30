@@ -4,52 +4,118 @@ import 'package:halqati/models/student.dart';
 
 class StudentProfileLeft extends StatelessWidget {
   final Student student;
+
   const StudentProfileLeft({
     super.key,
-    required this.student
+    required this.student,
   });
+
+  String getInitial() {
+    final name = student.name ?? "";
+    if (name.trim().isEmpty) return "?";
+    return name.trim()[0].toUpperCase();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final imageUrl = student.picProfile; // 🔥 assuming exists
+
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 5,spreadRadius: 1),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            spreadRadius: 1,
+            offset: Offset(0, 3),
+          ),
         ],
       ),
       child: Row(
-        spacing: 10,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(50),
-            child: Image.asset(
-              'assets/images/profile.png',
-              fit: BoxFit.cover,
-              width: 100,
-              height: 100,
+          /// 🔥 Avatar
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: theme.primaryColor.withOpacity(.1),
+            ),
+            child: ClipOval(
+              child: (imageUrl != null && imageUrl.isNotEmpty)
+                  ? Image.network(
+                imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _buildInitial(theme),
+              )
+                  : _buildInitial(theme),
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                student.name??"student_bottom_appbar.profile.no_name".tr(),
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              Text(
-                "ID: #${student.id.toString()}",
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              Text(
-                "Juz: ${student.memorizedJuz.length}/30",
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-            ],
-          )
+
+          const SizedBox(width: 16),
+
+          /// 🔹 Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  student.name ??
+                      "student_bottom_appbar.profile.no_name".tr(),
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                Text(
+                  "ID: #${student.id}",
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[700],
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Row(
+                  children: [
+                    Icon(
+                      Icons.menu_book_outlined,
+                      size: 16,
+                      color: theme.primaryColor,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      "Juz: ${student.memorizedJuz.length}/30",
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  /// 🔤 Initial Avatar
+  Widget _buildInitial(ThemeData theme) {
+    return Center(
+      child: Text(
+        getInitial(),
+        style: theme.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: theme.primaryColor,
+        ),
       ),
     );
   }
