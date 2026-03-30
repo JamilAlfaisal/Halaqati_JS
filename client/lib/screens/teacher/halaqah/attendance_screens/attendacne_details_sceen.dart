@@ -5,8 +5,6 @@ import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/provider/teacher_providers/attendance_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
-import 'package:halqati/widgets/buttons/floating_button_icon.dart';
-import 'package:halqati/widgets/lists/attendance_list.dart';
 import 'package:halqati/widgets/lists/student_attendance_item.dart';
 
 class AttendacneDetailsSceen extends ConsumerStatefulWidget {

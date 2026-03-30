@@ -5,11 +5,10 @@ import 'package:halqati/models/class_model.dart';
 class HalaqahInfoCard extends StatelessWidget {
   final String name;
   final String description;
-  final int capacity;
   const HalaqahInfoCard({
     super.key,
     required this.description,
-    required this.name, required this.capacity
+    required this.name
   });
 
   @override
@@ -58,10 +57,6 @@ class HalaqahInfoCard extends StatelessWidget {
                   Text(
                     description,
                     style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  Text(
-                    "${'halaqah_details_screen.capacity'.tr()}: $capacity",
-                    style: Theme.of(context).textTheme.labelSmall,
                   ),
                 ],
               ),

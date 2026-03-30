@@ -3,10 +3,16 @@ import 'package:halqati/models/attendance.dart';
 import 'package:halqati/models/event.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/test/printJson.dart';
+import 'package:halqati/models/assignment.dart';
+import 'package:halqati/models/attendance.dart';
+import 'package:halqati/models/event.dart';
+import 'package:halqati/models/student.dart';
+import 'package:halqati/models/teacher.dart';
+import 'package:halqati/test/printJson.dart';
 
 class ClassModel {
-  final String id; // Changed to int based on JSON
-  final String teacherId; // Added teacherId
+  final String id;
+  final Teacher teacher; // ✅ replaced teacherId
   final String name;
   final String description;
   final String location;
@@ -20,7 +26,7 @@ class ClassModel {
 
   ClassModel({
     required this.id,
-    required this.teacherId,
+    required this.teacher,
     required this.name,
     required this.description,
     required this.location,
@@ -33,10 +39,10 @@ class ClassModel {
     required this.attendanceRecords,
   });
 
-  /// Creates a copy of the class with updated attributes
+  /// CopyWith
   ClassModel copyWith({
     String? id,
-    String? teacherId,
+    Teacher? teacher,
     String? name,
     String? description,
     String? location,
@@ -50,7 +56,7 @@ class ClassModel {
   }) {
     return ClassModel(
       id: id ?? this.id,
-      teacherId: teacherId ?? this.teacherId,
+      teacher: teacher ?? this.teacher,
       name: name ?? this.name,
       description: description ?? this.description,
       location: location ?? this.location,
@@ -64,47 +70,66 @@ class ClassModel {
     );
   }
 
-  /// Factory constructor to create a ClassModel instance from JSON
+  /// Factory
   factory ClassModel.fromJson(Map<String, dynamic> json) {
-    late String teacherId;
-    if (json['teacherId'] != null){
-      teacherId = json['teacherId'].toString();
-    }else if (json['teacher'] != null && json['teacher']['id'] != null){
-      teacherId = json['teacher']['id'].toString();
-    }else{
-      teacherId = "";
+    printJson(json, "class_model");
+
+    /// ✅ Handle teacher safely
+    Teacher teacher;
+
+    if (json['teacher'] != null) {
+      teacher = Teacher.fromJson(json['teacher']);
+    } else if (json['teacherId'] != null) {
+      // fallback if backend only sends ID
+      teacher = Teacher(
+        id: json['teacherId'].toString(),
+        name: "",
+        email: "",
+        phone: "", role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
+      );
+    } else {
+      // fallback empty teacher
+      teacher = Teacher(
+        id: "",
+        name: "",
+        email: "",
+        phone: "", role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
+      );
     }
 
-    printJson(json, "class_model");
     return ClassModel(
-      id: json['id'].toString(),
-      teacherId: teacherId,
-      name: json['name'] as String,
-      description: json['description'] as String,
-      location: json['location'] as String,
-      startTime: json['startTime'] as String,
-      endTime: json['endTime'] as String,
-      days: List<String>.from(json['days']??[]),
-      students: ((json['students']??[]) as List?)
-          ?.map((s) => Student.fromJson(s))
-          .toList() ?? [],
-      events: ((json['events']??[]) as List?)
-          ?.map((e) => Event.fromJson(e))
-          .toList() ?? [],
-      assignments: ((json['assignments']??[]) as List?)
-          ?.map((a) => Assignment.fromJson(a))
-          .toList() ?? [],
-      attendanceRecords: ((json['attendances']??[]) as List?)
-          ?.map((ar) => Attendance.fromJson(ar))
-          .toList() ?? [],
+      id: json['id']?.toString() ?? "",
+      teacher: teacher,
+      name: json['name'] ?? "",
+      description: json['description'] ?? "",
+      location: json['location'] ?? "",
+      startTime: json['startTime'] ?? "",
+      endTime: json['endTime'] ?? "",
+      days: List<String>.from(json['days'] ?? []),
+
+      students: ((json['students'] ?? []) as List)
+          .map((s) => Student.fromJson(s))
+          .toList(),
+
+      events: ((json['events'] ?? []) as List)
+          .map((e) => Event.fromJson(e))
+          .toList(),
+
+      assignments: ((json['assignments'] ?? []) as List)
+          .map((a) => Assignment.fromJson(a))
+          .toList(),
+
+      attendanceRecords: ((json['attendances'] ?? []) as List)
+          .map((ar) => Attendance.fromJson(ar))
+          .toList(),
     );
   }
 
-  /// Converts the ClassModel instance into a Map (JSON)
+  /// To JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'teacherId': teacherId,
+      'teacher': teacher.toJson(), // ✅ full object
       'name': name,
       'description': description,
       'location': location,
@@ -114,7 +139,8 @@ class ClassModel {
       'students': students.map((s) => s.toJson()).toList(),
       'events': events.map((e) => e.toJson()).toList(),
       'assignments': assignments.map((a) => a.toJson()).toList(),
-      'attendances': attendanceRecords.map((ar) => ar.toJson()).toList(),
+      'attendances':
+      attendanceRecords.map((ar) => ar.toJson()).toList(),
     };
   }
 
