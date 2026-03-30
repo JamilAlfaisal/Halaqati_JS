@@ -8,6 +8,7 @@ import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
+import 'package:halqati/widgets/empty_state_view.dart';
 import 'package:halqati/widgets/lists/assignment_list.dart';
 
 class EventsScreen extends ConsumerStatefulWidget {
@@ -39,13 +40,8 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
         data: (events){
           print("events now is list");
           print(events);
-          if(events == null){
-            return Center(
-              child: Text(
-                'halaqah_details_screen.error_loading'.tr(),
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-            );
+          if(events == null || events.length == 0){
+            return EmptyStateView();
           }
 
           return RefreshIndicator(

@@ -1,4 +1,6 @@
 import 'package:halqati/models/student.dart';
+import 'package:halqati/models/teacher.dart';
+import 'package:halqati/models/class_model.dart';
 import 'package:halqati/test/printJson.dart';
 import 'package:halqati/utils/helper_methods.dart';
 
@@ -36,6 +38,10 @@ class Assignment {
   final DateTime createdDate;
   final List<AssignedStudents> students;
 
+  /// ✅ NEW
+  final Teacher teacher;
+  final ClassModel halaqaClass;
+
   Assignment({
     required this.id,
     required this.title,
@@ -45,6 +51,10 @@ class Assignment {
     required this.pages,
     required this.createdDate,
     required this.students,
+
+    /// ✅ NEW
+    required this.teacher,
+    required this.halaqaClass,
   });
 
   Assignment copyWith({
@@ -56,6 +66,10 @@ class Assignment {
     List<String>? pages,
     DateTime? createdDate,
     List<AssignedStudents>? students,
+
+    /// ✅ NEW
+    Teacher? teacher,
+    ClassModel? halaqaClass,
   }) {
     return Assignment(
       id: id ?? this.id,
@@ -66,6 +80,10 @@ class Assignment {
       pages: pages ?? this.pages,
       createdDate: createdDate ?? this.createdDate,
       students: students ?? this.students,
+
+      /// ✅ NEW
+      teacher: teacher ?? this.teacher,
+      halaqaClass: halaqaClass ?? this.halaqaClass,
     );
   }
 
@@ -77,24 +95,73 @@ class Assignment {
     return foundKey;
   }
 
-  /// Factory constructor to create an Assignment from JSON
-  factory Assignment.fromJson(Map<String, dynamic> json) {
-    print("id: ${HelperMethods.getTerms(json, ["id", "assignmentId"])}");
+  /// 🔐 Safe date parser
+  static DateTime _parseDate(dynamic value) {
+    try {
+      if (value == null || value.toString().isEmpty) {
+        return DateTime(1970);
+      }
+      return DateTime.parse(value.toString());
+    } catch (_) {
+      return DateTime(1970);
+    }
+  }
 
+  factory Assignment.fromJson(Map<String, dynamic> json) {
     printJson(json, "assignmentModel");
-    print("after printJson");
+
+    /// ✅ Teacher handling
+    Teacher teacher;
+    if (json['teacher'] != null) {
+      teacher = Teacher.fromJson(json['teacher']);
+    } else {
+      teacher = Teacher(
+        id: "",
+        name: "",
+        email: "",
+        phone: "", role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
+      );
+    }
+
+    /// ✅ Class handling
+    ClassModel halaqaClass;
+    if (json['class'] != null) {
+      halaqaClass = ClassModel.fromJson(json['class']);
+    } else if (json['halaqaClass'] != null) {
+      halaqaClass = ClassModel.fromJson(json['halaqaClass']);
+    } else {
+      halaqaClass = ClassModel(
+        id: "",
+        teacher: teacher,
+        name: "",
+        description: "",
+        location: "",
+        startTime: "",
+        endTime: "",
+        days: const [],
+        students: const [],
+        events: const [],
+        assignments: const [],
+        attendanceRecords: const [],
+      );
+    }
+
     return Assignment(
       id: HelperMethods.getTerms(json, ["id", "assignmentId"]),
-      title: json['title'] ??"",
-      dueDate: DateTime.parse(json['dueDate']??""),
-      type: json['type']??"",
-      description: json['description']??"",
-      pages: List<String>.from(json['pages']??[]),
-      createdDate: DateTime.parse(json['createdAt']??""),
-      students: [],
-      // students:  (json[_getTerm(json, ["haveAssignment", "students"]) ] as List)
-      //     .map((s) => AssignedStudents.fromJson(s))
-      //     .toList(),
+      title: json['title'] ?? "",
+      dueDate: _parseDate(json['dueDate']),
+      type: json['type'] ?? "",
+      description: json['description'] ?? "",
+      pages: List<String>.from(json['pages'] ?? []),
+      createdDate: _parseDate(json['createdAt']),
+      students: ((json[_getTerm(json, ["haveAssignment", "students"])] ?? [])
+      as List)
+          .map((s) => AssignedStudents.fromJson(s))
+          .toList(),
+
+      /// ✅ NEW
+      teacher: teacher,
+      halaqaClass: halaqaClass,
     );
   }
 
@@ -108,6 +175,10 @@ class Assignment {
       'pages': pages,
       'createdDate': createdDate.toIso8601String(),
       'students': students.map((s) => s.toJson()).toList(),
+
+      /// ✅ NEW
+      'teacher': teacher.toJson(),
+      'class': halaqaClass.toJson(),
     };
   }
 }

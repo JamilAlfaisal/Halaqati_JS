@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
+import 'package:halqati/models/class_model.dart';
 import 'package:halqati/models/event.dart'; // Ensure this matches your file path
+import 'package:halqati/models/teacher.dart';
 import 'package:halqati/provider/api_service_provider.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
@@ -146,6 +148,31 @@ class EventDetailsNotifier extends AsyncNotifier<Event?> {
             description: description,
             dueDate: HelperMethods.parseDate(dueDate),
             createdDate: DateTime.now(),
+            teacher: Teacher(
+              id: "",
+              name: "",
+              email: "",
+              phone: "", role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
+            ),
+            halaqaClass: ClassModel(
+              id: "",
+              teacher: Teacher(
+                id: "",
+                name: "",
+                email: "",
+                phone: "", role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
+              ),
+              name: "",
+              description: "",
+              location: "",
+              startTime: "",
+              endTime: "",
+              days: const [],
+              students: const [],
+              events: const [],
+              assignments: const [],
+              attendanceRecords: const [],
+            ),
           )
         );
         return await ref.read(apiServiceProvider).getEventDetails(token, eventId);

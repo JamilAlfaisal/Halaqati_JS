@@ -6,70 +6,128 @@ import 'package:shimmer/shimmer.dart';
 
 class TeacherProfile extends StatelessWidget {
   final Teacher? teacher;
+
   const TeacherProfile({super.key, required this.teacher});
+
+  String getInitial() {
+    final name = teacher?.name ?? "";
+    if (name.trim().isEmpty) return "?";
+    return name.trim()[0].toUpperCase();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final imageUrl = teacher?.picProfile ?? "";
+
     return Container(
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 5,spreadRadius: 1),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            spreadRadius: 1,
+            offset: Offset(0, 3),
+          ),
         ],
       ),
       child: Row(
-        spacing: 10,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: CachedNetworkImage(
-                  imageUrl: (teacher?.picProfile)??"",
-                  height: 100,
-                  width: 100,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Container(color: Colors.white),
-                  ),
-                  errorWidget: (context, url, error) {
-                    return Container(
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.broken_image, color: Colors.grey),
-                  );
-                  },
-                )
+          /// 🔥 Avatar
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: theme.primaryColor.withOpacity(.1),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: imageUrl.isNotEmpty
+                  ? CachedNetworkImage(
+                imageUrl: imageUrl,
+                fit: BoxFit.cover,
+
+                /// 🔹 Loading shimmer
+                placeholder: (context, url) =>
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(color: Colors.white),
+                    ),
+
+                /// 🔥 Fallback to initial instead of broken icon
+                errorWidget: (context, url, error) =>
+                    _buildInitial(theme),
               )
+                  : _buildInitial(theme),
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                teacher?.name??"teacher_profile.no_name".tr(),
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              Text(
-                "ID: #${teacher?.id.toString()??"teacher_profile.no_name".tr()}",
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-            ],
-          )
+
+          const SizedBox(width: 14),
+
+          /// 🔹 Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  teacher?.name ??
+                      "teacher_profile.no_name".tr(),
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                Text(
+                  "ID: #${teacher?.id ?? '-'}",
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[700],
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                /// 🔹 Optional role badge
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.primaryColor.withOpacity(.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    teacher?.role ?? "Teacher",
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.primaryColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  /// 🔤 Initial Avatar
+  Widget _buildInitial(ThemeData theme) {
+    return Center(
+      child: Text(
+        getInitial(),
+        style: theme.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: theme.primaryColor,
+        ),
       ),
     );
   }

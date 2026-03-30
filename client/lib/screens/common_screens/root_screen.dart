@@ -37,12 +37,21 @@ class RootScreen extends ConsumerWidget {
     return authState.when(
       data: (user) {
         print("being triggered root screen");
-        print("user: ${user}");
         if (user == null) return const LoginScreen();
-        return switch (user) {
-          AuthTeacher() => HomeAppBar(),
-          AuthStudent() => DashboardAppBar(),
-        };
+        if (user is AuthTeacher){
+          print("user is teacher: ${user}");
+          return HomeAppBar();
+        }else if (user is AuthStudent){
+          print("user is student: ${user}");
+          return DashboardAppBar();
+        }else{
+          return LoginScreen();
+        }
+        // return switch (user) {
+        //
+        //   AuthTeacher() => HomeAppBar(),
+        //   AuthStudent() => DashboardAppBar(),
+        // };
       },
       loading: () {
         return Scaffold(
@@ -78,7 +87,6 @@ class RootScreen extends ConsumerWidget {
 
       },
       error: (err, stack) {
-        // print('Auth error in RootScreen: $err');
         return const LoginScreen();
       },
     );

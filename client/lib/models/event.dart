@@ -1,3 +1,5 @@
+import 'package:halqati/models/teacher.dart';
+import 'package:halqati/models/class_model.dart';
 import 'package:halqati/test/printJson.dart';
 import 'package:halqati/utils/helper_methods.dart';
 
@@ -8,12 +10,20 @@ class Event {
   final DateTime createdDate;
   final DateTime dueDate;
 
+  /// ✅ NEW
+  final Teacher teacher;
+  final ClassModel halaqaClass;
+
   Event({
     required this.id,
     required this.title,
     required this.description,
     required this.createdDate,
     required this.dueDate,
+
+    /// ✅ NEW
+    required this.teacher,
+    required this.halaqaClass,
   });
 
   Event copyWith({
@@ -22,6 +32,10 @@ class Event {
     String? description,
     DateTime? createdDate,
     DateTime? dueDate,
+
+    /// ✅ NEW
+    Teacher? teacher,
+    ClassModel? halaqaClass,
   }) {
     return Event(
       id: id ?? this.id,
@@ -29,24 +43,75 @@ class Event {
       description: description ?? this.description,
       createdDate: createdDate ?? this.createdDate,
       dueDate: dueDate ?? this.dueDate,
+
+      /// ✅ NEW
+      teacher: teacher ?? this.teacher,
+      halaqaClass: halaqaClass ?? this.halaqaClass,
     );
   }
 
-  factory Event.fromJson(Map<String, dynamic> json) {
-    DateTime safeParseDate(dynamic dateValue) {
-      if (dateValue == null) return DateTime.now();
-      try {
-        return DateTime.parse(dateValue.toString());
-      } catch (e) {
-        return DateTime.now();
-      }
+  /// 🔐 Safe Date Parser
+  static DateTime _safeParseDate(dynamic dateValue) {
+    if (dateValue == null || dateValue.toString().isEmpty) {
+      return DateTime(1970);
     }
+    try {
+      return DateTime.parse(dateValue.toString());
+    } catch (_) {
+      return DateTime(1970);
+    }
+  }
+
+  factory Event.fromJson(Map<String, dynamic> json) {
+    printJson(json, "event_model");
+
+    /// ✅ Teacher handling
+    Teacher teacher;
+    if (json['teacher'] != null) {
+      teacher = Teacher.fromJson(json['teacher']);
+    } else {
+      teacher = Teacher(
+        id: "",
+        name: "",
+        email: "",
+        phone: "", role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
+      );
+    }
+
+    /// ✅ Class handling
+    ClassModel halaqaClass;
+    if (json['class'] != null) {
+      halaqaClass = ClassModel.fromJson(json['class']);
+    } else if (json['halaqaClass'] != null) {
+      halaqaClass = ClassModel.fromJson(json['halaqaClass']);
+    } else {
+      halaqaClass = ClassModel(
+        id: "",
+        teacher: teacher,
+        name: "",
+        description: "",
+        location: "",
+        startTime: "",
+        endTime: "",
+        days: const [],
+        students: const [],
+        events: const [],
+        assignments: const [],
+        attendanceRecords: const [],
+      );
+    }
+
     return Event(
       id: HelperMethods.getTerms(json, ["id", "eventId"]).toString(),
       title: (json['title'] ?? 'No Title').toString(),
       description: (json['description'] ?? '').toString(),
-      createdDate: safeParseDate(json['createdAt'] ?? json['createdDate']),
-      dueDate: safeParseDate(json['dueDate']),
+      createdDate:
+      _safeParseDate(json['createdAt'] ?? json['createdDate']),
+      dueDate: _safeParseDate(json['dueDate']),
+
+      /// ✅ NEW
+      teacher: teacher,
+      halaqaClass: halaqaClass,
     );
   }
 
@@ -57,6 +122,10 @@ class Event {
       'description': description,
       'createdAt': createdDate.toIso8601String(),
       'dueDate': dueDate.toIso8601String(),
+
+      /// ✅ NEW
+      'teacher': teacher.toJson(),
+      'class': halaqaClass.toJson(),
     };
   }
 }

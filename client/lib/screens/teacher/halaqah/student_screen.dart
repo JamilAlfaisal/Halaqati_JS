@@ -5,6 +5,7 @@ import 'package:halqati/models/student.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
+import 'package:halqati/widgets/empty_state_view.dart';
 import 'package:halqati/widgets/textfields/text_field_search.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/widgets/lists/student_list.dart';
@@ -51,12 +52,12 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
                   search.clear();
                 });
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Column(
-                  spacing: 10,
-                  children: [
-                    TextFieldSearch(
+              child: Column(
+                spacing: 10,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: TextFieldSearch(
                       textController: search,
                       hintText: "halaqah_screen.students.search".tr(),
                       onChange: (value){
@@ -73,35 +74,27 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
                         });
                       },
                     ),
-                    searchedStudents.isNotEmpty?
-                    Expanded(
-                      child: ListView.builder(
-                          itemCount: searchedStudents.length,
-                          itemBuilder: (context, index){
-                            return StudentList(
-                                name: searchedStudents[index].name ?? "Name not found",
-                                totalPagesMemorized: searchedStudents[index].memorizedJuz?.length ?? 0,
-                                onTap: (){
-                                  ref.watch(selectedStudentIdProvider.notifier).select(searchedStudents[index].id??"0");
-                                  Navigator.of(context).pushNamed('/student_bottom_appbar');
-                                }
-                            );
-                          }
-                      ),
-                    ):Expanded(
-                      child: ListView(
-                        children: [
-                          Center(
-                              child: Text(
-                                "halaqah_screen.students.no_students".tr(),
-                                style: Theme.of(context).textTheme.bodyLarge,
-                              )
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+                  ),
+                  searchedStudents.isNotEmpty?
+                  Expanded(
+                    child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: searchedStudents.length,
+                        itemBuilder: (context, index){
+                          return StudentList(
+                              name: searchedStudents[index].name ?? "Name not found",
+                              totalPagesMemorized: searchedStudents[index].memorizedJuz?.length ?? 0,
+                              onTap: (){
+                                ref.watch(selectedStudentIdProvider.notifier).select(searchedStudents[index].id??"0");
+                                Navigator.of(context).pushNamed('/student_bottom_appbar');
+                              }
+                          );
+                        }
+                    ),
+                  ):Expanded(
+                    child: EmptyStateView()
+                  )
+                ],
               ),
             );
           },

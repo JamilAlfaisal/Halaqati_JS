@@ -8,6 +8,7 @@ import 'package:halqati/provider/token_notifier.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
 import 'package:halqati/widgets/buttons/page_number.dart';
+import 'package:halqati/widgets/cards/personal_user_details.dart';
 import 'package:halqati/widgets/profile/student_profile_left.dart';
 
 
@@ -40,119 +41,106 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ref.read(tokenProvider.notifier).logout();
         },
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: asyncStudent.when(
-          data: (data){
-            List<String> memorizedJuz = data?.memorizedJuz??[];
-            print(memorizedJuz);
+      body: asyncStudent.when(
+        data: (data){
+          List<String> memorizedJuz = data?.memorizedJuz??[];
+          print(memorizedJuz);
 
-            return RefreshIndicator(
-              onRefresh: () async {
-                ref.invalidate(studentDashboard);
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 20,),
-                  StudentProfileLeft(
-                    student: data??Student(
-                        id: '',
-                        name: '',
-                        email: '',
-                        role: '',
-                        dob: DateTime(2017, 9, 7, 17, 30),
-                        createdAt: DateTime(2017, 9, 7, 17, 30),
-                        picProfile: '',
-                        phone: '',
-                        memorizedJuz: [],
-                        enrolledClasses: []
-                    ),
-                  ),
-                  SizedBox(height: 20,),
-                  Expanded(
-                    child: ListView(
-                      padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).padding.bottom,
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(studentDashboard);
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ListView(
+                    // crossAxisAlignment: CrossAxisAlignment.start,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      SizedBox(height: 20,),
+                      StudentProfileLeft(
+                        student: data??Student(
+                          id: '',
+                          name: '',
+                          email: '',
+                          role: '',
+                          dob: DateTime(2017, 9, 7, 17, 30),
+                          createdAt: DateTime(2017, 9, 7, 17, 30),
+                          picProfile: '',
+                          phone: '',
+                          memorizedJuz: [],
+                          enrolledClasses: []
+                        ),
                       ),
-                      children: [
-                        Text(
-                          "student_profile_screen.eamil_details".tr(),
-                          style: Theme.of(context).textTheme.bodyLarge,
+                      SizedBox(height: 20,),
+                      Text(
+                        "student_profile_screen.eamil_details".tr(),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      SizedBox(height: 5,),
+                      PersonalUserDetails(
+                        phone: data?.phone??"teacher_profile.no_phoneno_phone".tr(),
+                        email: data?.email??"teacher_profile.no_email".tr(),
+                        dob: data!.dob,
+                      ),
+                      SizedBox(height: 20,),
+                      Text(
+                        "student_profile_screen.memorized_pages".tr(),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      SizedBox(height: 10,),
+                      SizedBox(
+                        height: 200,
+                        child: GridView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: pages.length,
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 4,
+                              crossAxisSpacing: 5,
+                              mainAxisSpacing:5,
+                              childAspectRatio: 1.1,
+                            ),
+                            itemBuilder: (context, index){
+                              return PageNumber(
+                                onPressed: (){},
+                                num: pages[index],
+                                selected: memorizedJuz.contains(pages[index].toString()),
+                              );
+                            }
                         ),
-                        SizedBox(height: 5,),
-                        Text(
-                          "${"student_profile_screen.email".tr()}: ${data?.email??"student_profile_screen.un_defined".tr()}",
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        SizedBox(height: 5,),
-                        Text(
-                          "${"student_profile_screen.phone".tr()}: ${data?.phone??"student_profile_screen.un_defined".tr()}",
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        SizedBox(height: 5,),
-                        Text(
-                          "${"student_profile_screen.dob".tr()}: ${displayDate(HelperMethods.formatDate(data?.dob) as String?)}",
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        SizedBox(height: 20,),
-                        Text(
-                          "student_profile_screen.memorized_pages".tr(),
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                        SizedBox(height: 10,),
-                        SizedBox(
-                          height: 200,
-                          child: GridView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: pages.length,
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 4,
-                                crossAxisSpacing: 5,
-                                mainAxisSpacing:5,
-                                childAspectRatio: 1.1,
-                              ),
-                              itemBuilder: (context, index){
-                                return PageNumber(
-                                  onPressed: (){},
-                                  num: pages[index],
-                                  selected: memorizedJuz.contains(pages[index].toString()),
-                                );
-                              }
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+          error: (e, stack) {
+
+            if (e is UnauthorizedException) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Error loading halaqat",
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => ref.invalidate(studentDashboard),
+                    child: Text("home_screen.retry".tr()),
+                  ),
                 ],
               ),
             );
           },
-            error: (e, stack) {
-
-              if (e is UnauthorizedException) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Error loading halaqat",
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => ref.invalidate(studentDashboard),
-                      child: Text("home_screen.retry".tr()),
-                    ),
-                  ],
-                ),
-              );
-            },
-            loading: () => Center(child: CircularProgressIndicator())
-        )
+          loading: () => Center(child: CircularProgressIndicator())
       ),
     );
   }

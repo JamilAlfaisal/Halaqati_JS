@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:halqati/provider/country_code_provider.dart';
+import 'package:halqati/provider/teacher_providers/classes_provider.dart';
+import 'package:halqati/test/printJson.dart';
 import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/widgets/textfields/text_phone.dart';
@@ -26,9 +29,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  Future<void> _submitLogin(BuildContext context) async {
-    // Navigator.of(context).pushNamed('/home_app_bar');
-    // return
+  Future<void> _submitLogin(BuildContext context, ref) async {
+    final String phoneCountryCode = ref.watch(countryCodeProvider)??"+961";
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
@@ -36,7 +38,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     // final tokenService = TokenStorage();
-    final String phone = _phoneController.text;
+    final String phone = phoneCountryCode + _phoneController.text;
     final String pin = _passwordController.text;
 
     final apiService = ref.read(apiServiceProvider);
@@ -54,11 +56,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         const SnackBar(content: Text('Login Successful!')),
       );
 
-      if (userData['role'] == 'teacher'){
+      printJson(userData, "login screeen");
+
+      if (userData['user']['role'] == 'teacher'){
         final Teacher teacher = Teacher.fromJson(userData['user']);
         ref.read(teacherProvider.notifier).setTeacher(teacher);
         Navigator.of(context).pushNamed("/home_app_bar");
-      }else{
+      }else if(userData['user']['role'] == 'student'){
         final Student student = Student.fromJson(userData['user']);
         ref.read(studentProvider.notifier).setStudent(student);
         Navigator.of(context).pushNamed("/dashboard_app_bar");
@@ -69,6 +73,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         const SnackBar(content: Text('Login failed. Please check your credentials or network.')),
       );
     }
+    ref.read(countryCodeProvider.notifier).clear();
   }
 
   @override

@@ -7,7 +7,6 @@ import 'package:halqati/screens/teacher/student/assignment_screens/update_assign
 import 'package:halqati/test/testing_widgets.dart';
 // import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:halqati/screens/common_screens/register_screen.dart';
 import 'package:halqati/screens/teacher/home/home_app_bar.dart';
 import 'package:halqati/screens/teacher/home/add_halaqah_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,7 +58,7 @@ class MyApp extends StatelessWidget {
       navigatorObservers: [routeObserver],
       routes: {
         // '/': (context) => const RootScreen(),
-        '/register_screen': (context) => const RegisterScreen(),
+        // '/register_screen': (context) => const RegisterScreen(),
         '/login_screen':(context) => const LoginScreen(),
         '/home_app_bar':(context) => const HomeAppBar(),
         '/add_halaqah_screen':(context) => const AddHalaqahScreen(),

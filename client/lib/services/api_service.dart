@@ -16,7 +16,7 @@ class ApiService {
   // Android Emulator: 10.0.2.2
   // iOS Simulator: 127.0.0.1 (or localhost)
   // Physical Device (if on same network): Your PC's local IP (e.g., 192.168.1.10)
-  static const String _baseUrl = 'http://localhost:3000/api';
+  static const String _baseUrl = 'https://unnotional-jayme-gamophyllous.ngrok-free.dev/api';
 
   Future <Map<String, dynamic>?> login(String phone, String pin) async {
 
@@ -633,7 +633,41 @@ class ApiService {
         if (data != null) {
           return Assignment.fromJson(data);
         }
-        return Assignment(id: '', title: '', dueDate: DateTime(2017, 9, 7, 17, 30), type: '', description: '', pages: [], createdDate: DateTime(2017, 9, 7, 17, 30), students: []);
+        return Assignment(
+          id: '',
+          title: '',
+          dueDate: DateTime(2017, 9, 7, 17, 30),
+          type: '',
+          description: '',
+          pages: [],
+          createdDate: DateTime(2017, 9, 7, 17, 30),
+          students: [],
+          teacher: Teacher(
+            id: "",
+            name: "",
+            email: "",
+            phone: "", role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
+          ),
+          halaqaClass: ClassModel(
+            id: "",
+            teacher:  Teacher(
+              id: "",
+              name: "",
+              email: "",
+              phone: "", role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
+            ),
+            name: "",
+            description: "",
+            location: "",
+            startTime: "",
+            endTime: "",
+            days: const [],
+            students: const [],
+            events: const [],
+            assignments: const [],
+            attendanceRecords: const [],
+          )
+        );
       }
 
       if (response.statusCode == 422) {
@@ -853,8 +887,6 @@ class ApiService {
         }
       ).timeout(Duration(seconds: 10));
       print("response.statusCode: ${response.statusCode}");
-      // printJson(response.body, "student dashboard");
-      // print("getStudentDashboard: ${response.statusCode}");
       if (response.statusCode == 401){
         throw UnauthorizedException();
       }
@@ -885,16 +917,15 @@ class ApiService {
 
   Future<bool> markAsComplete({required String token, required int id}) async {
     final url = Uri.parse(
-      '$_baseUrl/student/assignments/$id/complete'
-    ); // Assuming your endpoint is /api/classes
+      '$_baseUrl/assignment/mark_as_complete_uncomplete/$id'
+    );
 
-    // 1. Construct the complete request body Map
     final Map<String, dynamic> requestBody = {
       "notes": "Completed successfully!",
     };
 
     try {
-      final response = await http.post(
+      final response = await http.put(
         url,
         headers: {
           // 🚨 CRITICAL: Include the Bearer token in the Authorization header
@@ -1348,6 +1379,77 @@ class ApiService {
     } on UnauthorizedException {
       rethrow;
     } on NetworkException {
+      rethrow;
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Unexpected error: $e');
+    }
+  }
+
+  Future<List<dynamic>> getStudentFeed(String token) async {
+    final assignmentUrl =
+    Uri.parse('$_baseUrl/assignment/get_student_assignment');
+    final eventUrl =
+    Uri.parse('$_baseUrl/event/get_student_events');
+
+    try {
+      final responses = await Future.wait([
+        http.get(
+          assignmentUrl,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+          },
+        ),
+        http.get(
+          eventUrl,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+          },
+        ),
+      ]).timeout(const Duration(seconds: 10));
+
+      final assignmentResponse = responses[0];
+      final eventResponse = responses[1];
+
+      if (assignmentResponse.statusCode == 401 ||
+          eventResponse.statusCode == 401) {
+        throw UnauthorizedException();
+      }
+
+      if (assignmentResponse.statusCode != 200 ||
+          eventResponse.statusCode != 200) {
+        throw ApiException(
+          'Failed to fetch student feed',
+          statusCode: assignmentResponse.statusCode,
+        );
+      }
+      // final assignments = [];
+      final assignmentData = jsonDecode(assignmentResponse.body);
+      final assignments = ((assignmentData['assignments'] ?? []) as List)
+          .map((e) => Assignment.fromJson(e))
+          .toList();
+      // final events = [];
+      final eventData = jsonDecode(eventResponse.body);
+      final events = ((eventData['events'] ?? []) as List)
+          .map((e) => Event.fromJson(e))
+          .toList();
+
+      final List<dynamic> feed = [
+        ...assignments,
+        ...events,
+      ];
+
+      feed.sort((a, b) => b.createdDate.compareTo(a.createdDate));
+
+      return feed;
+    } on SocketException {
+      throw NetworkException();
+    } on TimeoutException {
+      throw NetworkException();
+    } on UnauthorizedException {
       rethrow;
     } on ApiException {
       rethrow;

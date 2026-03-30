@@ -1,8 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:halqati/provider/country_code_provider.dart';
+import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 
-class TextPhone extends StatefulWidget {
+class TextPhone extends ConsumerStatefulWidget {
   final TextEditingController textController;
   final String title;
   final String hintText;
@@ -15,14 +18,15 @@ class TextPhone extends StatefulWidget {
   });
 
   @override
-  State<TextPhone> createState() => _TextPhoneState();
+  ConsumerState<TextPhone> createState() => _TextPhoneState();
 }
 
-class _TextPhoneState extends State<TextPhone> {
-  String countryCode = "+1"; // default
+class _TextPhoneState extends ConsumerState<TextPhone> {
+  String countryCode = "+961"; // default
 
   @override
   Widget build(BuildContext context) {
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 5,
@@ -54,6 +58,7 @@ class _TextPhoneState extends State<TextPhone> {
               onChanged: (code) {
                 setState(() {
                   countryCode = code.dialCode!;
+                  ref.read(countryCodeProvider.notifier).select(countryCode);
                 });
               },
               initialSelection: 'LB',
