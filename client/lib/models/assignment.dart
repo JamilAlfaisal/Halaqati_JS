@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/models/teacher.dart';
 import 'package:halqati/models/class_model.dart';
@@ -116,10 +117,10 @@ class Assignment {
       teacher = Teacher.fromJson(json['teacher']);
     } else {
       teacher = Teacher(
-        id: "",
-        name: "",
-        email: "",
-        phone: "", role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
+        id: "0",
+        name: "undefined".tr(),
+        email: "undefined".tr(),
+        phone: "undefined".tr(), role: 'teacher', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: "undefined".tr(), createdClasses: [],
       );
     }
 
@@ -131,13 +132,13 @@ class Assignment {
       halaqaClass = ClassModel.fromJson(json['halaqaClass']);
     } else {
       halaqaClass = ClassModel(
-        id: "",
+        id: "undefined".tr(),
         teacher: teacher,
-        name: "",
-        description: "",
-        location: "",
-        startTime: "",
-        endTime: "",
+        name: "undefined".tr(),
+        description: "undefined".tr(),
+        location: "undefined".tr(),
+        startTime: "undefined".tr(),
+        endTime: "undefined".tr(),
         days: const [],
         students: const [],
         events: const [],
@@ -148,10 +149,10 @@ class Assignment {
 
     return Assignment(
       id: HelperMethods.getTerms(json, ["id", "assignmentId"]),
-      title: json['title'] ?? "",
+      title: json['title'] ?? "undefined".tr(),
       dueDate: _parseDate(json['dueDate']),
-      type: json['type'] ?? "",
-      description: json['description'] ?? "",
+      type: json['type'] ?? "Reading",
+      description: json['description'] ?? "undefined".tr(),
       pages: List<String>.from(json['pages'] ?? []),
       createdDate: _parseDate(json['createdAt']),
       students: ((json[_getTerm(json, ["haveAssignment", "students"])] ?? [])

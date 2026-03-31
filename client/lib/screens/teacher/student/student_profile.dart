@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/student.dart';
+import 'package:halqati/provider/selected_class_name_provider.dart';
+import 'package:halqati/provider/selected_student_name.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_rermove_student.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
@@ -26,11 +28,12 @@ class _StudentProfileState extends ConsumerState<StudentProfile> {
   @override
   Widget build(BuildContext context) {
     final studentsAsync = ref.watch(studentsProvider);
+    final String halaqahName = ref.watch(selectedClassNameProvider)??"name".tr();
     final String studentId = ref.watch(selectedStudentIdProvider)??"0";
     late final studentPhoneNumber;
     return Scaffold(
       appBar: AppbarRemoveStudent(
-        text: "student_bottom_appbar.student_profile".tr(),
+        text: halaqahName,
         onPress: (){
           ref.read(studentsProvider.notifier).removeStudent(studentPhoneNumber);
           Navigator.of(context).pop();

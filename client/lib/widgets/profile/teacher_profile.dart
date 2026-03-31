@@ -104,7 +104,7 @@ class TeacherProfile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    teacher?.role ?? "Teacher",
+                    "teacher".tr(),
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.primaryColor,
                       fontWeight: FontWeight.w500,

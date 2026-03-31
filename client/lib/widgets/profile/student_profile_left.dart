@@ -92,7 +92,7 @@ class StudentProfileLeft extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      "Juz: ${student.memorizedJuz.length}/30",
+                      "${"juz".tr()}: ${student.memorizedJuz.length}/30",
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.grey[800],
                       ),

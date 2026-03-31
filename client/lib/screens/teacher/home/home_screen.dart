@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
+import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
 import 'package:halqati/widgets/lists/halaqat_list.dart';
@@ -63,11 +64,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RouteAware{
     // );
 
     return Scaffold(
-      appBar: AppbarWithLogo(text: "home_screen.halaqati".tr()),
+      appBar: AppbarWithLogo(text: "classes".tr()),
       floatingActionButton: FloatingButtonIcon(
         onPressed: (){
           Navigator.of(context).pushNamed("/add_halaqah_screen");
-        }, text:'home_screen.create'.tr()
+        }, text:'create_class'.tr()
       ),
       body: classesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -82,14 +83,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RouteAware{
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "Error loading halaqat",
+                  "error".tr(),
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 16),
                 // ✅ Add retry button for errors
                 ElevatedButton(
                   onPressed: () => ref.invalidate(classesProvider),
-                  child: Text("home_screen.retry".tr()),
+                  child: Text("try_again".tr()),
                 ),
               ],
             ),
@@ -120,10 +121,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RouteAware{
               itemBuilder: (context, index) {
                 return HalaqatList(
                   onTap: () {
+                    ref.read(selectedClassIdProvider.notifier).select(halaqat[index].id);
+                    ref.read(selectedClassNameProvider.notifier).setName(halaqat[index].name);
                     Navigator.of(context).pushNamed(
                       '/halaqah_bottom_bar',
                     );
-                    ref.read(selectedClassIdProvider.notifier).select(halaqat[index].id);
                   },
                   title: halaqat[index].name!,
                   studentNumber: halaqat[index].studentCount(),

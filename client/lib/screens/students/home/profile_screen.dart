@@ -25,18 +25,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final asyncStudent = ref.watch(studentDashboard);
     final List<int> pages = List.generate(30, (index) => index + 1);
 
-    String displayDate(String? date){
-      if (date == "" || date == null){
-        return "00-00-00";
-      }
-      return date.split("T")[0];
-    }
-
 
 
     return Scaffold(
       appBar: AppbarWithLogo(
-        text: "profile_screen.profile".tr(),
+        text: "profile".tr(),
         onLogout: (){
           ref.read(tokenProvider.notifier).logout();
         },
@@ -61,32 +54,32 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       SizedBox(height: 20,),
                       StudentProfileLeft(
                         student: data??Student(
-                          id: '',
-                          name: '',
-                          email: '',
-                          role: '',
+                          id: '0',
+                          name: 'undefined'.tr(),
+                          email: 'undefined'.tr(),
+                          role: 'undefined'.tr(),
                           dob: DateTime(2017, 9, 7, 17, 30),
                           createdAt: DateTime(2017, 9, 7, 17, 30),
-                          picProfile: '',
-                          phone: '',
+                          picProfile: 'undefined'.tr(),
+                          phone: 'undefined'.tr(),
                           memorizedJuz: [],
                           enrolledClasses: []
                         ),
                       ),
                       SizedBox(height: 20,),
                       Text(
-                        "student_profile_screen.eamil_details".tr(),
+                        "user_info".tr(),
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                       SizedBox(height: 5,),
                       PersonalUserDetails(
-                        phone: data?.phone??"teacher_profile.no_phoneno_phone".tr(),
-                        email: data?.email??"teacher_profile.no_email".tr(),
+                        phone: data?.phone??"undefined".tr(),
+                        email: data?.email??"undefined".tr(),
                         dob: data!.dob,
                       ),
                       SizedBox(height: 20,),
                       Text(
-                        "student_profile_screen.memorized_pages".tr(),
+                        "memorized_juz".tr(),
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                       SizedBox(height: 10,),

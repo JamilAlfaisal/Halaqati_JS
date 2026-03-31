@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
+import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
 import 'package:halqati/provider/teacher_providers/events_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
@@ -26,20 +27,20 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   Widget build(BuildContext context) {
 
     final asyncEvents = ref.watch(eventProvider);
+    final String halaqahName = ref.watch(selectedClassNameProvider)??"name".tr();
+
     return Scaffold(
       floatingActionButton: FloatingButtonIcon(
         onPressed: (){
           Navigator.of(context).pushNamed("/add_event_screen");
-      }, text: "Add Event"
+      }, text: "${"add".tr()} ${"event".tr()}"
     ),
       appBar: AppbarWithButton(
-          text: "event_details_screen.event_details".tr(),
+          text: halaqahName,
           addBackButton: true
       ),
       body: asyncEvents.when(
         data: (events){
-          print("events now is list");
-          print(events);
           if(events == null || events.length == 0){
             return EmptyStateView();
           }

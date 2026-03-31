@@ -42,7 +42,7 @@ class _AssignmentDetailsScreenState
     }
     return Scaffold(
       appBar: AppbarWithButton(
-        text: "Details",
+        text: "details".tr(),
         addBackButton: true,
       ),
 
@@ -139,9 +139,9 @@ class _AssignmentDetailsScreenState
                                   const SizedBox(width: 10),
                                   Text(
                                     isCompleted
-                                        ? "event_details_screen.done"
+                                        ? "completed".tr()
                                         .tr()
-                                        : "event_details_screen.pending"
+                                        : "pending".tr()
                                         .tr(),
                                     style: Theme.of(context)
                                         .textTheme
@@ -177,7 +177,7 @@ class _AssignmentDetailsScreenState
 
                       /// 🔹 DESCRIPTION
                       Text(
-                        "event_details_screen.teacher_instructions"
+                        "des".tr()
                             .tr(),
                         style: Theme.of(context)
                             .textTheme
@@ -205,7 +205,7 @@ class _AssignmentDetailsScreenState
                       if (isAssignment) ...[
                         const SizedBox(height: 20),
                         Text(
-                          "event_details_screen.pages".tr(),
+                          "pages".tr(),
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium,
@@ -289,7 +289,7 @@ class _AssignmentDetailsScreenState
                           const Icon(Icons.checklist_rounded),
                           const SizedBox(width: 10),
                           Text(
-                            "event_details_screen.mark_as_complete"
+                            "mark_as_complete"
                                 .tr(),
                           ),
                           const Spacer(),

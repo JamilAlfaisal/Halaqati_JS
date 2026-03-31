@@ -34,11 +34,11 @@ class _StudentBottomAppbarState extends State<StudentBottomAppbar> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: "student_bottom_appbar.student_profile".tr(),
+            label: "student".tr(),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart_outlined),
-            label: "student_bottom_appbar.assignments".tr(),
+            icon: Icon(Icons.assignment),
+            label: "assignments".tr(),
           ),
         ],
       ),

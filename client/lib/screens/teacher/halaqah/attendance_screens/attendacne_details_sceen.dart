@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/student.dart';
+import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/teacher_providers/attendance_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
+import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/lists/student_attendance_item.dart';
 
 class AttendacneDetailsSceen extends ConsumerStatefulWidget {
@@ -23,10 +25,11 @@ class _AttendacneDetailsSceenState extends ConsumerState<AttendacneDetailsSceen>
   Widget build(BuildContext context) {
 
     final attendancesAsync = ref.watch(attendanceDetailsProvider);
+    final String halaqahName = ref.watch(selectedClassNameProvider)??"name".tr();
     final asyncStudents = ref.watch(studentsProvider).value;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Attendance"),
+        title: Text(halaqahName),
         centerTitle: true,
       ),
       body: RefreshIndicator(
@@ -47,13 +50,24 @@ class _AttendacneDetailsSceenState extends ConsumerState<AttendacneDetailsSceen>
 
             return Column(
               children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  child: Row(
+                    children: [
+                      Text(
+                        HelperMethods.formatDate(attendances.date),
+                        textAlign: TextAlign.start,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10,),
                 Expanded(
                   child: ListView.builder(
                     itemCount: asyncStudents?.length??0,
                     padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).padding.top,
-                      left: 20,
-                      right: 20,
+                      left: 16,
+                      right: 16,
                     ),
                     itemBuilder: (context, index){
 
@@ -84,7 +98,7 @@ class _AttendacneDetailsSceenState extends ConsumerState<AttendacneDetailsSceen>
                       );
 
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Attendance updated successfully")),
+                        SnackBar(content: Text("created_success".tr())),
                       );
 
                       Navigator.pop(context);
@@ -94,7 +108,7 @@ class _AttendacneDetailsSceenState extends ConsumerState<AttendacneDetailsSceen>
                       );
                     }
                   },
-                  child: const Text("Update Attendance"),
+                  child: Text("update".tr()),
                 ),
                 SizedBox(
                   height: MediaQuery.of(context).padding.bottom+20,

@@ -97,17 +97,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                     Text(
-                      "login_screen.welcome_back".tr(),
+                      "welcome_back".tr(),
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
-                  TextPhone(hintText: "login_screen.hint_phone".tr(),textController: _phoneController,title: "login_screen.phone".tr(),),
-                  TextFieldPassword(hintText: "login_screen.hint_password".tr(),textController: _passwordController, title: "login_screen.password".tr(),),
+                  TextPhone(
+                    hintText: "enter_phone".tr(),
+                    textController: _phoneController,
+                    title: "phone".tr(),
+                  ),
+                  TextFieldPassword(hintText: "enter_password".tr(),textController: _passwordController, title: "password".tr(),),
                   FullWidthButton(
                     onPressed: _submitLogin,
                       text: _isLoading
-                      ? "login_screen.logging_in".tr() // Show different text
-                      :"login_screen.login_button".tr(),
+                      ? "loading".tr() // Show different text
+                      :"login".tr(),
                     isActive: !_isLoading,
                   ),
                 ],

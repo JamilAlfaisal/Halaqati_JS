@@ -28,12 +28,12 @@ class HalaqaDetailsScreen extends ConsumerWidget {
     if (selectedClass == null) {
       return Scaffold(
         appBar: AppbarWithButton(
-          text: 'halaqah_details_screen.halaqah_details'.tr(),
+          text: 'class_details'.tr(),
           addBackButton: true,
         ),
         body: Center(
           child: Text(
-            'halaqah_details_screen.error_loading'.tr(),
+            'error'.tr(),
             style: Theme.of(context).textTheme.bodyLarge,
           ),
         ),
@@ -44,7 +44,7 @@ class HalaqaDetailsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppbarWithButton(
-        text: 'halaqah_details_screen.halaqah_details'.tr(),
+        text: 'class_details'.tr(),
         addBackButton: true,
       ),
       body: ListView(
@@ -60,7 +60,7 @@ class HalaqaDetailsScreen extends ConsumerWidget {
           const SizedBox(height: 20),
 
           Text(
-            "halaqah_details_screen.halaqah_info".tr(),
+            "class_details".tr(),
             style: Theme.of(context).textTheme.bodyLarge,
           ),
 
@@ -78,7 +78,7 @@ class HalaqaDetailsScreen extends ConsumerWidget {
 
           /// 🔹 Weekly Schedule
           Text(
-            'halaqah_details_screen.weekly_schedule'.tr(),
+            'schedule'.tr(),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
 
@@ -117,7 +117,7 @@ class HalaqaDetailsScreen extends ConsumerWidget {
 
           /// 🔹 Teacher Details
           Text(
-            "halaqah_details_screen.teacher_details".tr(),
+            "${"teacher".tr()}",
             style: Theme.of(context).textTheme.bodyLarge,
           ),
 

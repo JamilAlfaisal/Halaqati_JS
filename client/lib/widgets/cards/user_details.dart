@@ -127,13 +127,7 @@ class UserDetails extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// 🔹 Section Title
-          Text(
-            "Contact Info",
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          /// 🔹 Section T
 
           const SizedBox(height: 14),
 

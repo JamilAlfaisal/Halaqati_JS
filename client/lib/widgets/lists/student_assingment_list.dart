@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class StudentAssignmentList extends StatelessWidget {
@@ -60,7 +61,7 @@ class StudentAssignmentList extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  "Assignment",
+                  "assignment".tr(),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -156,7 +157,7 @@ class StudentAssignmentList extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        isComplete ? "Completed" : "Pending",
+                        isComplete ? "completed".tr() : "pending".tr(),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,

@@ -77,7 +77,7 @@ class PersonalUserDetails extends StatelessWidget {
           /// 🔹 Email
           buildRow(
             icon: Icons.alternate_email_outlined,
-            value: email.isNotEmpty ? email : "not_defined".tr(),
+            value: email.isNotEmpty ? email : "undefined".tr(),
           ),
 
           const SizedBox(height: 10),
@@ -85,7 +85,7 @@ class PersonalUserDetails extends StatelessWidget {
           /// 🔹 Phone
           buildRow(
             icon: Icons.phone_android_rounded,
-            value: phone.isNotEmpty ? phone : "not_defined".tr(),
+            value: phone.isNotEmpty ? phone : "undefined".tr(),
           ),
 
           const SizedBox(height: 10),
@@ -95,7 +95,7 @@ class PersonalUserDetails extends StatelessWidget {
             icon: Icons.date_range_sharp,
             value: dob != null
                 ? HelperMethods.formatDate(dob)
-                : "not_defined".tr(),
+                : "undefined".tr(),
           ),
         ],
       ),

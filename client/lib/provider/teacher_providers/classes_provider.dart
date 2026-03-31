@@ -31,7 +31,7 @@ class ClassesNotifier extends AsyncNotifier<List<ClassModel>?> {
     } catch (e) {
       print("error catched $e");
       if (e is UnauthorizedException) {
-        // Clear token on auth error
+
         print("error type UnauthorizedException");
         await AuthHelper.handleLogout(ref);
         // ref.invalidate(authProvider);
