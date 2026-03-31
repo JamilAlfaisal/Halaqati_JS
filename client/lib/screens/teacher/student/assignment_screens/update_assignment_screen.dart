@@ -65,9 +65,9 @@ class _AddAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen> {
   }
 
   final List<Map<String, String>> dropdownItems = [
-    {'value': 'Revision', 'label': 'student_bottom_appbar.add_halaqah_screen.revision'.tr()},
-    {'value': 'Memorization', 'label': 'student_bottom_appbar.add_halaqah_screen.memorization'.tr()},
-    {'value': 'Reading', 'label': 'student_bottom_appbar.add_halaqah_screen.reading'.tr()},
+    {'value': 'Revision', 'label': 'revision'.tr()},
+    {'value': 'Memorization', 'label': 'memorization'.tr()},
+    {'value': 'Reading', 'label': 'reading'.tr()},
   ];
 
   @override
@@ -81,7 +81,7 @@ class _AddAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen> {
     void handleUpdateAssignment() async {
       if (selectedDate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('student_bottom_appbar.add_halaqah_screen.select_date'.tr())),
+          SnackBar(content: Text('select_date'.tr())),
         );
         return;
       }
@@ -104,7 +104,7 @@ class _AddAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('student_bottom_appbar.update.success'.tr())),
+            SnackBar(content: Text('created_success'.tr())),
           );
           Navigator.pop(context);
         }
@@ -119,17 +119,17 @@ class _AddAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen> {
     }
 
     if (!isInitialized) {
-      title.text = asyncAssignment?.title??"";
-      des.text = asyncAssignment?.description??"";
+      title.text = asyncAssignment?.title??"undefined".tr();
+      des.text = asyncAssignment?.description??"undefined".tr();
       selectedDate = asyncAssignment?.dueDate??DateTime.now();
-      selectedValue = asyncAssignment?.type??"";
+      selectedValue = asyncAssignment?.type??"undefined".tr();
       pageNumbers = List.from(asyncAssignment?.pages??[]);
       isInitialized = true;
     }
 
     return Scaffold(
       appBar: AppbarWithButton(
-        text: "Update".tr(),
+        text: "update".tr(),
         addBackButton: true,
       ),
       body: asyncAssignment == null
@@ -143,20 +143,20 @@ class _AddAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFieldNormal(
-                    hintText: "student_bottom_appbar.add_halaqah_screen.assignment_title".tr(),
+                    hintText: "title".tr(),
                     textController: title,
-                    title: "student_bottom_appbar.add_halaqah_screen.assignment_title".tr()
+                    title: "des".tr()
                 ),
                 const SizedBox(height: 10),
                 TextArea(
                     textController: des,
-                    title: "student_bottom_appbar.add_halaqah_screen.description".tr()
+                    title: "des".tr()
                 ),
                 const SizedBox(height: 10),
 
                 // --- PAGE NUMBERS SECTION ---
                 Text(
-                  "student_bottom_appbar.add_halaqah_screen.page_num_title".tr(),
+                  "pages".tr(),
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 8),
@@ -174,7 +174,7 @@ class _AddAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen> {
                   controller: _pageController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    hintText: "student_bottom_appbar.add_halaqah_screen.page_num".tr(),
+                    hintText: "page_num".tr(),
                   ),
                   onSubmitted: (value) => _addPage(value),
                 ),

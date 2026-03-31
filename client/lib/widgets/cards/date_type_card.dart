@@ -49,7 +49,7 @@ class DateTypeCard extends StatelessWidget {
                           // overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          "event_details_screen.type".tr(),
+                          "type".tr(),
                           style: Theme.of(context).textTheme.labelSmall,
                         ),
                       ],
@@ -89,7 +89,7 @@ class DateTypeCard extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         Text(
-                          "event_details_screen.date".tr(),
+                          "due_date".tr(),
                           style: Theme.of(context).textTheme.labelSmall,
                         ),
                       ],

@@ -74,14 +74,10 @@ class _AddHalaqahScreenState extends ConsumerState<AddHalaqahScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Example of how you would call this in your button's logic
-
     void handleCreateClassButton() async {
       setState(() {
         ability = false;
       });
-      // 1. Retrieve the token (e.g., from your secure storage)
-      // Assuming you have a way to securely retrieve the token
       if (!_formKey.currentState!.validate()) {
         setState(() {
           ability = true;
@@ -94,13 +90,12 @@ class _AddHalaqahScreenState extends ConsumerState<AddHalaqahScreen> {
           ability = true;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('add_halaqah_screen.select_days'.tr()))
+          SnackBar(content: Text('select_days'.tr()))
         );
         return;
       }
 
       try{
-        print("days: ${days}");
         final success = await ref.read(classesProvider.notifier)
             .createClass(
           name: name.text,
@@ -115,7 +110,7 @@ class _AddHalaqahScreenState extends ConsumerState<AddHalaqahScreen> {
         if (mounted) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('add_halaqah_screen.creating_halaqa_success'.tr())),
+            SnackBar(content: Text('created_success'.tr())),
           );
           return;
         }
@@ -133,7 +128,7 @@ class _AddHalaqahScreenState extends ConsumerState<AddHalaqahScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('add_halaqah_screen.network_error'.tr()),
+              content: Text('error'.tr()),
               backgroundColor: Colors.red,
             ),
           );
@@ -151,7 +146,7 @@ class _AddHalaqahScreenState extends ConsumerState<AddHalaqahScreen> {
           showDialog(
             context: context,
             builder: (_) => AlertDialog(
-              title: Text("add_halaqah_screen.error_title".tr()),
+              title: Text("error".tr()),
               content: Text(e.toString()),
               actions: [
                 TextButton(
@@ -176,7 +171,7 @@ class _AddHalaqahScreenState extends ConsumerState<AddHalaqahScreen> {
     // print(enDays[weekDaysData[0]['day']]);
     return Scaffold(
       appBar: AppbarWithButton(
-        text: "add_halaqah_screen.create".tr(),
+        text: "create_class".tr(),
         addBackButton: true,
       ),
       body: SingleChildScrollView(
@@ -189,24 +184,24 @@ class _AddHalaqahScreenState extends ConsumerState<AddHalaqahScreen> {
               spacing: 10,
               children: [
                 TextFieldNormal(
-                  hintText: "add_halaqah_screen.enter_halaqa_name".tr(),
+                  hintText: "${"enter".tr()} ${"class_name".tr()}",
                   textController: name,
-                  title: "add_halaqah_screen.halaqa_name".tr()
+                  title: "class_name".tr()
                 ),
                 TextArea(
                   textController: des,
-                  title: "add_halaqah_screen.des".tr()
+                  title: "des".tr()
                 ),
                 TextFieldNormal(
-                    hintText: "add_halaqah_screen.enter_location".tr(),
+                    hintText: "${"enter".tr()} ${"location".tr()}",
                     textController: loc,
-                    title: "add_halaqah_screen.localtion".tr()
+                    title: "location".tr()
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "add_halaqah_screen.schedule".tr(),
+                      "schedule".tr(),
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     SizedBox(
@@ -238,7 +233,7 @@ class _AddHalaqahScreenState extends ConsumerState<AddHalaqahScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    TextFieldTime(textController: startTime, title: "add_halaqah_screen.start_time".tr(),),
+                    TextFieldTime(textController: startTime, title: "start_time".tr(),),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       child: Icon(
@@ -246,14 +241,14 @@ class _AddHalaqahScreenState extends ConsumerState<AddHalaqahScreen> {
                         Icons.arrow_right_alt_outlined
                       ),
                     ),
-                    TextFieldTime(textController: endTime, title: "add_halaqah_screen.end_time".tr(),),
+                    TextFieldTime(textController: endTime, title: "end_time".tr(),),
                   ],
                 ),
                 ElevatedDark(
                   onPressed: (){
                     handleCreateClassButton();
                   },
-                  text: "add_halaqah_screen.create_button".tr(),
+                  text: "create_class".tr(),
                   ability: ability,
                 ),
                 SizedBox(

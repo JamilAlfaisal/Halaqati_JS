@@ -33,12 +33,12 @@ class _HomeAppBarState extends State<HomeAppBar> {
 
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "home_app_bar.home".tr(),
+            icon: Icon(Icons.class_),
+            label: "classes".tr(),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: "home_app_bar.profile".tr(),
+            label: "profile".tr(),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),

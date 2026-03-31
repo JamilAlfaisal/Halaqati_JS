@@ -74,42 +74,31 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
     {7: "weekdays.7".tr()},
   ];
 
-  Map<String, String> enDays = {
-    "الاثنين":"Monday",
-    "الثلاثاء":"Tuesday",
-    "الأربعاء":"Wednesday",
-    "الخميس":"Thursday",
-    "الجمعة":"Friday",
-    "السبت":"Saturday",
-    "الأحد":"Sunday"
-  };
   bool ability = true;
 
   @override
   Widget build(BuildContext context) {
-    // final asyncHalaqah = ref.watch(classDetailsProvider(widget.id));
+
     final asyncHalaqah = ref.watch(classDetailsProvider);
 
     print(asyncHalaqah.error);
 
     void updateHalaqah() async {
-      // 1. Trigger the update through the notifier
-      // Use ref.read here because this is inside a function/callback
+
       await ref.read(classDetailsProvider.notifier).updateHalaqah(
         name: name.text,
         description: des.text,
         roomNumber: loc.text,
-        scheduleDays: days, // Your list of strings
+        scheduleDays: days,
         startTime: startTime.text,
         endTime: endTime.text,
       );
 
-      // 2. Handle the result
       final state = ref.read(classDetailsProvider);
 
       if (state.hasError) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Update failed: ${state.error}')),
+          SnackBar(content: Text('${"error".tr()}: ${state.error}')),
         );
       }
     }
@@ -117,7 +106,7 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
 
     return Scaffold(
       appBar: AppbarDeleteButton(
-        text: "halaqah_screen.halaqah.details".tr(),
+        text: "class_details".tr(),
         addBackButton: true,
         onPress: (){
           ref.watch(classesProvider.notifier).deleteClass();
@@ -152,24 +141,24 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
                     spacing: 10,
                     children: [
                       TextFieldNormal(
-                          hintText: "add_halaqah_screen.enter_halaqa_name".tr(),
+                          hintText: "${"enter".tr()} ${"class_name".tr()}",
                           textController: name,
-                          title: "add_halaqah_screen.halaqa_name".tr()
+                          title: "class_name".tr()
                       ),
                       TextArea(
                           textController: des,
-                          title: "add_halaqah_screen.des".tr()
+                          title:  "des".tr()
                       ),
                       TextFieldNormal(
-                          hintText: "add_halaqah_screen.enter_location".tr(),
+                          hintText: "${"enter".tr()} ${"location".tr()}",
                           textController: loc,
-                          title: "add_halaqah_screen.localtion".tr()
+                          title: "location".tr()
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "add_halaqah_screen.schedule".tr(),
+                            "schedule".tr(),
                             style: Theme
                                 .of(context)
                                 .textTheme
@@ -209,7 +198,7 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           TextFieldTime(textController: startTime,
-                            title: "add_halaqah_screen.start_time".tr(),),
+                            title: "start_time".tr(),),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             child: Icon(
@@ -218,14 +207,14 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
                             ),
                           ),
                           TextFieldTime(textController: endTime,
-                            title: "add_halaqah_screen.end_time".tr(),),
+                            title: "end_time".tr(),),
                         ],
                       ),
                       ElevatedDark(
                         onPressed: () {
                           updateHalaqah();
                         },
-                        text: "add_halaqah_screen.update".tr(),
+                        text: "${"update".tr()} ${"classes".tr()}",
                         ability: ability,
                       ),
                       SizedBox(

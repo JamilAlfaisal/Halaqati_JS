@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class StudentList extends StatelessWidget {
@@ -68,7 +69,7 @@ class StudentList extends StatelessWidget {
                   style: theme.textTheme.bodyLarge,
                 ),
                 Text(
-                  "Total pages memorized: $totalPagesMemorized",
+                  "${"memorized_juz".tr()}: $totalPagesMemorized/30",
                   style: theme.textTheme.titleSmall,
                 ),
               ],

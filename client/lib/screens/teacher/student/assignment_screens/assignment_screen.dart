@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/assignment.dart';
+import 'package:halqati/provider/selected_class_name_provider.dart';
+import 'package:halqati/provider/selected_student_name.dart';
 import 'package:halqati/provider/student_providers/selected_assignment_notifier.dart';
 import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
@@ -29,11 +31,14 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
   Widget build(BuildContext context) {
 
     final asyncAssignment = ref.watch(assignmentProvider);
+    final String halaqahName = ref.watch(selectedClassNameProvider)??"name".tr();
+    final String studentName = ref.watch(selectedStudentNameProvider)??"name".tr();
     final String studentId = ref.watch(selectedStudentIdProvider)??"0";
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppbarWithButton(
-        text: "student_bottom_appbar.assignments".tr(),
+        text: halaqahName,
         addBackButton: true,
       ),
       floatingActionButton: FloatingButtonIcon(
@@ -85,6 +90,24 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
                 //   ),
                 // ),
                 // SizedBox(height: 50,),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  margin: EdgeInsets.only(left: 16, right: 16),
+                  decoration: BoxDecoration(
+                    color: theme.primaryColor.withOpacity(.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    studentName,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.primaryColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
+import 'package:halqati/provider/selected_class_name_provider.dart';
+import 'package:halqati/provider/selected_student_name.dart';
 import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
@@ -20,6 +22,7 @@ class AddAssignmentScreen extends ConsumerStatefulWidget {
 
 
 class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
+
   TextEditingController title = TextEditingController();
   TextEditingController des = TextEditingController();
   TextEditingController loc = TextEditingController();
@@ -29,11 +32,12 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
   DateTime? selectedDate;
 
   String get dateText {
-    if (selectedDate == null) return "student_bottom_appbar.add_halaqah_screen.date_hint".tr();
+    if (selectedDate == null) return "select_date".tr();
     return "${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}";
   }
 
   Future<void> _selectDate(BuildContext context) async {
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate ?? DateTime.now(),
@@ -67,18 +71,20 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
   Widget build(BuildContext context) {
     final assignmentNotifier = ref.read(assignmentProvider.notifier);
     final studentId = ref.watch(selectedStudentIdProvider);
-
+    final String halaqahName = ref.watch(selectedClassNameProvider)??"name".tr();
+    final String studentName = ref.watch(selectedStudentNameProvider)??"name".tr();
+    final theme = Theme.of(context);
     final List<Map<String, String>> dropdownItems = [
-      {'value': 'Revision', 'label': 'student_bottom_appbar.add_halaqah_screen.revision'.tr()},
-      {'value': 'Memorization', 'label': 'student_bottom_appbar.add_halaqah_screen.memorization'.tr()},
-      {'value': 'Reading', 'label': 'student_bottom_appbar.add_halaqah_screen.reading'.tr()},
+      {'value': 'Revision', 'label': 'revision'.tr()},
+      {'value': 'Memorization', 'label': 'memorization'.tr()},
+      {'value': 'Reading', 'label': 'reading'.tr()},
     ];
 
     void handleCreateAssignment() async {
       if(selectedDate == null){
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('student_bottom_appbar.add_halaqah_screen.select_date'.tr()),
+            content: Text('select_date'.tr()),
             // backgroundColor: Colors.green,
           ),
         );
@@ -105,7 +111,7 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
         );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('student_bottom_appbar.add_halaqah_screen.success'.tr()),
+            content: Text('created_success'.tr()),
             // backgroundColor: Colors.green,
           ),
         );
@@ -123,7 +129,7 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('add_halaqah_screen.network_error'.tr()),
+              content: Text('error'.tr()),
               backgroundColor: Colors.red,
             ),
           );
@@ -138,7 +144,7 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
           showDialog(
             context: context,
             builder: (_) => AlertDialog(
-              title: Text("add_halaqah_screen.error_title".tr()),
+              title: Text("title".tr()),
               content: Text(e.toString()),
               actions: [
                 TextButton(
@@ -161,7 +167,7 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
 
     return Scaffold(
       appBar: AppbarWithButton(
-        text: "student_bottom_appbar.add_halaqah_screen.title".tr(),
+        text: halaqahName,
         addBackButton: true,
       ),
       body: SingleChildScrollView(
@@ -173,20 +179,37 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 10,
               children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.primaryColor.withOpacity(.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    studentName,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.primaryColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
                 TextFieldNormal(
-                    hintText: "student_bottom_appbar.add_halaqah_screen.assignment_title".tr(),
+                    hintText: "title".tr(),
                     textController: title,
-                    title: "student_bottom_appbar.add_halaqah_screen.assignment_title".tr()
+                    title: "title".tr()
                 ),
                 TextArea(
                     textController: des,
-                    title: "student_bottom_appbar.add_halaqah_screen.description".tr()
+                    title: "description".tr()
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "student_bottom_appbar.add_halaqah_screen.page_num_title".tr(),
+                      "pages".tr(),
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 8),
@@ -224,7 +247,7 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
                             controller: _pageController,
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
-                              hintText: "student_bottom_appbar.add_halaqah_screen.page_num".tr(),
+                              hintText: "page_num".tr(),
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.symmetric(horizontal: 12),
                             ),
@@ -292,7 +315,7 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
                   onPressed: (){
                     handleCreateAssignment();
                   },
-                  text: "add_halaqah_screen.create_button".tr(),
+                  text: "create".tr(),
                   ability: ability,
                 ),
               ],

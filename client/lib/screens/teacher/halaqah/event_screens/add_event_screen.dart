@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/teacher_providers/events_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
@@ -17,7 +18,7 @@ class AddEventScreen extends ConsumerStatefulWidget {
 }
 
 class _AddEventScreenState extends ConsumerState<AddEventScreen> {
-  // 1. Controllers start empty for a "Create" screen
+
   final TextEditingController title = TextEditingController();
   final TextEditingController des = TextEditingController();
   final TextEditingController date = TextEditingController();
@@ -37,13 +38,14 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
     if (state.hasError) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to create event: ${state.error}'),
+          content: Text('${"error".tr()}: ${state.error}'),
           backgroundColor: Colors.redAccent,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Event created successfully!')),
+        SnackBar(content: Text('created_success'.tr()),
+      )
       );
       Navigator.pop(context);
     }
@@ -51,10 +53,10 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // We don't need .when() here because we aren't fetching an existing event
+    final String halaqahName = ref.watch(selectedClassNameProvider)??"name".tr();
     return Scaffold(
       appBar: AppbarWithButton(
-          text: "Add New Event".tr(), // Adjust your localization key
+          text: halaqahName,
           addBackButton: true
       ),
       body: Form(
@@ -63,17 +65,17 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
           padding: const EdgeInsets.all(20),
           children: [
             TextFieldNormal(
-                hintText: "student_bottom_appbar.add_halaqah_screen.assignment_title".tr(),
+                hintText: "${"enter".tr()} ${"title".tr()}",
                 textController: title,
-                title: "student_bottom_appbar.add_halaqah_screen.assignment_title".tr()
+                title: "title".tr()
             ),
             TextArea(
                 textController: des,
-                title: "student_bottom_appbar.add_halaqah_screen.description".tr()
+                title: "des".tr()
             ),
             const SizedBox(height: 20),
             CustomDatePicker(
-              label: "Due Date",
+              label: "due_date".tr(),
               onDateSelected: (selectedDate) {
                 setState(() {
                   date.text = HelperMethods.formatDate(selectedDate);
@@ -86,7 +88,7 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
             const SizedBox(height: 40),
             ElevatedDark(
               onPressed: createEvent,
-              text: "Create Event".tr(),
+              text: "create".tr(),
               ability: true,
             ),
           ],

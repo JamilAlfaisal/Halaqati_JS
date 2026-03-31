@@ -35,20 +35,20 @@ class _HomeAppBarState extends State<DashboardAppBar> {
 
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "student_app_bar.bar.dashboard".tr(),
+            icon: Icon(Icons.class_),
+            label: "classes".tr(),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.event),
-            label: "student_app_bar.bar.events".tr(),
+            label: "assignments".tr(),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: "student_app_bar.profile.profile".tr(),
+            label: "profile".tr(),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: "student_app_bar.bar.settings".tr(),
+            label: "setting".tr(),
           ),
         ],
       ),

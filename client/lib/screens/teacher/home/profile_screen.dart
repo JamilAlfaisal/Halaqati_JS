@@ -22,7 +22,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 String getDOB(String ?date){
 
   if(date == null){
-    return "teacher_profile.no_DOB".tr();
+    return "undefined".tr();
   }else{
     return date.split('T')[0];
   }
@@ -36,7 +36,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppbarWithLogo(
-        text: "profile_screen.profile".tr(),
+        text: "profile".tr(),
         onLogout: (){
           ref.read(tokenProvider.notifier).logout();
         },
@@ -53,18 +53,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
               SizedBox(height: 20,),
               Text(
-                "teacher_profile.user_details".tr(),
+                "user_info".tr(),
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               SizedBox(height: 10,),
               PersonalUserDetails(
-                phone: teacher?.phone??"teacher_profile.no_phoneno_phone".tr(),
-                email: teacher?.email??"teacher_profile.no_email".tr(),
+                phone: teacher?.phone??"undefined".tr(),
+                email: teacher?.email??"undefined".tr(),
                 dob: teacher!.dob,
               ),
               SizedBox(height: 20,),
               Text(
-                "teacher_profile.halaqat_details".tr(),
+                "classes_info".tr(),
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               SizedBox(height: 10,),
@@ -90,7 +90,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           // ),
                           Icon(Icons.co_present_outlined),
                           Text(
-                            "${halaqatDetails['classCount'].toString()} ${"teacher_profile.class".tr()}",
+                            "${halaqatDetails['classCount'].toString()} ${"classes".tr()}",
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ],
@@ -114,7 +114,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           // ),
                           Icon(Icons.school_outlined),
                           Text(
-                            "${halaqatDetails['studentCount'].toString()} ${"teacher_profile.student".tr()}",
+                            "${halaqatDetails['studentCount'].toString()} ${"students".tr()}",
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ],

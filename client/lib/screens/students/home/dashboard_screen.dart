@@ -29,7 +29,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
 
     return Scaffold(
-      appBar: AppbarWithLogo(text: "student_app_bar.dashboard.title".tr()),
+      appBar: AppbarWithLogo(text: "classes".tr()),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.refresh(studentClassesProvider);

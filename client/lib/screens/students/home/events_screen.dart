@@ -33,7 +33,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
     final selectAssignment = ref.watch(selectedAssignmentProvider.notifier);
 
     return Scaffold(
-      appBar: AppbarWithLogo(text: "student_app_bar.events.title".tr()),
+      appBar: AppbarWithLogo(text: "events".tr()),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: Column(
@@ -58,7 +58,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                     bottom: 12,
                     left: 12,
                     child: Text(
-                      "dashboard_screen.halaqah_events".tr(),
+                      "${"classes".tr()} ${"events".tr()} & ${"assignments".tr()}",
                       style: TextStyle(
                         color: Theme.of(context).textTheme.titleLarge?.color,
                         fontSize: Theme.of(context).textTheme.titleLarge?.fontSize,

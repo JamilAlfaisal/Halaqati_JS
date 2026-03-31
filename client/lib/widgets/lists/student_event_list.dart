@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class StudentEventList extends StatelessWidget {
@@ -58,7 +59,7 @@ class StudentEventList extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  "Event",
+                  "event".tr(),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,

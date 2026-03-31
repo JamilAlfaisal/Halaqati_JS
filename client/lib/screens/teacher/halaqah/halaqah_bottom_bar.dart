@@ -36,15 +36,15 @@ class _HalaqahBottomBarState extends State<HalaqahBottomBar> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.sticky_note_2_outlined),
-            label: "halaqah_bottom_bar.halaqah".tr(),
+            label: "class".tr(),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.people),
-            label: "halaqah_bottom_bar.students".tr(),
+            label: "students".tr(),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_month_outlined),
-            label: "halaqah_bottom_bar.events".tr(),
+            label: "events".tr(),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.how_to_reg),

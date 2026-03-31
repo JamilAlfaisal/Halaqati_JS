@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
+import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/teacher_providers/events_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
@@ -29,6 +30,7 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final asyncEvent = ref.watch(eventDetailsProvider);
+    final String halaqahName = ref.watch(selectedClassNameProvider)??"name".tr();
 
     void updateEvent() async {
 
@@ -42,7 +44,7 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
       if (state.hasError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update event: ${state.error}'),
+            content: Text('${"error".tr()}: ${state.error}'),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -51,7 +53,7 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
           id: asyncEvent.value?.id??"0", title: title.text, description: des.text, dueDate: HelperMethods.parseDate(date.text)
         );
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Event updated successfully!')),
+          SnackBar(content: Text('${"created_success".tr()}')),
         );
         Navigator.pop(context);
       }
@@ -61,13 +63,12 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
 
     return Scaffold(
       appBar: AppbarWithButton(
-          text: "event_details_screen.event_details".tr(),
+          text: halaqahName,
           addBackButton: true
       ),
       body: asyncEvent.when(
         data: (event){
           if (!_initialized && event != null) {
-            print("event details screen renders are being watched");
             _initialized = true;
             print(event.title);
             des.text = event.description;
@@ -93,17 +94,17 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                 ),
                 children: [
                   TextFieldNormal(
-                      hintText: "student_bottom_appbar.add_halaqah_screen.assignment_title".tr(),
+                      hintText: "${"enter".tr()} ${"title".tr()}",
                       textController: title,
-                      title: "student_bottom_appbar.add_halaqah_screen.assignment_title".tr()
+                      title: "title".tr()
                   ),
                   TextArea(
                       textController: des,
-                      title: "student_bottom_appbar.add_halaqah_screen.description".tr()
+                      title: "des".tr()
                   ),
                   SizedBox(height: 20,),
                   CustomDatePicker(
-                    label: "Due Date",
+                    label: "due_date".tr(),
                     onDateSelected: (selectedDate){
                       setState(() {
                         date.text = HelperMethods.formatDate(selectedDate);
@@ -116,7 +117,7 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                     onPressed: () {
                       updateEvent();
                     },
-                    text: "add_halaqah_screen.update".tr(),
+                    text: "update".tr(),
                     ability: ability,
                   ),
                 ],

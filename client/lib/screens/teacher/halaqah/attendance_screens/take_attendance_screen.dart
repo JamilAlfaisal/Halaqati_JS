@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
+import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/teacher_providers/attendance_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
@@ -22,9 +23,10 @@ class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
   Widget build(BuildContext context) {
     final asyncStudents = ref.watch(studentsProvider);
     final studentNotifier = ref.read(attendanceProvider.notifier);
+    final String className= ref.watch(selectedClassNameProvider)??"name";
     return Scaffold(
       appBar: AppbarWithButton(
-        text: "Take attendance screen",
+        text: className,
         addBackButton: true,
       ),
       body: asyncStudents.when(
@@ -55,7 +57,7 @@ class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
                         }
                       },
                       isSelected: selectedStudents.contains(int.tryParse(data?[index].id??"0")??0),
-                      studentName: data?[index].name??"name",
+                      studentName: data?[index].name??"name".tr(),
                       subtitle: "${data?[index].memorizedJuz.length??"0"}",
                     );
                   },
@@ -69,15 +71,15 @@ class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
                     );
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Attendance submitted")),
+                      SnackBar(content: Text("created_success".tr())),
                     );
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Error: $e")),
+                      SnackBar(content: Text("${"error".tr()}: $e")),
                     );
                   }
                 },
-                child: const Text("Submit Attendance"),
+                child: Text("${"take".tr()} ${"attendance".tr()}"),
               ),
               SizedBox(
                 height: MediaQuery.of(context).padding.bottom+20,
@@ -87,7 +89,6 @@ class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, stack) {
-          print("error in the event screen: ${e}");
           if (e is UnauthorizedException) {
             return const Center(child: CircularProgressIndicator());
           }

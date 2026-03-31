@@ -2,6 +2,7 @@
 
 
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/models/class_model.dart';
 import 'package:halqati/models/user.dart';
 import 'package:halqati/test/printJson.dart';
@@ -64,13 +65,13 @@ class Student extends User {
     printJson(json, "this is the students");
     return Student(
       id: HelperMethods.getTerms(json, ["id", "studentId"]),
-      name: json['name'] as String? ?? "Unknown",
-      email: json['email'] as String? ?? "",
+      name: json['name'] as String? ?? "undefined".tr(),
+      email: json['email'] as String? ?? "undefined".tr(),
       role: json['role'] as String? ?? "student",
-      picProfile: json['picProfile'] as String? ?? "",
-      phone: json['phone']?.toString() ?? "",
+      picProfile: json['picProfile'] as String? ?? "undefined".tr(),
+      phone: json['phone']?.toString() ?? "undefined".tr(),
       dob: DateTime.tryParse(json['dob'] ?? "") ?? DateTime.now(),
-      createdAt: DateTime.tryParse(json['createdAt'] ?? "") ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['createdAt'] ?? "undefined".tr()) ?? DateTime.now(),
       memorizedJuz: json['memorizedJuz'] != null
           ? List<String>.from(json['memorizedJuz'])
           : [],

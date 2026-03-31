@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class StudentAttendanceItem extends StatelessWidget {
@@ -62,7 +63,7 @@ class StudentAttendanceItem extends StatelessWidget {
                     if (subtitle != null) ...[
                       const SizedBox(height: 3),
                       Text(
-                        "${subtitle}/30 Juz",
+                        "${subtitle}/30 ${"juz".tr()}",
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                         ),

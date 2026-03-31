@@ -2,6 +2,7 @@
 
 
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/models/class_model.dart';
 import 'package:halqati/models/user.dart';
 
@@ -62,11 +63,11 @@ class Teacher extends User {
     }
 
     return Teacher(
-      id: json['id']?.toString() ?? "",
-      name: json['name'] ?? "",
-      email: json['email'] ?? "",
-      role: json['role'] ?? "",
-      phone: json['phone'] ?? "",
+      id: json['id']?.toString() ?? "0",
+      name: json['name'] ?? "undefined".tr(),
+      email: json['email'] ?? "undefined".tr(),
+      role: json['role'] ?? "teacher",
+      phone: json['phone'] ?? "undefined".tr(),
       dob: parseDate(json['dob']),
       createdAt: parseDate(json['createdAt']),
       picProfile: json['picProfile'] ?? "",

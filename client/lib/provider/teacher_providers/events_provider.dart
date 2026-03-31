@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
@@ -149,24 +150,24 @@ class EventDetailsNotifier extends AsyncNotifier<Event?> {
             dueDate: HelperMethods.parseDate(dueDate),
             createdDate: DateTime.now(),
             teacher: Teacher(
-              id: "",
-              name: "",
-              email: "",
-              phone: "", role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
+              id: "0",
+              name: "undefined".tr(),
+              email: "undefined".tr(),
+              phone: "undefined".tr(), role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
             ),
             halaqaClass: ClassModel(
-              id: "",
+              id: "0",
               teacher: Teacher(
-                id: "",
-                name: "",
-                email: "",
-                phone: "", role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
+                id: "undefined".tr(),
+                name: "undefined".tr(),
+                email: "undefined".tr(),
+                phone: "undefined".tr(), role: 'teacher', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
               ),
-              name: "",
-              description: "",
-              location: "",
-              startTime: "",
-              endTime: "",
+              name: "undefined".tr(),
+              description: "undefined".tr(),
+              location: "undefined".tr(),
+              startTime: "undefined".tr(),
+              endTime: "undefined".tr(),
               days: const [],
               students: const [],
               events: const [],

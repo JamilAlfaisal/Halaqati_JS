@@ -20,7 +20,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final currentLocale = context.locale;
     bool isSwitched = currentLocale.languageCode == 'en';
     return Scaffold(
-      appBar: AppbarWithLogo(text: "settings.title".tr()),
+      appBar: AppbarWithLogo(text: "setting".tr()),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: SingleChildScrollView(
@@ -42,7 +42,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("settings.english".tr(), style: const TextStyle(fontSize: 16)),
+                    Text("english".tr(), style: const TextStyle(fontSize: 16)),
                     Switch(
                       // inactiveTrackColor: Theme.of(context).primaryColor,
                       inactiveThumbColor: Theme.of(context).primaryColor,
@@ -62,88 +62,89 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                height: 80,
-                // padding: const EdgeInsets.symmetric(horizontal: 16),
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(color: Colors.black12, blurRadius: 5,spreadRadius: 1),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("settings.about".tr(), style: const TextStyle(fontSize: 16)),
-                    IconButton(onPressed: (){
-                      final snackBar = SnackBar(
-                        content: Text('not_available'.tr()),
-                      );
+              GestureDetector(
+                onTap: (){
+                  final snackBar = SnackBar(
+                    content: Text('not_available'.tr()),
+                  );
 
-                      // Find the ScaffoldMessenger in the widget tree
-                      // and use it to show a SnackBar.
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    }, icon: Icon(Icons.info_outline_rounded),),
-                  ],
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 80,
+                  // padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 5,spreadRadius: 1),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("about_us".tr(), style: const TextStyle(fontSize: 16)),
+                      Icon(Icons.info_outline_rounded)
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                height: 80,
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(color: Colors.black12, blurRadius: 5,spreadRadius: 1),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("settings.report".tr(), style: const TextStyle(fontSize: 16)),
-                    IconButton(onPressed: (){
-                      final snackBar = SnackBar(
-                        content: Text('not_available'.tr()),
-                      );
+              GestureDetector(
+                onTap: () async {
+                  final snackBar = SnackBar(
+                    content: Text('not_available'.tr()),
+                  );
 
-                      // Find the ScaffoldMessenger in the widget tree
-                      // and use it to show a SnackBar.
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    }, icon: Icon(Icons.warning_amber),),
-                  ],
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 80,
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 5,spreadRadius: 1),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("report_issues".tr(), style: const TextStyle(fontSize: 16)),
+                      Icon(Icons.warning_amber),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                height: 80,
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(color: Colors.black12, blurRadius: 5,spreadRadius: 1),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("settings.logout".tr(), style: const TextStyle(fontSize: 16)),
-                    IconButton(
-                      icon: const Icon(Icons.logout),
-                      onPressed: () async {
-                        // 3. No casting needed! 'ref' is available globally in the class.
-                        if (mounted) {
-                          await AuthHelper.handleLogout(ref);
-                        }
-                      },
-                    ),
-                  ],
+              GestureDetector(
+                onTap: () async {
+                  if (mounted) {
+                    await AuthHelper.handleLogout(ref);
+                  }
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 80,
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 5,spreadRadius: 1),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("logout".tr(), style: const TextStyle(fontSize: 16)),
+                      Icon(Icons.logout),
+                    ],
+                  ),
                 ),
               ),
             ],

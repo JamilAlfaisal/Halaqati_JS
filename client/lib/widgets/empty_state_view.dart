@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class EmptyStateView extends StatelessWidget {
@@ -17,7 +18,7 @@ class EmptyStateView extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(), // 🔥 allows pull-to-refresh
+          physics: const AlwaysScrollableScrollPhysics(),
           child: ConstrainedBox(
             constraints: BoxConstraints(
               minHeight: constraints.maxHeight,
@@ -26,18 +27,14 @@ class EmptyStateView extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  /// 🔹 Icon
                   Icon(
                     icon,
                     size: 70,
-                    // color: Colors.grey[400],
                   ),
 
                   const SizedBox(height: 16),
-
-                  /// 🔹 Message
                   Text(
-                    message ?? "No data available",
+                    message ?? "no_data".tr(),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       // color: Colors.grey[600],
                     ),

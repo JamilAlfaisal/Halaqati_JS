@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/attendance.dart';
 import 'package:halqati/models/event.dart';
@@ -83,28 +84,28 @@ class ClassModel {
       // fallback if backend only sends ID
       teacher = Teacher(
         id: json['teacherId'].toString(),
-        name: "",
-        email: "",
-        phone: "", role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
+        name: "undefined".tr(),
+        email: "undefined".tr(),
+        phone: "undefined".tr(), role: 'teacher', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
       );
     } else {
       // fallback empty teacher
       teacher = Teacher(
-        id: "",
-        name: "",
-        email: "",
-        phone: "", role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
+        id: "0",
+        name: "undefined".tr(),
+        email: "undefined".tr(),
+        phone: "undefined".tr(), role: 'Teacher', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
       );
     }
 
     return ClassModel(
-      id: json['id']?.toString() ?? "",
+      id: json['id']?.toString() ?? "0",
       teacher: teacher,
-      name: json['name'] ?? "",
-      description: json['description'] ?? "",
-      location: json['location'] ?? "",
-      startTime: json['startTime'] ?? "",
-      endTime: json['endTime'] ?? "",
+      name: json['name'] ?? "undefined".tr(),
+      description: json['description'] ?? "undefined".tr(),
+      location: json['location'] ?? "undefined".tr(),
+      startTime: json['startTime'] ?? "undefined".tr(),
+      endTime: json['endTime'] ?? "undefined".tr(),
       days: List<String>.from(json['days'] ?? []),
 
       students: ((json['students'] ?? []) as List)

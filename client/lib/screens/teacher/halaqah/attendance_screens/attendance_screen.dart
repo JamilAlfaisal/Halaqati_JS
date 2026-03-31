@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
+import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/teacher_providers/attendance_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
@@ -19,16 +20,17 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
   @override
   Widget build(BuildContext context) {
     final attendancesAsync = ref.watch(attendanceProvider);
+    final String halaqahName = ref.watch(selectedClassNameProvider)??"name".tr();
 
     return Scaffold(
       floatingActionButton: FloatingButtonIcon(
         onPressed: (){
           Navigator.of(context).pushNamed("/take_attendance_screen");
         },
-        text: "Take Attendance",
+        text: "${"take".tr()} ${"attendance".tr()}",
       ),
       appBar: AppBar(
-        title: const Text("Attendance"),
+        title: Text(halaqahName),
         centerTitle: true,
       ),
       body: RefreshIndicator(
@@ -62,7 +64,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Failed to delete attendance: $e")),
+                        SnackBar(content: Text("${"error".tr()}: $e")),
                       );
                     }
                   },

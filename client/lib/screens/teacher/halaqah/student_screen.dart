@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/student.dart';
+import 'package:halqati/provider/selected_class_name_provider.dart';
+import 'package:halqati/provider/selected_student_name.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
@@ -29,14 +31,15 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
   @override
   Widget build(BuildContext context) {
     final asyncStudents = ref.watch(studentsProvider);
+    final String halaqahName = ref.watch(selectedClassNameProvider)??"name".tr();
     return Scaffold(
       floatingActionButton: FloatingButtonIcon(
-        text: "halaqah_screen.students.add_student".tr(),
+        text: "${"add".tr()} ${"students".tr()}",
         onPressed: (){
           _showAddStudentSheet(context, ref);
         }
       ),
-      appBar: AppbarWithButton(addBackButton: true, text: "Text",),
+      appBar: AppbarWithButton(addBackButton: true, text: halaqahName,),
       body: asyncStudents.when(
           data: (studentList){
             students = studentList??[];
@@ -59,7 +62,7 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: TextFieldSearch(
                       textController: search,
-                      hintText: "halaqah_screen.students.search".tr(),
+                      hintText: "${"search".tr()} ${"students".tr()}",
                       onChange: (value){
                         setState(() {
                           if(value.isEmpty){
@@ -85,6 +88,7 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
                               name: searchedStudents[index].name ?? "Name not found",
                               totalPagesMemorized: searchedStudents[index].memorizedJuz?.length ?? 0,
                               onTap: (){
+                                ref.read(selectedStudentNameProvider.notifier).setName(searchedStudents[index].name);
                                 ref.watch(selectedStudentIdProvider.notifier).select(searchedStudents[index].id??"0");
                                 Navigator.of(context).pushNamed('/student_bottom_appbar');
                               }
