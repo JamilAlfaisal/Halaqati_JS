@@ -16,6 +16,7 @@ class HelperMethods {
 
   static String formatDate(DateTime? date, {String format = 'yyyy-MM-dd'}) {
     if (date == null) return "";
+    DateFormat('yyyy-MM-dd').format(DateTime.now());
     return DateFormat(format).format(date);
   }
 

@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:halqati/widgets/custom_lable.dart';
 
 class StudentEventList extends StatelessWidget {
   final String className;
@@ -49,27 +50,8 @@ class StudentEventList extends StatelessWidget {
             children: [
 
               /// 🔥 NEW: Event Label
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.primaryColor.withOpacity(.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  "event".tr(),
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: theme.primaryColor,
-                  ),
-                ),
-              ),
-
+              CustomLabel(text: "event".tr()),
               const SizedBox(height: 8),
-
               /// 🔹 Class + Teacher
               Row(
                 children: [

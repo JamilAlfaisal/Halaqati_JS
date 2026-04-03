@@ -8,6 +8,7 @@ class AssignmentList extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final bool? isComplete;
+  final bool? isRead;
 
   const AssignmentList({
     super.key,
@@ -16,12 +17,13 @@ class AssignmentList extends StatelessWidget {
     required this.onTap,
     required this.onDelete,
     this.isComplete,
+    this.isRead,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
+    print("assignment list is read: ${isRead}");
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -34,17 +36,57 @@ class AssignmentList extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           child: Row(
             children: [
-              /// Left icon
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: theme.primaryColor.withOpacity(.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.assignment_outlined,
-                  color: theme.primaryColor,
-                ),
+              /// Left icon with optional unread dot
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: theme.primaryColor.withOpacity(.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      Icons.assignment_outlined,
+                      color: theme.primaryColor,
+                    ),
+                  ),
+
+                  if (isRead != null && !isRead!)
+                    Positioned(
+                      top: -3,
+                      right: -3,
+                      child: Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: Colors.grey,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: theme.cardColor,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (isRead != null && isRead!)
+                    Positioned(
+                      top: -3,
+                      right: -3,
+                      child: Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: theme.cardColor,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
 
               const SizedBox(width: 12),
@@ -112,8 +154,7 @@ class AssignmentList extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color:
-                          isComplete! ? Colors.green : Colors.orange,
+                          color: isComplete! ? Colors.green : Colors.orange,
                         ),
                       ),
                     ],

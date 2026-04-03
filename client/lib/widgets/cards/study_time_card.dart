@@ -43,7 +43,7 @@ class StudyTimeCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("halaqah_details_screen.location".tr()),
+                      Text("location".tr()),
                       Text(
                         location,
                         style: Theme.of(context).textTheme.labelSmall,
@@ -81,7 +81,7 @@ class StudyTimeCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("halaqah_details_screen.time".tr()),
+                      Text("time".tr()),
                       Text(
                         hours,
                         style: Theme.of(context).textTheme.labelSmall,

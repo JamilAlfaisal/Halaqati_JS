@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:halqati/models/teacher.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:halqati/widgets/custom_lable.dart';
 import 'package:shimmer/shimmer.dart';
 
 class TeacherProfile extends StatelessWidget {
@@ -94,23 +95,7 @@ class TeacherProfile extends StatelessWidget {
                 const SizedBox(height: 6),
 
                 /// 🔹 Optional role badge
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: theme.primaryColor.withOpacity(.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    "teacher".tr(),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.primaryColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
+                CustomLabel(text: "teacher".tr()),
               ],
             ),
           ),

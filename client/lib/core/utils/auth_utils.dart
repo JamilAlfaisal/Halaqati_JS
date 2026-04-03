@@ -1,7 +1,8 @@
 // lib/core/utils/auth_helper.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:halqati/provider/api_service_provider.dart';
+import 'package:halqati/provider/services_providers/auth_provider.dart';
+// import 'package:halqati/provider/api_service_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
 import 'package:halqati/provider/teacher_providers/profile_provider.dart';
 import 'package:halqati/main.dart'; // For navigatorKey
@@ -12,7 +13,7 @@ class AuthHelper {
     try {
       final token = ref.read(tokenProvider).value;
       if (token != null) {
-        await ref.read(apiServiceProvider).logout(token);
+        await ref.read(authApiProvider).logout(token);
       }
     } catch (e) {
       debugPrint("API Logout failed, but clearing local data anyway: $e");

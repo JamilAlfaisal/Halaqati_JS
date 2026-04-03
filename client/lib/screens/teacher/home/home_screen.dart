@@ -5,11 +5,13 @@ import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
+import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/lists/halaqat_list.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/main.dart';
 import 'package:halqati/models/class_model.dart';
+import 'package:halqati/widgets/loading_widget.dart';
 
 
 
@@ -71,29 +73,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RouteAware{
         }, text:'create_class'.tr()
       ),
       body: classesAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => LoadingWidget(),
         error: (e, stack) {
 
           if (e is UnauthorizedException) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "error".tr(),
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const SizedBox(height: 16),
-                // ✅ Add retry button for errors
-                ElevatedButton(
-                  onPressed: () => ref.invalidate(classesProvider),
-                  child: Text("try_again".tr()),
-                ),
-              ],
-            ),
+          return CustomErrorWidget(
+            providerToInvalidate: classesProvider,
           );
         },
         data: (halaqat){

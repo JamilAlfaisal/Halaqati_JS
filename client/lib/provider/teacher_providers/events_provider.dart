@@ -6,7 +6,8 @@ import 'package:halqati/core/utils/auth_utils.dart';
 import 'package:halqati/models/class_model.dart';
 import 'package:halqati/models/event.dart'; // Ensure this matches your file path
 import 'package:halqati/models/teacher.dart';
-import 'package:halqati/provider/api_service_provider.dart';
+import 'package:halqati/provider/services_providers/event_api_provider.dart';
+// import 'package:halqati/provider/api_service_provider.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
 import 'package:halqati/utils/helper_methods.dart';
@@ -31,7 +32,7 @@ class EventNotifier extends AsyncNotifier<List<Event>?> {
     }
 
     try {
-      final List<Event> events = await ref.read(apiServiceProvider).getEvents(
+      final List<Event> events = await ref.read(eventApiProvider).getEvents(
           token, classId);
       return events;
     } catch (e) {
@@ -51,7 +52,7 @@ class EventNotifier extends AsyncNotifier<List<Event>?> {
     if (token == null) throw UnauthorizedException();
 
     try {
-      await ref.read(apiServiceProvider).deleteEvent(token, eventId);
+      await ref.read(eventApiProvider).deleteEvent(token, eventId);
 
       state = AsyncData(state.value?.where((e) => e.id != eventId).toList() ?? []);
     } catch (e) {
@@ -71,7 +72,7 @@ class EventNotifier extends AsyncNotifier<List<Event>?> {
     final classId = ref.watch(selectedClassIdProvider)??"0";
 
     try {
-      final success = await ref.read(apiServiceProvider).createEvent(
+      final success = await ref.read(eventApiProvider).createEvent(
         token: token,
         title: title,
         description: description,
@@ -122,7 +123,7 @@ class EventDetailsNotifier extends AsyncNotifier<Event?> {
 
     final token = ref.watch(tokenProvider).value;
     if (token == null) return null;
-    final Event event = await ref.read(apiServiceProvider).getEventDetails(token, eventId);
+    final Event event = await ref.read(eventApiProvider).getEventDetails(token, eventId);
     print("this is the event provider: ${event.title}");
     return event;
   }
@@ -141,7 +142,7 @@ class EventDetailsNotifier extends AsyncNotifier<Event?> {
       if (eventId == null || token == null) return null;
 
       try {
-        await ref.read(apiServiceProvider).updateEvent(
+        await ref.read(eventApiProvider).updateEvent(
           token: token,
           event: Event(
             id: eventId,
@@ -176,7 +177,7 @@ class EventDetailsNotifier extends AsyncNotifier<Event?> {
             ),
           )
         );
-        return await ref.read(apiServiceProvider).getEventDetails(token, eventId);
+        return await ref.read(eventApiProvider).getEventDetails(token, eventId);
       } catch (e) {
         if (e is UnauthorizedException) {
           print('Authentication failed during event update');

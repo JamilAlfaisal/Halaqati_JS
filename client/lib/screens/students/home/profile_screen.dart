@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
+import 'package:halqati/core/utils/auth_utils.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/provider/student_providers/student_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
@@ -9,6 +10,8 @@ import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
 import 'package:halqati/widgets/buttons/page_number.dart';
 import 'package:halqati/widgets/cards/personal_user_details.dart';
+import 'package:halqati/widgets/error_widget.dart';
+import 'package:halqati/widgets/loading_widget.dart';
 import 'package:halqati/widgets/profile/student_profile_left.dart';
 
 
@@ -30,8 +33,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Scaffold(
       appBar: AppbarWithLogo(
         text: "profile".tr(),
-        onLogout: (){
-          ref.read(tokenProvider.notifier).logout();
+        onLogout: () async {
+          await AuthHelper.handleLogout(ref);
         },
       ),
       body: asyncStudent.when(
@@ -116,24 +119,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               return const Center(child: CircularProgressIndicator());
             }
 
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Error loading halaqat",
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.invalidate(studentDashboard),
-                    child: Text("home_screen.retry".tr()),
-                  ),
-                ],
-              ),
+            return CustomErrorWidget(
+              providerToInvalidate: studentDashboard,
             );
           },
-          loading: () => Center(child: CircularProgressIndicator())
+          loading: () => LoadingWidget()
       ),
     );
   }

@@ -2,7 +2,8 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
-import 'package:halqati/provider/api_service_provider.dart';
+import 'package:halqati/provider/services_providers/assignment_api_provider.dart';
+// import 'package:halqati/provider/api_service_provider.dart';
 import 'package:halqati/models/assignment.dart';
 import 'package:halqati/provider/student_providers/selected_assignment_notifier.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
@@ -25,7 +26,7 @@ class AssignmentNotifier extends AsyncNotifier<List<Assignment>?> {
     if (token == null || token.isEmpty) return [];
 
     try {
-      return await ref.read(apiServiceProvider).getAssignmentOneStudentIassignments(token, studentId);
+      return await ref.read(assignmentApiProvider).getAssignmentOneStudentIassignments(token, studentId);
     } catch (e) {
       if (e is UnauthorizedException) await AuthHelper.handleLogout(ref);
       rethrow;
@@ -53,7 +54,7 @@ class AssignmentNotifier extends AsyncNotifier<List<Assignment>?> {
     if (token == null) throw UnauthorizedException();
 
     try {
-      await ref.read(apiServiceProvider).createAssignment(
+      await ref.read(assignmentApiProvider).createAssignment(
         classId: classId,
         token: token,
         title: title,
@@ -82,7 +83,7 @@ class AssignmentNotifier extends AsyncNotifier<List<Assignment>?> {
     final token = ref.read(tokenProvider).value;
     if (token == null) throw UnauthorizedException();
     try {
-      await ref.read(apiServiceProvider).updateAssignment(
+      await ref.read(assignmentApiProvider).updateAssignment(
         token: token,
         id: assignmentId,
         title: title,
@@ -125,7 +126,7 @@ class AssignmentNotifier extends AsyncNotifier<List<Assignment>?> {
       if (state.hasValue) {
         state = AsyncData(state.value!.where((a) => a.id.toString() != assignmentId).toList());
       }
-      await ref.read(apiServiceProvider).deleteAssignment(token, assignmentId);
+      await ref.read(assignmentApiProvider).deleteAssignment(token, assignmentId);
     } catch (e) {
       ref.invalidateSelf();
       if (e is UnauthorizedException) await AuthHelper.handleLogout(ref);

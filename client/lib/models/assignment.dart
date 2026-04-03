@@ -8,16 +8,19 @@ import 'package:halqati/utils/helper_methods.dart';
 class AssignedStudents {
   final Student student;
   final bool isComplete;
+  final bool isRead;
 
   const AssignedStudents({
     required this.isComplete,
     required this.student,
+    required this.isRead
   });
 
   factory AssignedStudents.fromJson(Map<String, dynamic> json) {
     return AssignedStudents(
       student: Student.fromJson(json),
       isComplete: json['isComplete'] as bool? ?? false,
+      isRead: json['isRead'] as bool ?? false
     );
   }
 
@@ -25,8 +28,22 @@ class AssignedStudents {
     return {
       'student': student.toJson(),
       'isComplete': isComplete,
+      'isRead': isRead
     };
   }
+
+  AssignedStudents copyWith({
+    Student? student,
+    bool? isComplete,
+    bool? isRead,
+  }) {
+    return AssignedStudents(
+      student: student ?? this.student,
+      isComplete: isComplete ?? this.isComplete,
+      isRead: isRead ?? this.isRead,
+    );
+  }
+
 }
 
 class Assignment {
@@ -109,19 +126,13 @@ class Assignment {
   }
 
   factory Assignment.fromJson(Map<String, dynamic> json) {
-    printJson(json, "assignmentModel");
 
     /// ✅ Teacher handling
     Teacher teacher;
     if (json['teacher'] != null) {
       teacher = Teacher.fromJson(json['teacher']);
     } else {
-      teacher = Teacher(
-        id: "0",
-        name: "undefined".tr(),
-        email: "undefined".tr(),
-        phone: "undefined".tr(), role: 'teacher', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: "undefined".tr(), createdClasses: [],
-      );
+      teacher = Teacher.emptyTeacher();
     }
 
     /// ✅ Class handling
@@ -131,20 +142,7 @@ class Assignment {
     } else if (json['halaqaClass'] != null) {
       halaqaClass = ClassModel.fromJson(json['halaqaClass']);
     } else {
-      halaqaClass = ClassModel(
-        id: "undefined".tr(),
-        teacher: teacher,
-        name: "undefined".tr(),
-        description: "undefined".tr(),
-        location: "undefined".tr(),
-        startTime: "undefined".tr(),
-        endTime: "undefined".tr(),
-        days: const [],
-        students: const [],
-        events: const [],
-        assignments: const [],
-        attendanceRecords: const [],
-      );
+      halaqaClass = ClassModel.emptyClass();
     }
 
     return Assignment(
@@ -181,5 +179,20 @@ class Assignment {
       'teacher': teacher.toJson(),
       'class': halaqaClass.toJson(),
     };
+  }
+
+  static Assignment emptyAssignment(){
+    return Assignment(
+        id: '',
+        title: '',
+        dueDate: DateTime(2017, 9, 7, 17, 30),
+        type: '',
+        description: '',
+        pages: [],
+        createdDate: DateTime(2017, 9, 7, 17, 30),
+        students: [],
+        teacher: Teacher.emptyTeacher(),
+        halaqaClass: ClassModel.emptyClass()
+    );
   }
 }

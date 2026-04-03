@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
+import 'package:halqati/provider/selected_class_name_provider.dart';
+import 'package:halqati/provider/selected_student_name.dart';
 import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
+import 'package:halqati/widgets/custom_lable.dart';
 import 'package:halqati/widgets/textfields/text_field_normal.dart';
 import 'package:halqati/widgets/textfields/text_area.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
@@ -74,6 +77,8 @@ class _AddAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen> {
   Widget build(BuildContext context) {
 
     final asyncAssignment = ref.watch(activeAssignmentProvider);
+    final String halaqahName = ref.watch(selectedClassNameProvider)??"name".tr();
+    final String studentName = ref.watch(selectedStudentNameProvider)??"name".tr();
     final assignmentNotifier = ref.read(assignmentProvider.notifier);
     final studentId = ref.watch(selectedStudentIdProvider);
 
@@ -129,7 +134,7 @@ class _AddAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen> {
 
     return Scaffold(
       appBar: AppbarWithButton(
-        text: "update".tr(),
+        text: halaqahName??"name".tr(),
         addBackButton: true,
       ),
       body: asyncAssignment == null
@@ -142,10 +147,11 @@ class _AddAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                CustomLabel(text: studentName),
                 TextFieldNormal(
                     hintText: "title".tr(),
                     textController: title,
-                    title: "des".tr()
+                    title: "title".tr()
                 ),
                 const SizedBox(height: 10),
                 TextArea(

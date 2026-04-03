@@ -13,7 +13,8 @@ import 'package:halqati/provider/teacher_providers/teacher_provider.dart';
 import 'package:halqati/models/teacher.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/provider/token_notifier.dart';
-import 'package:halqati/provider/api_service_provider.dart';
+import 'package:halqati/provider/services_providers/auth_provider.dart';
+// import 'package:halqati/provider/api_service_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -41,7 +42,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final String phone = phoneCountryCode + _phoneController.text;
     final String pin = _passwordController.text;
 
-    final apiService = ref.read(apiServiceProvider);
+    final apiService = ref.read(authApiProvider);
     final userData = await apiService.login(phone, pin);
 
     if (mounted) {
@@ -56,7 +57,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         const SnackBar(content: Text('Login Successful!')),
       );
 
-      printJson(userData, "login screeen");
 
       if (userData['user']['role'] == 'teacher'){
         final Teacher teacher = Teacher.fromJson(userData['user']);
@@ -83,7 +83,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return Scaffold(
       appBar:  AppbarWithLogo(
-        text: "user_type_selection.login".tr(),
+        text: "login".tr(),
       ),
       body: SingleChildScrollView(
         child: Center(

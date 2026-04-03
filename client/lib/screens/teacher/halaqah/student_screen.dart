@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/student.dart';
+import 'package:halqati/provider/country_code_provider.dart';
 import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/selected_student_name.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
+import 'package:halqati/widgets/error_widget.dart';
+import 'package:halqati/widgets/loading_widget.dart';
 import 'package:halqati/widgets/textfields/text_field_search.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/widgets/lists/student_list.dart';
@@ -108,30 +111,14 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
             }
             return RefreshIndicator(
               onRefresh: () async {
-                // This invalidates the provider and fetches fresh data
                 return ref.invalidate(studentsProvider);
               },
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Error loading halaqat",
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    // ✅ Add retry button for errors
-                    ElevatedButton(
-                      onPressed: () => ref.invalidate(studentsProvider),
-                      child: Text("home_screen.retry".tr()),
-                    ),
-                  ],
-                ),
-              ),
+              child: CustomErrorWidget(
+                providerToInvalidate: studentsProvider,
+              )
             );
           },
-          loading: () => Center(child: CircularProgressIndicator())
+          loading: () => LoadingWidget()
       )
     );
   }
@@ -173,11 +160,12 @@ void _showAddStudentSheet(BuildContext context, WidgetRef ref) {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
+                  final String phoneCountryCode = ref.watch(countryCodeProvider)??"+961";
                   final phone = phoneController.text.trim();
                   if (phone.isEmpty) return;
 
                   try {
-                    await ref.read(studentsProvider.notifier).addStudent(phone);
+                    await ref.read(studentsProvider.notifier).addStudent(phoneCountryCode+phone);
 
                     if (context.mounted) {
                       Navigator.pop(context);

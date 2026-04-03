@@ -10,7 +10,9 @@ import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
 import 'package:halqati/models/class_model.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
+import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/lists/class_list_item.dart';
+import 'package:halqati/widgets/loading_widget.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -80,28 +82,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                 );
               },
-              loading: () => Expanded(child: const Center(child: CircularProgressIndicator())),
+              loading: () => Expanded(child: LoadingWidget()),
               error: (e, stack) {
                 if (e is UnauthorizedException) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Error loading halaqat",
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      const SizedBox(height: 16),
-                      // ✅ Add retry button for errors
-                      ElevatedButton(
-                        onPressed: () => ref.invalidate(studentDashboard),
-                        child: Text("home_screen.retry".tr()),
-                      ),
-                    ],
-                  ),
+                return CustomErrorWidget(
+                  providerToInvalidate: studentDashboard,
                 );
               },
             ),

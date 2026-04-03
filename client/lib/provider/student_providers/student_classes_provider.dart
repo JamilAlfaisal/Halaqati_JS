@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
 import 'package:halqati/models/class_model.dart';
-import 'package:halqati/provider/api_service_provider.dart';
+// import 'package:halqati/provider/api_service_provider.dart';
+import 'package:halqati/provider/services_providers/class_api_provider.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
 
@@ -24,7 +25,7 @@ class StudentClassesNotifier extends AsyncNotifier<List<ClassModel>?> {
 
     try {
       return await ref
-          .read(apiServiceProvider)
+          .read(classesApiProvider)
           .getStudentClasses(token);
     } catch (e) {
       if (e is UnauthorizedException) {

@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
-import 'package:halqati/provider/api_service_provider.dart';
+import 'package:halqati/provider/services_providers/juz_api_provider.dart';
+import 'package:halqati/provider/services_providers/class_api_provider.dart';
+// import 'package:halqati/provider/api_service_provider.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
@@ -27,7 +29,7 @@ class StudentsNotifier extends AsyncNotifier<List<Student>?>{
     }
     try{
       print("try to get Students List");
-      return await ref.read(apiServiceProvider).getStudents(token, classId??"");
+      return await ref.read(classesApiProvider).getStudents(token, classId??"");
     }catch(e){
       if (e is UnauthorizedException) {
         await AuthHelper.handleLogout(ref);
@@ -44,7 +46,7 @@ class StudentsNotifier extends AsyncNotifier<List<Student>?>{
     }
 
     try {
-      final success = await ref.read(apiServiceProvider).addStudentToClass(
+      final success = await ref.read(classesApiProvider).addStudentToClass(
         token: token,
         classId: classId,
         phone: phone,
@@ -71,7 +73,7 @@ class StudentsNotifier extends AsyncNotifier<List<Student>?>{
         final updatedList = currentStudents.where((s) => s.phone != phone).toList();
         state = AsyncData(updatedList);
       }
-      await ref.read(apiServiceProvider).removeStudentFromClass(
+      await ref.read(classesApiProvider).removeStudentFromClass(
         token: token,
         classId: classId,
         phone: phone,
@@ -104,7 +106,7 @@ class StudentsNotifier extends AsyncNotifier<List<Student>?>{
         }).toList());
       }
 
-      await ref.read(apiServiceProvider).updateStudentJuz(
+      await ref.read(juzApiProvider).updateStudentJuz(
         token: token,
         studentId: studentId,
         juzList: newJuzList,

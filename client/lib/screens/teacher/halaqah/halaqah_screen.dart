@@ -7,6 +7,9 @@ import 'package:halqati/widgets/appbar/appbar_delete_button.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
 import 'package:halqati/widgets/buttons/verse_number.dart';
+import 'package:halqati/widgets/confirmation_dialog.dart';
+import 'package:halqati/widgets/error_widget.dart';
+import 'package:halqati/widgets/loading_widget.dart';
 import 'package:halqati/widgets/textfields/num_text_field.dart';
 import 'package:halqati/widgets/textfields/text_area.dart';
 import 'package:halqati/widgets/textfields/text_field_normal.dart';
@@ -35,31 +38,31 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
 
   List<Map<String, dynamic>> weekDaysData = [
     {
-      'day': 'add_halaqah_screen.Sunday'.tr(),
+      'day': "weekdays.1".tr(),
       'selected': false,
     },
     {
-      'day': 'add_halaqah_screen.Monday'.tr(),
+      'day': "weekdays.2".tr(),
       'selected': false,
     },
     {
-      'day': 'add_halaqah_screen.Tuesday'.tr(),
+      'day': "weekdays.3".tr(),
       'selected': false,
     },
     {
-      'day': 'add_halaqah_screen.Wednesday'.tr(),
+      'day': "weekdays.4".tr(),
       'selected': false,
     },
     {
-      'day': 'add_halaqah_screen.Thursday'.tr(),
+      'day': "weekdays.5".tr(),
       'selected': false,
     },
     {
-      'day': 'add_halaqah_screen.Friday'.tr(),
+      'day': "weekdays.6".tr(),
       'selected': false,
     },
     {
-      'day': 'add_halaqah_screen.Saturday'.tr(),
+      'day': "weekdays.7".tr(),
       'selected': false,
     },
   ];
@@ -80,8 +83,6 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
   Widget build(BuildContext context) {
 
     final asyncHalaqah = ref.watch(classDetailsProvider);
-
-    print(asyncHalaqah.error);
 
     void updateHalaqah() async {
 
@@ -108,9 +109,20 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
       appBar: AppbarDeleteButton(
         text: "class_details".tr(),
         addBackButton: true,
-        onPress: (){
-          ref.watch(classesProvider.notifier).deleteClass();
-          Navigator.of(context).pop();
+        onPress: () async {
+          final confirm = await showConfirmationDialog(
+            context: context,
+            title: "delete_class_title".tr(),
+            message: "delete_class_message".tr(),
+            cancelText: "cancel".tr(),
+            confirmText: "confirm".tr(),
+            confirmColor: Colors.red,
+          );
+          print("");
+          if (confirm){
+            ref.watch(classesProvider.notifier).deleteClass();
+            Navigator.of(context).pop();
+          }
         },
       ),
       body: Padding(
@@ -120,18 +132,15 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
               if (!_initialized && halaqa != null) {
                 _initialized = true;
 
-
                 name.text = halaqa.name;
                 des.text = halaqa.description;
                 loc.text = halaqa.location;
                 startTime.text = halaqa.startTime;
                 endTime.text = halaqa.endTime;
 
-
                 halaqa.days.forEach((day){
                   weekDaysData[int.parse(day)-1]['selected'] = true;
                 });
-
               }
               return SingleChildScrollView(
                 child: Form(
@@ -232,26 +241,11 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
               if (e is UnauthorizedException) {
                 return const Center(child: CircularProgressIndicator());
               }
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Error loading halaqat",
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    // ✅ Add retry button for errors
-                    ElevatedButton(
-                      onPressed: () => ref.invalidate(classesProvider),
-                      child: Text("home_screen.retry".tr()),
-                    ),
-                  ],
-                ),
+              return CustomErrorWidget(
+                providerToInvalidate: classesProvider,
               );
             },
-            loading: () => Center(child: CircularProgressIndicator()),
+            loading: () => LoadingWidget(),
         ),
       ),
     );

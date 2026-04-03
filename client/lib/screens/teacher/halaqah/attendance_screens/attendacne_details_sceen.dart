@@ -7,7 +7,10 @@ import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/teacher_providers/attendance_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
+import 'package:halqati/widgets/custom_lable.dart';
+import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/lists/student_attendance_item.dart';
+import 'package:halqati/widgets/loading_widget.dart';
 
 class AttendacneDetailsSceen extends ConsumerStatefulWidget {
   const AttendacneDetailsSceen({super.key});
@@ -50,17 +53,7 @@ class _AttendacneDetailsSceenState extends ConsumerState<AttendacneDetailsSceen>
 
             return Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: Row(
-                    children: [
-                      Text(
-                        HelperMethods.formatDate(attendances.date),
-                        textAlign: TextAlign.start,
-                      ),
-                    ],
-                  ),
-                ),
+                CustomLabel(text: HelperMethods.formatDate(attendances.date)),
                 SizedBox(height: 10,),
                 Expanded(
                   child: ListView.builder(
@@ -116,35 +109,14 @@ class _AttendacneDetailsSceenState extends ConsumerState<AttendacneDetailsSceen>
               ],
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => LoadingWidget(),
           error: (e, stack) {
-            print("error in the event screen: ${e}");
             if (e is UnauthorizedException) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Error loading events",
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .bodyLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () async {
-                      ref.invalidate(attendanceProvider);
-                      ref.invalidate(attendanceDetailsProvider);
-                      await ref.refresh(attendanceDetailsProvider.future);
-                    },
-                    child: Text("home_screen.retry".tr()),
-                  ),
-                ],
-              ),
+            return CustomErrorWidget(
+              providerToInvalidate: attendanceDetailsProvider,
             );
           },
         ),

@@ -31,31 +31,31 @@ class _AddHalaqahScreenState extends ConsumerState<AddHalaqahScreen> {
 
   List<Map<String, dynamic>> weekDaysData = [
     {
-      'day': 'add_halaqah_screen.Sunday'.tr(),
+      'day': 'weekdays.1'.tr(),
       'selected': false,
     },
     {
-      'day': 'add_halaqah_screen.Monday'.tr(),
+      'day': 'weekdays.2'.tr(),
       'selected': false,
     },
     {
-      'day': 'add_halaqah_screen.Tuesday'.tr(),
+      'day': 'weekdays.3'.tr(),
       'selected': false,
     },
     {
-      'day': 'add_halaqah_screen.Wednesday'.tr(),
+      'day': 'weekdays.4'.tr(),
       'selected': false,
     },
     {
-      'day': 'add_halaqah_screen.Thursday'.tr(),
+      'day': 'weekdays.5'.tr(),
       'selected': false,
     },
     {
-      'day': 'add_halaqah_screen.Friday'.tr(),
+      'day': 'weekdays.6'.tr(),
       'selected': false,
     },
     {
-      'day': 'add_halaqah_screen.Saturday'.tr(),
+      'day': 'weekdays.7'.tr(),
       'selected': false,
     },
   ];

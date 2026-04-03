@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:halqati/core/utils/auth_utils.dart';
 import 'package:halqati/models/class_model.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
@@ -37,8 +38,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Scaffold(
       appBar: AppbarWithLogo(
         text: "profile".tr(),
-        onLogout: (){
-          ref.read(tokenProvider.notifier).logout();
+        onLogout: () async {
+          await AuthHelper.handleLogout(ref);
         },
       ),
       body: SingleChildScrollView(

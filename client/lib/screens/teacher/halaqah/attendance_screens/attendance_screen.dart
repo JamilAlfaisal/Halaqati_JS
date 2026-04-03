@@ -6,8 +6,11 @@ import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/teacher_providers/attendance_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
+import 'package:halqati/widgets/confirmation_dialog.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
+import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/lists/attendance_list.dart';
+import 'package:halqati/widgets/loading_widget.dart';
 
 class AttendanceScreen extends ConsumerStatefulWidget {
   const AttendanceScreen({super.key});
@@ -57,46 +60,40 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                     Navigator.of(context).pushNamed("/attendance_details_screen");
                   },
                   onDelete: () async {
-                    try {
-                      await ref
-                          .read(attendanceProvider.notifier)
-                          .refreshAttendances();
 
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("${"error".tr()}: $e")),
-                      );
+                    final confirm = await showConfirmationDialog(
+                      context: context,
+                      title: "delete_attendance".tr(),
+                      message: "delete_attendance_msg".tr(),
+                      cancelText: "cancel".tr(),
+                      confirmText: "confirm".tr(),
+                      confirmColor: Colors.red,
+                    );
+                    if (confirm){
+                      try {
+                        await ref
+                            .read(attendanceProvider.notifier)
+                            .refreshAttendances();
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("${"error".tr()}: $e")),
+                        );
+                      }
                     }
                   },
                 );
               },
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => LoadingWidget(),
           error: (e, stack) {
             print("error in the event screen: ${e}");
             if (e is UnauthorizedException) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Error loading events",
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () async {
-                      ref.invalidate(attendanceProvider);
-                      await ref.refresh(attendanceProvider.future);
-                    },
-                    child: Text("home_screen.retry".tr()),
-                  ),
-                ],
-              ),
+            return CustomErrorWidget(
+              providerToInvalidate: attendanceProvider,
             );
           },
         ),

@@ -1,6 +1,7 @@
 import 'package:halqati/core/utils/auth_utils.dart';
 import 'package:halqati/provider/token_notifier.dart';
-import 'package:halqati/provider/api_service_provider.dart';
+import 'package:halqati/provider/services_providers/auth_provider.dart';
+// import 'package:halqati/provider/api_service_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/models/auth_user.dart';
 import 'package:halqati/models/student.dart';
@@ -8,7 +9,6 @@ import 'package:halqati/models/teacher.dart';
 import 'package:halqati/provider/teacher_providers/teacher_provider.dart';
 import 'package:halqati/provider/teacher_providers/student_provider.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
-import 'package:halqati/test/printJson.dart';
 
 final authProvider = AsyncNotifierProvider<AuthNotifier, AuthUser?>(AuthNotifier.new);
 
@@ -23,7 +23,7 @@ class AuthNotifier extends AsyncNotifier<AuthUser?> {
     if (token == null || token.isEmpty) return null;
 
     try {
-      final profileData = await ref.read(apiServiceProvider).getProfile(token);
+      final profileData = await ref.read(authApiProvider).getProfile(token);
       print('profile data downloaded successfully: $profileData');
       if (profileData == null) return null;
       print("profile data is not null");

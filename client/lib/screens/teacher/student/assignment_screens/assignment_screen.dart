@@ -12,9 +12,13 @@ import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
 import 'package:halqati/widgets/buttons/filter_button.dart';
+import 'package:halqati/widgets/confirmation_dialog.dart';
+import 'package:halqati/widgets/custom_lable.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
+import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/lists/assignment_list.dart';
 import 'package:collection/collection.dart';
+import 'package:halqati/widgets/loading_widget.dart';
 
 class AssignmentScreen extends ConsumerStatefulWidget {
   const AssignmentScreen({super.key});
@@ -45,7 +49,7 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
         onPressed: (){
           Navigator.of(context).pushNamed('/add_assignment_screen');
         },
-        text: "student_bottom_appbar.assignment.new_assignment".tr(),
+        text: "${"create".tr()} ${"assignment".tr()}",
       ),
       body: asyncAssignment.when(
         data: (assignments){
@@ -90,23 +94,9 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
                 //   ),
                 // ),
                 // SizedBox(height: 50,),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  margin: EdgeInsets.only(left: 16, right: 16),
-                  decoration: BoxDecoration(
-                    color: theme.primaryColor.withOpacity(.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    studentName,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.primaryColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: CustomLabel(text: studentName),
                 ),
                 Expanded(
                   child: ListView.builder(
@@ -120,18 +110,31 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
                         },
                       );
 
-                      print(assignedStudent?.isComplete);
-
                       return AssignmentList(
                           title: assignments?[index].title??"",
+                          isRead: assignedStudent?.isRead??false,
                           isComplete: assignedStudent?.isComplete??false,
                           dueDate: HelperMethods.formatDate(assignments?[index].dueDate),
                           onTap: (){
                             ref.read(selectedAssignmentProvider.notifier).select(int.parse(assignments?[index].id.toString()??"0"));
                             Navigator.of(context).pushNamed("/update_assignment_screen");
                           },
-                          onDelete: (){
-                            ref.read(assignmentProvider.notifier).deleteAssignment(assignments?[index].id??"0");
+                          onDelete: () async {
+                            final confirm = await showConfirmationDialog(
+                                context: context,
+                                title: "delete_assignment".tr(),
+                                message: "delete_assignment_msg".tr(),
+                                cancelText: "cancel".tr(),
+                                confirmText: "confirm".tr(),
+                                confirmColor: Colors.red,
+                            );
+
+                            if (confirm){
+                              ref
+                                  .read(assignmentProvider.notifier)
+                                  .deleteAssignment(
+                                  assignments?[index].id ?? "0");
+                            }
                           }
                       );
                     },
@@ -141,29 +144,15 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
             ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => LoadingWidget(),
         error: (e, stack) {
 
           if (e is UnauthorizedException) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Error loading assignments",
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const SizedBox(height: 16),
-                // ✅ Add retry button for errors
-                ElevatedButton(
-                  onPressed: () => ref.invalidate(assignmentProvider),
-                  child: Text("home_screen.retry".tr()),
-                ),
-              ],
-            ),
+          return CustomErrorWidget(
+            providerToInvalidate: assignmentProvider,
           );
         },
       ),

@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
-import 'package:halqati/provider/api_service_provider.dart';
+import 'package:halqati/provider/services_providers/class_api_provider.dart';
+// import 'package:halqati/provider/api_service_provider.dart';
 import 'package:halqati/models/class_model.dart';
-import 'package:halqati/provider/teacher_providers/profile_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
 
 
@@ -27,7 +27,7 @@ class ClassesNotifier extends AsyncNotifier<List<ClassModel>?> {
     }
 
     try {
-      return await ref.read(apiServiceProvider).getClasses(token);
+      return await ref.read(classesApiProvider).getClasses(token);
     } catch (e) {
       print("error catched $e");
       if (e is UnauthorizedException) {
@@ -64,7 +64,7 @@ class ClassesNotifier extends AsyncNotifier<List<ClassModel>?> {
     }
 
     try{
-      await ref.read(apiServiceProvider)
+      await ref.read(classesApiProvider)
         .createClass(
             token: token,
             name: name,
@@ -96,7 +96,7 @@ class ClassesNotifier extends AsyncNotifier<List<ClassModel>?> {
     if (token == null) throw UnauthorizedException();
 
     try {
-      await ref.read(apiServiceProvider).deleteClass(token, classId);
+      await ref.read(classesApiProvider).deleteClass(token, classId);
 
       if (state.hasValue) {
         final updatedList = state.value?.where((item) => item.id != classId).toList();
@@ -165,7 +165,7 @@ class ClassDetailsNotifier extends AsyncNotifier<ClassModel?> {
     final token = ref.watch(tokenProvider).value;
     if (token == null) return null;
 
-    return ref.read(apiServiceProvider).getClass(token, classId);
+    return ref.read(classesApiProvider).getClass(token, classId);
   }
 
   Future<void> updateHalaqah(
@@ -187,7 +187,7 @@ class ClassDetailsNotifier extends AsyncNotifier<ClassModel?> {
       final token = ref.read(tokenProvider).value;
       if (token == null) return null;
       try{
-        await ref.read(apiServiceProvider).updateClasses(
+        await ref.read(classesApiProvider).updateClasses(
           token: token,
           name: name,
           description: description,
@@ -198,7 +198,7 @@ class ClassDetailsNotifier extends AsyncNotifier<ClassModel?> {
           id: classId
         );
 
-        return await ref.read(apiServiceProvider).getClass(token, classId);
+        return await ref.read(classesApiProvider).getClass(token, classId);
       }catch(e){
         if (e is UnauthorizedException) {
           print('Clearing token due to auth/API error');
