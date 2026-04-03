@@ -6,7 +6,9 @@ import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/teacher_providers/attendance_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
+import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/lists/student_attendance_item.dart';
+import 'package:halqati/widgets/loading_widget.dart';
 
 class TakeAttendanceScreen extends ConsumerStatefulWidget {
   const TakeAttendanceScreen({super.key});
@@ -87,33 +89,14 @@ class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
             ],
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => LoadingWidget(),
         error: (e, stack) {
           if (e is UnauthorizedException) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Error loading events",
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .bodyLarge,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () async {
-                    ref.invalidate(studentsProvider);
-                    await ref.refresh(studentsProvider.future);
-                  },
-                  child: Text("home_screen.retry".tr()),
-                ),
-              ],
-            ),
+          return CustomErrorWidget(
+            providerToInvalidate: studentsProvider,
           );
         }
       )

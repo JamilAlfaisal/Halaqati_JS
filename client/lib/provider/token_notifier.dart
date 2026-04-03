@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:halqati/provider/teacher_providers/profile_provider.dart';
 import 'package:halqati/storage/token_storage.dart';
 import 'dart:async';
 

@@ -42,7 +42,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: "home_app_bar.settings".tr(),
+            label: "setting".tr(),
           ),
         ],
       ),

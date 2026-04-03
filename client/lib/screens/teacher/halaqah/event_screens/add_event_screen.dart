@@ -21,7 +21,7 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
 
   final TextEditingController title = TextEditingController();
   final TextEditingController des = TextEditingController();
-  final TextEditingController date = TextEditingController();
+  final TextEditingController date = TextEditingController(text: HelperMethods.formatDate(DateTime.now()));
   final _formKey = GlobalKey<FormState>();
 
   void createEvent() async {

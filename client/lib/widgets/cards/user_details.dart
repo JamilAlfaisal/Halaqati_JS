@@ -156,6 +156,8 @@ class UserDetails extends StatelessWidget {
                 : null,
           ),
 
+          const SizedBox(height: 10),
+
           buildRow(
             icon: Icons.chat_bubble_outline_sharp,
             value: phone.isNotEmpty ? phone : "N/A",

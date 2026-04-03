@@ -86,4 +86,13 @@ class Teacher extends User {
         'picProfile': picProfile,
         'createdClasses': createdClasses.map((e) => e.toJson()).toList(),
       };
+
+  static Teacher emptyTeacher(){
+    return Teacher(
+      id: "",
+      name: "",
+      email: "",
+      phone: "", role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
+    );
+  }
 }

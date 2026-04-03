@@ -8,6 +8,7 @@ import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
+import 'package:halqati/widgets/custom_lable.dart';
 import 'package:halqati/widgets/textfields/text_field_normal.dart';
 import 'package:halqati/widgets/textfields/text_area.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
@@ -179,22 +180,8 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 10,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: theme.primaryColor.withOpacity(.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    studentName,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.primaryColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                CustomLabel(
+                  text: studentName,
                 ),
                 TextFieldNormal(
                     hintText: "title".tr(),
@@ -203,7 +190,7 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
                 ),
                 TextArea(
                     textController: des,
-                    title: "description".tr()
+                    title: "des".tr()
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

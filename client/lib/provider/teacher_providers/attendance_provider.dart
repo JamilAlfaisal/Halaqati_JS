@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
-import 'package:halqati/provider/api_service_provider.dart';
+import 'package:halqati/provider/services_providers/attendance_api_provider.dart';
+// import 'package:halqati/provider/api_service_provider.dart';
 import 'package:halqati/models/attendance.dart';
 import 'package:halqati/provider/token_notifier.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
@@ -26,7 +27,7 @@ class AttendanceNotifier extends AsyncNotifier<List<Attendance>?> {
 
     try {
       return await ref
-          .read(apiServiceProvider)
+          .read(attendanceApiProvider)
           .getAttendances(token: token, classId: classId);
     } catch (e) {
       if (e is UnauthorizedException) {
@@ -65,7 +66,7 @@ class AttendanceNotifier extends AsyncNotifier<List<Attendance>?> {
     if (token == null) throw UnauthorizedException();
 
     try {
-      await ref.read(apiServiceProvider).takeAttendance(
+      await ref.read(attendanceApiProvider).takeAttendance(
         token: token,
         classId: classId,
         studentIds: studentIds,
@@ -91,7 +92,7 @@ class AttendanceNotifier extends AsyncNotifier<List<Attendance>?> {
     }
 
     try {
-      await ref.read(apiServiceProvider).updateAttendance(
+      await ref.read(attendanceApiProvider).updateAttendance(
         token: token,
         attendanceId: attendanceId,
         studentIds: studentIds,
@@ -118,7 +119,7 @@ FutureProvider<Attendance>((ref) async {
   }
 
   try {
-    return await ref.read(apiServiceProvider).getAttendanceDetails(
+    return await ref.read(attendanceApiProvider).getAttendanceDetails(
       token: token,
       attendanceId: attendanceId,
     );

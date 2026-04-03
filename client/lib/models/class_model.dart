@@ -148,4 +148,21 @@ class ClassModel {
   int studentCount() {
     return students.length;
   }
+
+  static ClassModel emptyClass (){
+      return ClassModel(
+        id: "",
+        teacher:  Teacher.emptyTeacher(),
+        name: "",
+        description: "",
+        location: "",
+        startTime: "",
+        endTime: "",
+        days: const [],
+        students: const [],
+        events: const [],
+        assignments: const [],
+        attendanceRecords: const [],
+      );
+  }
 }

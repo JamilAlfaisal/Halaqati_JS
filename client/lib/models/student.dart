@@ -96,4 +96,19 @@ class Student extends User {
       'enrolledClasses': enrolledClasses.map((e) => e.toJson()).toList(),
     };
   }
+
+  static Student emptyStudent (){
+    return Student(
+      id: '',
+      name: '',
+      email: '',
+      role: '',
+      dob: DateTime.now(),
+      createdAt: DateTime.now(),
+      picProfile: '',
+      phone: '',
+      memorizedJuz: [],
+      enrolledClasses: []
+    );
+  }
 }

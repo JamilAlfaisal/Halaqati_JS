@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:halqati/widgets/custom_lable.dart';
 
 class StudentAssignmentList extends StatelessWidget {
   final String className;
@@ -8,6 +9,7 @@ class StudentAssignmentList extends StatelessWidget {
   final String dueDate;
   final String sentTime;
   final bool isComplete;
+  final bool isRead; // ✅ NEW
   final VoidCallback onTap;
 
   const StudentAssignmentList({
@@ -18,10 +20,10 @@ class StudentAssignmentList extends StatelessWidget {
     required this.dueDate,
     required this.sentTime,
     required this.isComplete,
+    required this.isRead, // ✅ NEW
     required this.onTap,
   });
 
-  /// 🔴 Check if due date passed
   bool isOverdue(String dueDate) {
     try {
       final parsedDate = DateTime.parse(dueDate);
@@ -39,35 +41,43 @@ class StudentAssignmentList extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Card(
-        elevation: 2,
+        elevation: isRead ? 2 : 4, // 🔥 unread = more elevation
         margin: const EdgeInsets.symmetric(vertical: 6),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
         ),
-        child: Padding(
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: isRead
+                  ? Colors.transparent
+                  : theme.primaryColor.withOpacity(.4), // 🔥 unread border
+              width: 1.2,
+            ),
+            borderRadius: BorderRadius.circular(14),
+          ),
           padding: const EdgeInsets.all(14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
 
-              /// 🔥 NEW: Assignment Label
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.primaryColor.withOpacity(.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  "assignment".tr(),
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: theme.primaryColor,
-                  ),
-                ),
+              /// 🔥 Top Row (Label + Unread Dot)
+              Row(
+                children: [
+                  CustomLabel(text: "assignment".tr()),
+                  const Spacer(),
+
+                  /// 🔵 Unread indicator
+                  if (!isRead)
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: theme.primaryColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                ],
               ),
 
               const SizedBox(height: 8),
@@ -91,11 +101,12 @@ class StudentAssignmentList extends StatelessWidget {
 
               const SizedBox(height: 8),
 
-              /// 🔹 Title
+              /// 🔹 Title (bold if unread)
               Text(
                 title,
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
+                  fontWeight:
+                  isRead ? FontWeight.normal : FontWeight.bold,
                 ),
               ),
 
@@ -157,7 +168,9 @@ class StudentAssignmentList extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        isComplete ? "completed".tr() : "pending".tr(),
+                        isComplete
+                            ? "completed".tr()
+                            : "pending".tr(),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,

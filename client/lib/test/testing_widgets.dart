@@ -21,11 +21,11 @@ import 'package:halqati/widgets/lists/halaqat_list.dart';
 import 'package:halqati/widgets/lists/student_list.dart';
 import 'package:halqati/widgets/lists/assignment_list.dart';
 import 'package:halqati/widgets/lists/events_list.dart';
-import 'package:halqati/services/api_service.dart';
+// import 'package:halqati/services/api_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/provider/token_notifier.dart';
 import 'package:halqati/models/student.dart';
-import 'package:halqati/provider/api_service_provider.dart';
+// import 'package:halqati/provider/api_service_provider.dart';
 import 'package:halqati/test/test_widget_a.dart';
 import 'package:halqati/test/test_widget_b.dart';
 
@@ -37,7 +37,7 @@ class TestingWidgets extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final TextEditingController _textController = TextEditingController();
     final tokenAsyncValue = ref.watch(tokenProvider);
-    final apiService = ref.read(apiServiceProvider);
+    // final apiService = ref.read(apiServiceProvider);
     return Scaffold(
       // appBar:  AppbarWithLogo(
       //   text: 'Test screen',

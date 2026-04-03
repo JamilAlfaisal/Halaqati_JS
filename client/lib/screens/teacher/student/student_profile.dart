@@ -10,6 +10,9 @@ import 'package:halqati/widgets/appbar/appbar_rermove_student.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/page_number.dart';
 import 'package:halqati/widgets/cards/user_details.dart';
+import 'package:halqati/widgets/confirmation_dialog.dart';
+import 'package:halqati/widgets/error_widget.dart';
+import 'package:halqati/widgets/loading_widget.dart';
 import 'package:halqati/widgets/profile/student_profile_left.dart';
 
 
@@ -34,9 +37,21 @@ class _StudentProfileState extends ConsumerState<StudentProfile> {
     return Scaffold(
       appBar: AppbarRemoveStudent(
         text: halaqahName,
-        onPress: (){
-          ref.read(studentsProvider.notifier).removeStudent(studentPhoneNumber);
-          Navigator.of(context).pop();
+        onPress: () async {
+          final confirm = await showConfirmationDialog(
+            context: context,
+            title: "remove_student".tr(),
+            message: "remove_student_msg".tr(),
+            cancelText: "cancel".tr(),
+            confirmText: "confirm".tr(),
+            confirmColor: Colors.red,
+          );
+          if(confirm){
+            ref
+                .read(studentsProvider.notifier)
+                .removeStudent(studentPhoneNumber);
+            Navigator.of(context).pop();
+          }
         },
         addBackButton: true,
       ),
@@ -65,18 +80,18 @@ class _StudentProfileState extends ConsumerState<StudentProfile> {
                 StudentProfileLeft(student: student,),
                 SizedBox(height: 20,),
                 Text(
-                  "student_bottom_appbar.profile.profile".tr(),
+                  "user_info".tr(),
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 SizedBox(height: 10,),
                 UserDetails(
-                  email: student.email??"teacher_profile.no_email".tr(),
-                  phone: student.phone??"student_bottom_appbar.profile.no_phone".tr(),
+                  email: student.email,
+                  phone: student.phone,
                   dob: student.dob,
                 ),
                 SizedBox(height: 20,),
                 Text(
-                  "student_bottom_appbar.profile.memorized_pages".tr(),
+                  "memorized_juz".tr(),
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 SizedBox(height: 20,),
@@ -121,24 +136,11 @@ class _StudentProfileState extends ConsumerState<StudentProfile> {
               return const Center(child: CircularProgressIndicator());
             }
 
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Error loading halaqat",
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.invalidate(studentsProvider),
-                    child: Text("home_screen.retry".tr()),
-                  ),
-                ],
-              ),
+            return CustomErrorWidget(
+              providerToInvalidate: studentsProvider,
             );
           },
-          loading: () => Center(child: CircularProgressIndicator())
+          loading: () => LoadingWidget()
       )
     );
   }

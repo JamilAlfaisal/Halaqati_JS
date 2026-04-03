@@ -35,40 +35,46 @@ class _NumTextFieldState extends State<TextFieldTime> {
   }
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      spacing: 5,
-      children: [
-        Text(
-          widget.title,
-          style: TextTheme.of(context).bodyLarge,
-        ),
-        SizedBox(
-          width: 140,
-          child: TextFormField(
-            keyboardType: TextInputType.none,
-            textAlign: TextAlign.center,
-            controller: widget.textController,
-            validator: (value){
-              // print(value);
-              if (value == null || value.isEmpty) {
-                return 'add_halaqah_screen.empty_halaqa_name'.tr();
-              }
-              return null; // Return null if the input is valid
-            },
-            decoration: InputDecoration(
-              isDense: true,
-              contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-              border: const OutlineInputBorder(),
-              suffixIcon: IconButton(onPressed: (){_selectTime(context);}, icon: const Icon(Icons.timer_sharp))
-            ),
-            onChanged: (value) {
-              // Handle the capacity number change
-            },
+    return GestureDetector(
+      onTap: (){
+        _selectTime(context);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 5,
+        children: [
+          Text(
+            widget.title,
+            style: TextTheme.of(context).bodyLarge,
           ),
-        ),
-      ],
+          SizedBox(
+            width: 140,
+            child: TextFormField(
+              enabled: false,
+              keyboardType: TextInputType.none,
+              textAlign: TextAlign.center,
+              controller: widget.textController,
+              validator: (value){
+                // print(value);
+                if (value == null || value.isEmpty) {
+                  return 'add_halaqah_screen.empty_halaqa_name'.tr();
+                }
+                return null;
+              },
+              decoration: InputDecoration(
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(onPressed: (){_selectTime(context);}, icon: const Icon(Icons.timer_sharp)),
+              ),
+              onChanged: (value) {
+                // Handle the capacity number change
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -7,6 +7,8 @@ import 'package:halqati/provider/teacher_providers/events_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
+import 'package:halqati/widgets/error_widget.dart';
+import 'package:halqati/widgets/loading_widget.dart';
 import 'package:halqati/widgets/textfields/custome_date_picker.dart';
 import 'package:halqati/widgets/textfields/text_area.dart';
 import 'package:halqati/widgets/textfields/text_field_normal.dart';
@@ -125,31 +127,14 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
             ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => LoadingWidget(),
         error: (e, stack) {
-          print("error in the event screen: ${e}");
           if (e is UnauthorizedException) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Error loading events",
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () async{
-                    ref.invalidate(eventProvider);
-                    await ref.refresh(eventProvider.future);
-                  },
-                  child: Text("home_screen.retry".tr()),
-                ),
-              ],
-            ),
+          return CustomErrorWidget(
+            providerToInvalidate: eventProvider,
           );
         },
       )

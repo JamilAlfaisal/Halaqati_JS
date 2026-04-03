@@ -9,8 +9,11 @@ import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
+import 'package:halqati/widgets/confirmation_dialog.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
+import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/lists/assignment_list.dart';
+import 'package:halqati/widgets/loading_widget.dart';
 
 class EventsScreen extends ConsumerStatefulWidget {
   const EventsScreen({super.key});
@@ -65,11 +68,22 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                         title: events[index].title??"",
                         dueDate: HelperMethods.formatDate(events[index].dueDate)??"",
                         onTap: (){
+
                           ref.read(selectedEventIdProvider.notifier).select(events[index].id);
                           Navigator.of(context).pushNamed("/event_details_screen");
                         },
-                        onDelete: (){
-                          ref.read(eventProvider.notifier).deleteEvent(events[index].id);
+                        onDelete: () async {
+                          final confirm = await showConfirmationDialog(
+                            context: context,
+                            title: "delete_event".tr(),
+                            message: "delete_event_warning".tr(),
+                            cancelText: "cancel".tr(),
+                            confirmText: "confirm".tr(),
+                            confirmColor: Colors.red,
+                          );
+                          if (confirm){
+                            ref.read(eventProvider.notifier).deleteEvent(events[index].id);
+                          }
                         }
                       );
                     },
@@ -80,31 +94,14 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
           );
 
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => LoadingWidget(),
         error: (e, stack) {
-          print("error in the event screen: ${e}");
           if (e is UnauthorizedException) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Error loading events",
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () async{
-                    ref.invalidate(eventProvider);
-                    await ref.refresh(eventProvider.future);
-                  },
-                  child: Text("home_screen.retry".tr()),
-                ),
-              ],
-            ),
+          return CustomErrorWidget(
+            providerToInvalidate: eventProvider,
           );
         },
       ),

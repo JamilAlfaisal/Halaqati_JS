@@ -1,6 +1,7 @@
 import 'package:halqati/core/utils/auth_utils.dart';
 import 'package:halqati/provider/token_notifier.dart';
-import 'package:halqati/provider/api_service_provider.dart';
+import 'package:halqati/provider/services_providers/auth_provider.dart';
+// import 'package:halqati/provider/api_service_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
@@ -18,7 +19,7 @@ class AuthNotifier extends AsyncNotifier<Student?> {
     if (token == null || token.isEmpty) return null;
 
     try {
-      return await ref.read(apiServiceProvider).getStudentDashboard(token);
+      return await ref.read(authApiProvider).getStudentDashboard(token);
     } catch (e) {
       if (e is UnauthorizedException) {
         print('Clearing token due to auth/API error');

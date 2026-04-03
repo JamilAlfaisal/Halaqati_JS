@@ -17,18 +17,31 @@ class AppbarDeleteButton extends StatelessWidget implements PreferredSizeWidget{
     AppBar(
       centerTitle: true,
       title: Text(text),
-      leading: IconButton(onPressed: (){
+      leading: IconButton(
+        onPressed: (){
         Navigator.pop(context);
       }, icon: Icon(Icons.arrow_back_outlined)),
       actions: [
-        IconButton(onPressed: onPress, icon: Icon(Icons.delete_outline))
+        IconButton(
+          onPressed: onPress,
+          icon: Icon(
+            Icons.delete_outline,
+            color: Colors.red,
+          ),
+        )
       ],
     )
         :AppBar(
       centerTitle: true,
       title: Text(text),
       actions: [
-        IconButton(onPressed: onPress, icon: Icon(Icons.delete_outline))
+        IconButton(
+          onPressed: onPress,
+          icon: Icon(
+            Icons.delete_outline,
+            color: Colors.red,
+          ),
+        )
       ],
     );
 

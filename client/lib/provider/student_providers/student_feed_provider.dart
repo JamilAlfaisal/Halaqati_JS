@@ -4,7 +4,8 @@ import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
 import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/event.dart';
-import 'package:halqati/provider/api_service_provider.dart';
+// import 'package:halqati/provider/api_service_provider.dart';
+import 'package:halqati/provider/services_providers/event_api_provider.dart';
 import 'package:halqati/provider/student_providers/selected_assignment_notifier.dart';
 import 'package:halqati/provider/token_notifier.dart';
 
@@ -25,7 +26,7 @@ class StudentFeedNotifier extends AsyncNotifier<List<dynamic>?> {
 
     try {
       return await ref
-          .read(apiServiceProvider)
+          .read(eventApiProvider)
           .getStudentFeed(token);
     } catch (e) {
       if (e is UnauthorizedException) {
@@ -36,25 +37,37 @@ class StudentFeedNotifier extends AsyncNotifier<List<dynamic>?> {
   }
 
   dynamic getSelectedItem() {
-    final String selectedId = ref.watch(selectedAssignmentProvider).toString();
+    final String selectedIndex = ref.watch(selectedAssignmentProvider).toString();
     if (!state.hasValue || state.value == null) return null;
-
     try {
-      return state.value!.firstWhere(
-        (item) {
-          if (item is Assignment) {
-            return item.id.toString() == selectedId;
-          }
-          if (item is Event) {
-            return item.id.toString() == selectedId;
-          }
-          return false;
-        },
-      );
+      return state.value![int.tryParse(selectedIndex)??0];
     } catch (_) {
       return null;
     }
   }
+
+  void markAsRead(int assignmentId, int studentId) {
+    state = state.whenData((items) {
+      if (items == null) return [];
+
+      return items.map((item) {
+        // ✅ Only handle Assignment
+        if (item is Assignment) {
+
+          if (item.id.toString() != assignmentId.toString()) return item;
+          final updatedStudent = item.students[0].copyWith(isRead: true);
+
+          return item.copyWith(
+            students: [updatedStudent],
+          );
+        }
+
+        // ✅ Keep Event untouched
+        return item;
+      }).toList();
+    });
+  }
+
 
   Future<void> refreshFeed() async {
     ref.invalidateSelf();

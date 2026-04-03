@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/event.dart';
 import 'package:halqati/provider/student_providers/student_feed_provider.dart';
-import 'package:halqati/provider/api_service_provider.dart';
+import 'package:halqati/provider/services_providers/juz_api_provider.dart';
+// import 'package:halqati/provider/api_service_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/cards/date_type_card.dart';
@@ -30,7 +31,7 @@ class _AssignmentDetailsScreenState
   @override
   Widget build(BuildContext context) {
     final selectedItem = ref.watch(studentFeedProvider.notifier).getSelectedItem();
-    final apiService = ref.read(apiServiceProvider);
+    final apiService = ref.read(juzApiProvider);
     final token = ref.watch(tokenProvider).value ?? "";
     if (ref.watch(studentFeedProvider).isLoading){
       return Scaffold(
@@ -53,7 +54,7 @@ class _AssignmentDetailsScreenState
         builder: (_) {
           /// 🔥 TYPE CHECK
           final isAssignment = selectedItem is Assignment;
-
+          print("is the selected list is assignment: ${isAssignment}");
           final assignment =
           isAssignment ? selectedItem as Assignment : null;
           final event =
@@ -159,8 +160,8 @@ class _AssignmentDetailsScreenState
                       DateTypeCard(
                         date: displayDate(dueDate),
                         type: isAssignment
-                            ? assignment!.type
-                            : "Event",
+                            ? "${assignment!.type.toLowerCase()}".tr()
+                            : "event".tr(),
                       ),
 
                       const SizedBox(height: 20),

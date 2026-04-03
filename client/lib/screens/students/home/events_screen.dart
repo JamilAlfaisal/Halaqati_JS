@@ -5,16 +5,20 @@ import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/class_model.dart';
 import 'package:halqati/models/event.dart';
 import 'package:halqati/models/teacher.dart';
+import 'package:halqati/provider/services_providers/juz_api_provider.dart';
 import 'package:halqati/provider/student_providers/selected_assignment_notifier.dart';
 import 'package:halqati/provider/student_providers/student_feed_provider.dart';
 import 'package:halqati/provider/student_providers/student_provider.dart';
+import 'package:halqati/provider/token_notifier.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
+import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/lists/events_list.dart';
 import 'package:halqati/widgets/lists/student_assingment_list.dart';
 import 'package:halqati/widgets/lists/student_event_list.dart';
+import 'package:halqati/widgets/loading_widget.dart';
 
 
 class EventsScreen extends ConsumerStatefulWidget {
@@ -27,11 +31,34 @@ class EventsScreen extends ConsumerStatefulWidget {
 class _EventsScreenState extends ConsumerState<EventsScreen> {
 
 
+
+  void  _markAssignmentAsRead(WidgetRef ref, int assignmentId, int index) async {
+    final apiService = ref.read(juzApiProvider);
+    final token = ref.watch(tokenProvider).value ?? "";
+
+    try {
+      final bool isSuccess = await apiService.markAsRead(
+        token: token,
+        id: assignmentId,
+      );
+
+      if(isSuccess){
+        debugPrint("isSuccess: ${isSuccess}");
+        // ref.invalidate(studentFeedProvider);
+        ref.read(studentFeedProvider.notifier).markAsRead(
+            assignmentId, 0
+        );
+      }
+
+    } catch (e) {
+      debugPrint("Failed to mark as read: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final feedAsync = ref.watch(studentFeedProvider);
     final selectAssignment = ref.watch(selectedAssignmentProvider.notifier);
-
     return Scaffold(
       appBar: AppbarWithLogo(text: "events".tr()),
       body: Padding(
@@ -95,27 +122,40 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                       await Future.delayed(Duration(seconds: 1));
                     },
                     child: ListView.builder(
-                      // itemCount: assignmentClass.length,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       itemCount: assignmentCount,
                       itemBuilder: (context, index){
-                        print(assignmentCount);
+                        /// please note and read carefully
+                        /// here since event and assignment could
+                        /// have same id so we are going to sort the list
+                        /// from new to old so we are going
+                        /// to save index and the provider
+                        /// NOT the id
+
                         if (assignment[index] is Assignment){
+                          assignment[index] as Assignment;
                           final Assignment currentAssignment = assignment[index];
                           bool isComplete = false;
+                          bool isRead = false;
+
                           print(currentAssignment.students);
                           if (currentAssignment.students.length > 0){
-                            isComplete = currentAssignment.students?[0].isComplete??false;
+                            isComplete = currentAssignment.students[0].isComplete;
+                            isRead = currentAssignment.students[0].isRead;
                           }
+                          print("events screen isRead: ${isRead}");
                           return StudentAssignmentList(
                               className: currentAssignment.halaqaClass.name,
+                              isRead: isRead,
                               teacherName: currentAssignment.teacher.name,
                               title: currentAssignment.title,
                               dueDate: HelperMethods.formatDate(currentAssignment.dueDate),
                               sentTime: HelperMethods.formatDate(currentAssignment.createdDate),
                               isComplete: isComplete,
                               onTap: (){
-                                selectAssignment.select(int.tryParse(currentAssignment.id)??0);
+                                if (!isRead)
+                                  _markAssignmentAsRead(ref,int.tryParse(currentAssignment.id)??0, index);
+                                selectAssignment.select(index);
                                 Navigator.of(context).pushNamed("/assignment_details_screen");
                               }
                           );
@@ -128,7 +168,8 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                             date: HelperMethods.formatDate(currentEvent.dueDate),
                             sentTime: HelperMethods.formatDate(currentEvent.createdDate),
                             onTap: (){
-                              selectAssignment.select(int.tryParse(currentEvent.id)??0);
+                              // selectAssignment.select(int.tryParse(currentEvent.id)??0);
+                              selectAssignment.select(index);
                               Navigator.of(context).pushNamed("/assignment_details_screen");
                             }
                           );
@@ -140,32 +181,18 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                   ),
                 );
               },
-              loading: () => Expanded(child: const Center(child: CircularProgressIndicator())),
+              loading: () => Expanded(child: LoadingWidget()),
               error: (e, stack) {
                 if (e is UnauthorizedException) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Error loading halaqat",
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      const SizedBox(height: 16),
-                      // ✅ Add retry button for errors
-                      ElevatedButton(
-                        onPressed: () => ref.invalidate(studentFeedProvider),
-                        child: Text("home_screen.retry".tr()),
-                      ),
-                    ],
-                  ),
+                return CustomErrorWidget(
+                  providerToInvalidate: studentFeedProvider,
                 );
+
               },
             ),
-            // EventsList(title: "Weekly Halaqa", date: "2024-07-20", description: "dvgfhgddfgvfgfhgjhhgjjhfghfvgdsvfvbfbghgnhmjhkyhhfvcv vb ")
           ],
         ),
       ),
