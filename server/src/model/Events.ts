@@ -19,9 +19,13 @@ export class Event {
   @Column({ type: "date", nullable: true })
   dueDate!: Date;
 
-  @ManyToOne(() => User, (user) => user.events)
+  @ManyToOne(() => User, (user) => user.events, {
+    onDelete: "CASCADE"
+  })
   teacher!: User;
 
-  @ManyToOne(() => Class, (classroom) => classroom.events)
+  @ManyToOne(() => Class, (classroom) => classroom.events, {
+    onDelete: "CASCADE"
+  })
   class!: Class;
 }

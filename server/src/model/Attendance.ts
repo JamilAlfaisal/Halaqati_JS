@@ -9,10 +9,12 @@ export class Attendance {
 @PrimaryGeneratedColumn()
   id!: number;
 
-  @CreateDateColumn({ type: "date", nullable: false })
+  @CreateDateColumn({ type: "timestamp" })
   date!: Date;
 
-  @ManyToOne(() => Class, (classroom) => classroom.attendances)
+  @ManyToOne(() => Class, (classroom) => classroom.attendances, {
+    onDelete: "CASCADE"
+  })
   class!: Class;
 
   @ManyToOne(() => User, (user) => user.attendancesCreated)

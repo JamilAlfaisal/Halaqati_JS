@@ -57,6 +57,7 @@ export const singUp = async (req: Request, res: Response) => {
 
         const student = studentRepository.create({
             user:savedUser,
+            id: savedUser.id,
             memorized_juz: []
         })
         await queryRunner.manager.save(student);
@@ -178,8 +179,12 @@ export const verifyUsers = async (req:AuthRequest, res: Response) => {
                 user
             });
         }else{
-            const student = await studentRepository.findOneBy({
-                user: {id: userId}
+
+            const student = await studentRepository.findOne({
+                where: {
+                    user: { id: userId }
+                },
+                relations: ['user'],
             });
 
             if(!student){
@@ -192,7 +197,7 @@ export const verifyUsers = async (req:AuthRequest, res: Response) => {
                 {
                     user:{
                         ...user,
-                        memorized_juz: student?.memorized_juz
+                        memorizedJuz: student?.memorized_juz
                     }
                 }
             );

@@ -1,4 +1,4 @@
-import { OneToOne, JoinColumn, Column, ManyToMany, OneToMany, JoinTable, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { OneToOne, JoinColumn, Column, ManyToMany, OneToMany, JoinTable, Entity, PrimaryColumn } from "typeorm";
 import { User } from "./User";
 import { Assignment } from "./Assignment";
 import { StudyIn } from "./Study_in";
@@ -8,7 +8,7 @@ import { HaveAssignment } from "./Have_assignment";
 @Entity("STUDENT")
 export class Student{
 
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id!: number;
 
   @OneToOne(() => User, { cascade: true, onDelete: 'CASCADE' })

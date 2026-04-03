@@ -29,7 +29,9 @@ export class Class {
   @Column({ type: "time", nullable: true })
   endTime!: string;
 
-  @ManyToOne(() => User, (user) => user.classes)
+  @ManyToOne(() => User, (user) => user.classes, {
+    onDelete: "CASCADE"
+  })
   teacher!: User;
 
   @OneToMany(() => Attendance, (attendance) => attendance.class)

@@ -222,33 +222,53 @@ export const deleteClass = async (req:AuthRequest, res:Response) => {
             return res.status(403).json({ message: "Not class owner" });
         }
 
-        await queryRunner.manager
-            .createQueryBuilder()
-            .delete()
-            .from('Study_in')
-            .where('classId = :classId', {classId})
-            .execute();
+        // await queryRunner.manager
+        //     .createQueryBuilder()
+        //     .delete()
+        //     .from('Study_in')
+        //     .where('classId = :classId', {classId})
+        //     .execute();
 
-        await queryRunner.manager
-            .createQueryBuilder()
-            .delete()
-            .from("assignment")
-            .where("classId = :classId", { classId })
-            .execute();
+        // // 1. Get assignment IDs
+        // const assignments = await queryRunner.manager
+        //     .createQueryBuilder()
+        //     .select("assignment.id", "id")
+        //     .from("assignment", "assignment")
+        //     .where("assignment.classId = :classId", { classId })
+        //     .getRawMany();
+        
+        // const assignmentIds = assignments.map(a => a.id);
 
-        await queryRunner.manager
-            .createQueryBuilder()
-            .delete()
-            .from("event")
-            .where("classId = :classId", { classId })
-            .execute();
+        // if (assignmentIds.length > 0) {
+        //     await queryRunner.manager
+        //         .createQueryBuilder()
+        //         .delete()
+        //         .from("have_assignment")
+        //         .where("assignmentId IN (:...ids)", { ids: assignmentIds })
+        //         .execute();
+        // }
 
-        await queryRunner.manager
-            .createQueryBuilder()
-            .delete()
-            .from("attendance")
-            .where("classId = :classId", { classId })
-            .execute();
+
+        // await queryRunner.manager
+        //     .createQueryBuilder()
+        //     .delete()
+        //     .from("assignment")
+        //     .where("classId = :classId", { classId })
+        //     .execute();
+
+        // await queryRunner.manager
+        //     .createQueryBuilder()
+        //     .delete()
+        //     .from("event")
+        //     .where("classId = :classId", { classId })
+        //     .execute();
+
+        // await queryRunner.manager
+        //     .createQueryBuilder()
+        //     .delete()
+        //     .from("attendance")
+        //     .where("classId = :classId", { classId })
+        //     .execute();
 
         await classRepository.delete(classId);
 
@@ -273,6 +293,7 @@ export const getTeacherClasses = async (req:AuthRequest, res: Response) => {
     try{
         const userId = req.user?.id;
         const role = req.user?.role;
+        
         if (!userId) {
             console.log("❌ http://localhost:3000/api/class/get_my_classes");
             return res.status(401).json({ message: "Unauthorized" });
@@ -287,58 +308,60 @@ export const getTeacherClasses = async (req:AuthRequest, res: Response) => {
             where: { teacher: { id: userId } },
             relations: [
                 'teacher', 
-                'events',
-                'attendances',
-                'assignments',
-                'assignments.haveAssignment', 
-                'assignments.haveAssignment.student',
-                'assignments.haveAssignment.student.user',
-                'studyInRecords',
-                'studyInRecords.student'
+                // 'events',
+                // 'attendances',
+                // 'assignments',
+                // 'assignments.haveAssignment', 
+                // 'assignments.haveAssignment.student',
+                // 'assignments.haveAssignment.student.user',
+                // 'studyInRecords',
+                // 'studyInRecords.student'
             ]
         });
+        
 
         const properJson = allClasses.map((classes) => {
             return {
-                id: classes.id,
+                id: classes.id ?? "0",
                 name:classes.name,
                 description: classes.description,
                 days: classes.days,
-                teacherId: classes.teacher.id,
+                teacherId: classes.teacher?.id ?? "0",
                 startTime: classes.startTime,
                 endTime: classes.endTime,
                 location: classes.location,
-                events: classes.events.map(event => ({
-                    eventId: event.id,
-                    title: event.title,
-                    dueDate: event.dueDate,
-                    createdDate: event.createdAt,
-                    description: event.description
-                })),
-                assignments: classes.assignments.map(assignment => ({
-                    assignmentId: assignment.id,
-                    title: assignment.title,
-                    description: assignment.description,
-                    dueDate: assignment.dueDate,
-                    pages: assignment.pages,
-                    type: assignment.type,
-                    createdAt: assignment.createdAt,
-                    haveAssignment: assignment.haveAssignment.map(record => ({
-                        isComplete: record.isComplete,
-                        studentId: record.student.id,
-                        memorizedJuz: record.student.memorized_juz,
-                        studentName: record.student.user.name,
-                        picProfile: record.student.user.picProfile
+                // events: (classes.events ?? []).map(event => ({
+                //     eventId: event.id ?? "0",
+                //     title: event.title,
+                //     dueDate: event.dueDate,
+                //     createdDate: event.createdAt,
+                //     description: event.description
+                // })),
+                // assignments: (classes.assignments ?? []).map(assignment => ({
+                //     assignmentId: assignment.id ?? "0",
+                //     title: assignment.title,
+                //     description: assignment.description,
+                //     dueDate: assignment.dueDate,
+                //     pages: assignment.pages,
+                //     type: assignment.type,
+                //     createdAt: assignment.createdAt,
+                //     haveAssignment: (assignment.haveAssignment ?? []).map(record => ({
+                //         isComplete: record.isComplete,
+                //         studentId: record.student.id ?? "0",
+                //         memorizedJuz: record.student.memorized_juz,
+                //         studentName: record.student.user.name,
+                //         picProfile: record.student.user.picProfile
                         
-                    })),
-                })),
-                attendances: classes.attendances.map(attendance => ({
-                    attendanceId: attendance.id,
-                    date: attendance.date
-                })),
-                students: classes.studyInRecords.map((record)=>record.student)
+                //     })),
+                // })),
+                // attendances: (classes.attendances ?? []).map(attendance => ({
+                //     attendanceId: attendance.id ?? "0",
+                //     date: attendance.date
+                // })),
+                students: (classes.studyInRecords ?? []).map((record)=>record.student)
             }
         });
+        
 
         console.log("✅ http://localhost:3000/api/class/get_my_classes");
         return res.status(200).send({

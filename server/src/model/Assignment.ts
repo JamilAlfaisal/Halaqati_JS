@@ -31,10 +31,14 @@ export class Assignment {
   @Column({ type: "date", nullable: true })
   dueDate!: Date;
 
-  @ManyToOne(() => User, (user) => user.assignments)
+  @ManyToOne(() => User, (user) => user.assignments, {
+    onDelete: "CASCADE"
+  })
   teacher!: User;
 
-  @ManyToOne(() => Class, (classroom) => classroom.assignments)
+  @ManyToOne(() => Class, (classroom) => classroom.assignments, {
+    onDelete: "CASCADE"
+  })
   class!: Class;
 
   @OneToMany(() => HaveAssignment, (HaveAssignment) => HaveAssignment.assignment)

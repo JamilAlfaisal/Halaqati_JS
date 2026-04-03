@@ -206,6 +206,24 @@ export const removeStudentFromClass = async (req:AuthRequest, res:Response) => {
             });
         }
 
+        const subQuery = queryRunner.manager
+            .createQueryBuilder()
+            .subQuery()
+            .select("a.id")
+            .from("assignment", "a")
+            .where("a.classId = :classId")
+            .getQuery();
+
+        // 2. use it in delete
+        await queryRunner.manager
+            .createQueryBuilder()
+            .delete()
+            .from("have_assignment")
+            .where("studentId = :studentId", { studentId: student.student.id })
+            .andWhere(`assignmentId IN ${subQuery}`)
+            .setParameter("classId", classId)
+            .execute();
+
         await studyInRepository.delete(enrollment.id);
         await queryRunner.commitTransaction();
 

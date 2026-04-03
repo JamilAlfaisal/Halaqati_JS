@@ -16,7 +16,7 @@ export const createEvent = async (req:AuthRequest, res:Response) => {
         const userId = req.user?.id;
         const role = req.user?.role;
         const classId = Number(req.params.id);
-
+        console.log(classId);
         if (!userId) {
             console.log("❌ http://localhost:3000/api/event/create");
             return res.status(401).json({ message: "Unauthorized" });
@@ -45,6 +45,7 @@ export const createEvent = async (req:AuthRequest, res:Response) => {
         }
 
         const { dueDate, description, title } = req.body
+        console.log("dueDate: ",dueDate);
         
         if (!title || !dueDate || !description) {
             console.log("❌ http://localhost:3000/api/event/create");

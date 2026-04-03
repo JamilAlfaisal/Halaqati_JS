@@ -9,12 +9,16 @@ export class StudyIn {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(() => Student, s => s.studyIn)
+  @ManyToOne(() => Student, s => s.studyIn, {
+    onDelete: "CASCADE"
+  })
   student!: Student;
 
-  @ManyToOne(() => Class, c => c.studyInRecords)
+  @ManyToOne(() => Class, c => c.studyInRecords, {
+    onDelete: "CASCADE"
+  })
   class!: Class;
 
-  @Column({ type: "datetime", nullable: false })
+  @Column({ type: "date", nullable: false })
   registeredAt!: Date;
 }

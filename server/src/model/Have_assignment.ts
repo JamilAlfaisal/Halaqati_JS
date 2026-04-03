@@ -15,4 +15,7 @@ export class HaveAssignment {
 
   @Column({ type: "boolean", default: false })
   isComplete!: boolean;
+
+  @Column({ type: "boolean", default: false })
+  isRead!: boolean;
 }

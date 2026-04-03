@@ -24,7 +24,6 @@ export const createAssignment = async (req:AuthRequest, res:Response) => {
         const role = req.user?.role;
         const classId = Number(req.params?.id);
 
-
         if (!userId) {
             console.log("❌ http://localhost:3000/api/assignment/create");
             return res.status(401).json({ message: "Unauthorized" });
@@ -114,6 +113,8 @@ export const createAssignment = async (req:AuthRequest, res:Response) => {
                 student: {id}
             });
         });
+
+        console.log(allHaveAssignments.map((ass) => ass.student.id));
 
         await queryRunner.manager.save(allHaveAssignments);
         await queryRunner.commitTransaction();
@@ -322,10 +323,14 @@ export const getTeacherAssignments = async (req:AuthRequest, res: Response) => {
             return res.status(403).json({message:"Forbidden"})
         }
 
-        const allAssignments = await assignmentRepository.find({
-            where: { teacher: { id: userId } },
-            relations: ['class', 'haveAssignment', 'haveAssignment.student']
-        });
+        const allAssignments = await assignmentRepository
+            .createQueryBuilder('assignment')
+            .leftJoinAndSelect('assignment.class', 'class')
+            .leftJoinAndSelect('assignment.haveAssignment', 'haveAssignment')
+            .leftJoinAndSelect('haveAssignment.student', 'student')
+            .where('assignment.teacherId = :teacherId', { teacherId: userId })
+            .orderBy('assignment.createdAt', 'DESC')
+            .getMany();
 
         console.log("✅ http://localhost:3000/api/assignment/get");
         return res.status(200).send({
@@ -334,7 +339,11 @@ export const getTeacherAssignments = async (req:AuthRequest, res: Response) => {
                     id: record.id,
                     title: record.title,
                     description: record.description,
-                    students: record.haveAssignment.map(ass => ({id: ass.student.id, isComplete: ass.isComplete})),
+                    students: record.haveAssignment.map(ass => ({
+                        id: ass.student.id,
+                        isComplete: ass.isComplete,
+                        isRead: ass.isRead,
+                    })),
                     createdAt: record.createdAt,
                     dueDate: record.dueDate,
                     type: record.type,
@@ -389,6 +398,7 @@ export const getAssignmentDetails = async (req:AuthRequest, res:Response) => {
                 students: assignment.haveAssignment.map(ha => ({
                 id: ha.student.id,
                 isComplete: ha.isComplete,
+                isRead: ha.isRead,
                 })),
                 createdAt: assignment.createdAt,
                 dueDate: assignment.dueDate,
@@ -420,6 +430,7 @@ export const getAssignmentDetails = async (req:AuthRequest, res:Response) => {
                 pages: assignment.pages,
                 classId: assignment.class.id,
                 isComplete: haveAssignment.isComplete,
+                isRead: haveAssignment.isRead
             });
         }
         console.log("❌ http://localhost:3000/api/assignment/details");
@@ -478,6 +489,7 @@ export const markAsCompleteUncomplete = async (req: AuthRequest, res: Response) 
             title: haveAssignment.assignment.title,
             description: haveAssignment.assignment.description,
             isComplete: haveAssignment.isComplete,
+            isRead: haveAssignment.isRead,
             createdAt: haveAssignment.assignment.createdAt,
             dueDate: haveAssignment.assignment.dueDate,
             type: haveAssignment.assignment.type,
@@ -542,7 +554,8 @@ export const getStudentsAssignment = async (req: AuthRequest, res: Response) => 
                 haveAssignment:
                     [
                         {
-                            isComplete: ass.isComplete
+                            isComplete: ass.isComplete,
+                            isRead: ass.isRead
                         }
                     ]
             }
@@ -583,6 +596,7 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
             return res.status(400).json({ message: "Student ID is required" });
         }
 
+
         // 3. Find student by their profile ID
         const student = await studentRepository.findOne({
             where: { user: { id: parseInt(studentUserId) } },
@@ -602,11 +616,14 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
                     [
                         {
                             isComplete: item.isComplete,
+                            isRead: item.isRead,
                             id: studentUserId
                         }
                     ]
             }
-        })
+        });
+
+        console.log(properJson);
 
         console.log(`✅ Teacher ${userId} fetched assignments for student ${studentUserId}`);
         return res.status(200).json({ assignments: properJson });
@@ -615,5 +632,74 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
         console.error(`❌ Error fetching student assignments: ${e}`);
         return res.status(500).json({ message: "Internal server error" });
     }
+    
 }
+
+
+export const markAssignmentAsRead = async (req: AuthRequest, res: Response) => {
+    const haveAssignmentRepository = AppDataSource.getRepository(HaveAssignment);
+    try {
+        const studentId = req?.user.id;
+        const role = req?.user.role;
+        const assignmentId = Number(req.params.id);
+
+        if (!studentId) {
+            console.log("❌ http://localhost:3000/api/assignment/mark_as_read");
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        if (role !== "student") {
+            console.log("❌ http://localhost:3000/api/assignment/mark_as_read");
+            return res.status(403).json({ message: "Forbidden" });
+        }
+
+        if (isNaN(assignmentId)) {
+            console.log("❌ http://localhost:3000/api/assignment/mark_as_read");
+            return res.status(400).json({ message: "Invalid assignment id" });
+        }
+
+        const haveAssignment = await haveAssignmentRepository.findOne({
+            where: {
+                assignment: { id: assignmentId },
+                student: { id: studentId }
+            },
+            relations: ['assignment', 'assignment.class']
+        });
+
+        if (!haveAssignment) {
+            return res.status(403).json({
+                message: "Not assignment owner"
+            });
+        }
+
+        // // ✅ mark as read (no toggle)
+        // haveAssignment.isRead = true;
+
+        // await haveAssignmentRepository.save(haveAssignment);
+
+        await haveAssignmentRepository.update(
+            { id: haveAssignment.id }, // ensure unique PK
+            { isRead: true }
+        );
+
+        console.log("✅ http://localhost:3000/api/assignment/mark_as_read");
+        return res.status(200).json({
+            id: haveAssignment.assignment.id,
+            title: haveAssignment.assignment.title,
+            description: haveAssignment.assignment.description,
+            isRead: haveAssignment.isRead,
+            isComplete: haveAssignment.isComplete,
+            createdAt: haveAssignment.assignment.createdAt,
+            dueDate: haveAssignment.assignment.dueDate,
+            type: haveAssignment.assignment.type,
+            pages: haveAssignment.assignment.pages,
+            classId: haveAssignment.assignment.class.id,
+        });
+
+    } catch (e) {
+        console.log("❌ http://localhost:3000/api/assignment/mark_as_read");
+        console.error(`❌ ${e}`);
+        return res.status(500).json({ message: "Failed to mark assignment as read" });
+    }
+};
 
