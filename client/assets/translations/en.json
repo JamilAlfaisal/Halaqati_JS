@@ -32,6 +32,8 @@
   "teacher":"Teacher",
   "select_days":"Select Days",
   "created_success":"Created successfully",
+  "added_success":"Added successfully",
+  "updated_success":"Updated successfully",
   "class_name":"Class Name",
   "des":"Description",
   "location":"Location",
@@ -59,7 +61,7 @@
   "reading":"Reading",
   "mark_as_complete": "Mark as Complete",
   "select_date": "Please Select Date",
-  "page_num":"Type Page Number and Press ↵↵",
+  "page_num":"Type Page Number and Press Done",
   "student":"Student",
   "delete_class_title": "Delete Class",
   "delete_class_message": "This will permanently delete this class, all assignments, and events. This action cannot be undone.",
@@ -75,6 +77,12 @@
   "remove_student_msg": "This will remove the student from the class. All their assignments, grades, and submissions will be permanently deleted.",
   "home_screen.retry": "Try Again",
   "time":"Time",
+  "registered":"Registered At",
+  "empty":"This field is required",
+  "area_text_field":"Special characters are restricted. You can only use letters, numbers, and basic symbols like ( ) { } : _ - *",
+  "password_text_field":"Only characters and number are allowed",
+  "student_phone_number":"Student phone number",
+  "select_students_attendance":"Select students, in case no students delete the attendance",
   
 
   "weekdays": {

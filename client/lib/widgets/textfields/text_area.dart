@@ -25,21 +25,25 @@ class TextArea extends StatelessWidget {
           maxLines: null,
           keyboardType: TextInputType.multiline,
           minLines: 5,
+
+          decoration: InputDecoration(
+            // This is the key property
+            errorMaxLines: 3,
+            border: OutlineInputBorder(), // Optional: adds a visual border
+          ),
+
           validator: (value){
             // print(value);
-            final forbiddenPattern  = RegExp(r'^[ a-zA-Z0-9\u0600-\u06FF\u0660-\u0669_-]+$');
+            final forbiddenPattern = RegExp(r'^[ a-zA-Z0-9\u0600-\u06FF\u0660-\u0669_{}():* \- \? ؟ !]+$');
 
             if (value == null || value.isEmpty) {
-              return 'add_halaqah_screen.empty_halaqa_name'.tr();
+              return 'empty'.tr();
             }
             if(!forbiddenPattern.hasMatch(value)){
-             return 'add_halaqah_screen.only_letters_numbers'.tr();
+             return 'area_text_field'.tr();
             }
               return null; // Return null if the input is valid
             },
-          decoration: InputDecoration(
-
-          ),
         ),
       ],
     );

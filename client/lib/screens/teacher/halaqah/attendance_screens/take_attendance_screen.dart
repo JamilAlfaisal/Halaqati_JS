@@ -6,6 +6,7 @@ import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/teacher_providers/attendance_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
+import 'package:halqati/widgets/buttons/elevated_dark.dart';
 import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/lists/student_attendance_item.dart';
 import 'package:halqati/widgets/loading_widget.dart';
@@ -65,8 +66,14 @@ class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
                   },
                 ),
               ),
-              ElevatedButton(
+              ElevatedDark(
                 onPressed: () async {
+                  if (selectedStudents.isEmpty){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("select_students_attendance".tr())),
+                    );
+                    return;
+                  }
                   try {
                     await studentNotifier.takeAttendance(
                       studentIds: selectedStudents.toList(),
@@ -75,13 +82,15 @@ class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("created_success".tr())),
                     );
+                    Navigator.of(context).pop();
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("${"error".tr()}: $e")),
                     );
                   }
                 },
-                child: Text("${"take".tr()} ${"attendance".tr()}"),
+                text: "${"take".tr()} ${"attendance".tr()}",
+                ability: !ref.watch(attendanceProvider).isLoading,
               ),
               SizedBox(
                 height: MediaQuery.of(context).padding.bottom+20,

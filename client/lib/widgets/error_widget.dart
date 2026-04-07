@@ -17,6 +17,7 @@ class CustomErrorWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -32,6 +33,7 @@ class CustomErrorWidget extends ConsumerWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
+                print("method ha");
                 if (providerToInvalidate != null) {
                   ref.invalidate(providerToInvalidate!);
                 }

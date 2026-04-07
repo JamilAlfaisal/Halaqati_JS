@@ -7,6 +7,7 @@ import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/selected_student_name.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
+import 'package:halqati/widgets/appbar/appbar_extra_button.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
 import 'package:halqati/widgets/error_widget.dart';
@@ -36,13 +37,23 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
     final asyncStudents = ref.watch(studentsProvider);
     final String halaqahName = ref.watch(selectedClassNameProvider)??"name".tr();
     return Scaffold(
-      floatingActionButton: FloatingButtonIcon(
-        text: "${"add".tr()} ${"students".tr()}",
-        onPressed: (){
-          _showAddStudentSheet(context, ref);
-        }
-      ),
-      appBar: AppbarWithButton(addBackButton: true, text: halaqahName,),
+      // floatingActionButton: FloatingButtonIcon(
+      //   text: "${"add".tr()} ${"students".tr()}",
+      //   onPressed: (){
+      //     _showAddStudentSheet(context, ref);
+      //   }
+      // ),
+        appBar: AppbarExtraButton(
+          text: halaqahName,
+          addBackButton: true,
+          icon: Icon(
+            Icons.person_add,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          onPress: () async {
+            _showAddStudentSheet(context, ref);
+          },
+        ),
       body: asyncStudents.when(
           data: (studentList){
             students = studentList??[];
@@ -126,7 +137,7 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
 
 void _showAddStudentSheet(BuildContext context, WidgetRef ref) {
   final TextEditingController phoneController = TextEditingController();
-
+  bool ability = true;
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -134,59 +145,71 @@ void _showAddStudentSheet(BuildContext context, WidgetRef ref) {
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
     builder: (context) {
-      return Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-          left: 20,
-          right: 20,
-          top: 20,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Add Student".tr(),
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 15),
-            TextPhone(
-              hintText: "enter student phone number",
-              textController: phoneController,
-              title: "student phone number"
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  final String phoneCountryCode = ref.watch(countryCodeProvider)??"+961";
-                  final phone = phoneController.text.trim();
-                  if (phone.isEmpty) return;
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setModalState) {
+          return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            left: 20,
+            right: 20,
+            top: 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Add Student".tr(),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 15),
+              TextPhone(
+                  hintText: "phone".tr(),
+                  textController: phoneController,
+                  title: "student_phone_number".tr()
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: ability?() async {
+                    setModalState(() => ability = false);
+                    ability = false;
+                    final String phoneCountryCode = ref.watch(countryCodeProvider)??"+961";
+                    final phone = phoneController.text.trim();
 
-                  try {
-                    await ref.read(studentsProvider.notifier).addStudent(phoneCountryCode+phone);
+                    if (phone.isEmpty) {
+                      setModalState(() => ability = true);
+                      return;
+                    }
 
-                    if (context.mounted) {
+                    try {
+                      await ref.read(studentsProvider.notifier).addStudent(phoneCountryCode+phone);
+
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('added_success'.tr())),
+                        );
+                      }
+                      setModalState(() => ability = true);
+                    } catch (e) {
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Student added successfully')),
+                        SnackBar(content: Text('error'.tr()), backgroundColor: Colors.red),
                       );
                     }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-                    );
-                  }
-                },
-                child: Text("create".tr()),
+                  }:null,
+                  child: Text("add".tr()),
+                ),
               ),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).padding.bottom,
-            )
-          ],
-        ),
+              SizedBox(
+                height: MediaQuery.of(context).padding.bottom,
+              )
+            ],
+          ),
+          );
+        }
       );
     },
   );

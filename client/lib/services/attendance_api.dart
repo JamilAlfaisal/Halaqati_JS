@@ -2,14 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
-import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/attendance.dart';
-import 'package:halqati/models/event.dart';
-import 'package:halqati/models/teacher.dart';
 import 'package:http/http.dart' as http;
-import 'package:halqati/models/student.dart';
-import 'package:halqati/models/class_model.dart';
-import 'package:halqati/test/printJson.dart';
 import 'package:halqati/services/base_api.dart';
 
 class AttendanceApi extends BaseApi{
@@ -17,8 +11,10 @@ class AttendanceApi extends BaseApi{
   Future<List<Attendance>> getAttendances({
     required String token,
     required String classId,
+    int offset = 0,
+    int limit = 10,
   }) async {
-    final url = Uri.parse('$baseUrl/attendance/get/$classId');
+    final url = Uri.parse('$baseUrl/attendance/get/$classId?offset=$offset&limit=$limit');
 
     try {
       final response = await http.get(
@@ -124,6 +120,7 @@ class AttendanceApi extends BaseApi{
   Future<Attendance> getAttendanceDetails({
     required String token,
     required String attendanceId,
+
   }) async {
     final url = Uri.parse('$baseUrl/attendance/details/$attendanceId');
 
@@ -145,8 +142,7 @@ class AttendanceApi extends BaseApi{
         final data = jsonDecode(response.body);
 
         if (data != null) {
-
-          return Attendance.fromJson(data["attendacneDetails"]);
+          return Attendance.fromJson(data["attendanceDetails"]);
         }
 
         throw ApiException("Invalid attendance details response");
@@ -221,6 +217,50 @@ class AttendanceApi extends BaseApi{
     } on NetworkException {
       rethrow;
     } on ValidationException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Unexpected error: $e');
+    }
+  }
+
+  Future<bool> deleteAttendance({
+    required String token,
+    required String attendanceId,
+  }) async {
+    final url = Uri.parse('$baseUrl/attendance/delete/$attendanceId');
+
+    try {
+      final response = await http
+          .delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 401) {
+        throw UnauthorizedException();
+      }
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return true;
+      }
+
+      throw ApiException(
+        'Failed to delete attendance: ${response.statusCode}',
+        statusCode: response.statusCode,
+      );
+    } on SocketException {
+      throw NetworkException();
+    } on TimeoutException {
+      throw NetworkException();
+    } on UnauthorizedException {
+      rethrow;
+    } on NetworkException {
+      rethrow;
+    } on ApiException {
       rethrow;
     } catch (e) {
       throw ApiException('Unexpected error: $e');

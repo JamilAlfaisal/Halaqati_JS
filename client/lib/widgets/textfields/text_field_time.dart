@@ -58,11 +58,12 @@ class _NumTextFieldState extends State<TextFieldTime> {
               validator: (value){
                 // print(value);
                 if (value == null || value.isEmpty) {
-                  return 'add_halaqah_screen.empty_halaqa_name'.tr();
+                  return 'empty'.tr();
                 }
                 return null;
               },
               decoration: InputDecoration(
+                errorMaxLines: 3,
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
                 border: const OutlineInputBorder(),

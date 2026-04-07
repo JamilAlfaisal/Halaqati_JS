@@ -34,10 +34,10 @@ class _TextFieldPasswordState extends State<TextFieldPassword> {
             final forbiddenPattern  = RegExp(r'^[a-zA-Z0-9_-]+$');
             print(value);
             if (value == null || value.isEmpty) {
-              return 'text_field_password.empty'.tr();
+              return 'empty'.tr();
             }
             if(!forbiddenPattern.hasMatch(value)){
-              return 'text_field_password.invalid_characters'.tr();
+              return 'password_text_field'.tr();
             }
             return null; // Return null if the input is valid
           },

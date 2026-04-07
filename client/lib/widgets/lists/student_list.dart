@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:halqati/utils/string_transformation.dart';
 
 class StudentList extends StatelessWidget {
   final String name;
@@ -65,7 +66,7 @@ class StudentList extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name,
+                  name.toFirstLetterUpper(),
                   style: theme.textTheme.bodyLarge,
                 ),
                 Text(

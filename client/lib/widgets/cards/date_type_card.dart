@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:halqati/utils/string_transformation.dart';
 
 
 class DateTypeCard extends StatelessWidget {
@@ -44,7 +45,7 @@ class DateTypeCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          type,
+                          "${type.toFirstLetterUpper()}",
                           style: Theme.of(context).textTheme.bodyMedium,
                           // overflow: TextOverflow.ellipsis,
                         ),

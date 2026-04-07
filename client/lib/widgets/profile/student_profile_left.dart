@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:halqati/models/student.dart';
+import 'package:halqati/utils/helper_methods.dart';
+import 'package:halqati/utils/string_transformation.dart';
 
 class StudentProfileLeft extends StatelessWidget {
   final Student student;
@@ -65,8 +67,7 @@ class StudentProfileLeft extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  student.name ??
-                      "student_bottom_appbar.profile.no_name".tr(),
+                  student.name.toFirstLetterUpper(),
                   style: theme.textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -93,6 +94,22 @@ class StudentProfileLeft extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       "${"juz".tr()}: ${student.memorizedJuz.length}/30",
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.event,
+                      size: 16,
+                      color: theme.primaryColor,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      "${"registered".tr()}: ${HelperMethods.formatDate(student.registeredAt)}",
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.grey[800],
                       ),

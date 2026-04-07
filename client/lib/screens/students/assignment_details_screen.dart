@@ -25,7 +25,7 @@ class _AssignmentDetailsScreenState
 
   String displayDate(DateTime? date) {
     if (date == null) return "00-00-00";
-    return date.toString().split("T")[0];
+    return date.toString().split(" ")[0];
   }
 
   @override

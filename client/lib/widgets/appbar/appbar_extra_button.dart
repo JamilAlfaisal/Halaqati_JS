@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
-class AppbarDeleteButton extends StatelessWidget implements PreferredSizeWidget{
+class AppbarExtraButton extends StatelessWidget implements PreferredSizeWidget{
   final bool addBackButton;
+  final Icon icon;
   final String text;
   final VoidCallback onPress;
-  const AppbarDeleteButton({
+  const AppbarExtraButton({
     super.key,
     required this.text,
     required this.addBackButton,
-    required this.onPress
+    required this.onPress,
+    required this.icon
   });
 
   @override
@@ -18,16 +20,13 @@ class AppbarDeleteButton extends StatelessWidget implements PreferredSizeWidget{
       centerTitle: true,
       title: Text(text),
       leading: IconButton(
-        onPressed: (){
-        Navigator.pop(context);
-      }, icon: Icon(Icons.arrow_back_outlined)),
+          onPressed: (){
+            Navigator.pop(context);
+          }, icon: Icon(Icons.arrow_back_outlined)),
       actions: [
         IconButton(
           onPressed: onPress,
-          icon: Icon(
-            Icons.delete_outline,
-            color: Colors.red,
-          ),
+          icon: icon
         )
       ],
     )
@@ -37,10 +36,7 @@ class AppbarDeleteButton extends StatelessWidget implements PreferredSizeWidget{
       actions: [
         IconButton(
           onPressed: onPress,
-          icon: Icon(
-            Icons.delete_outline,
-            color: Colors.red,
-          ),
+          icon: icon
         )
       ],
     );

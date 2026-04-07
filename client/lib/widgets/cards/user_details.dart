@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -60,7 +61,7 @@ class UserDetails extends StatelessWidget {
     final theme = Theme.of(context);
 
     Widget buildRow({
-      required IconData icon,
+      required dynamic icon,
       required String value,
       VoidCallback? onTap,
     }) {
@@ -80,11 +81,14 @@ class UserDetails extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(
-                  icon,
-                  size: 20,
-                  color: theme.primaryColor,
-                ),
+                if (icon is IconData)
+                  Icon(
+                    icon,
+                    size: 20,
+                    color: theme.primaryColor,
+                  ),
+                if (icon is FaIconData)
+                  FaIcon(icon, color: theme.primaryColor,),
                 const SizedBox(width: 10),
 
                 Expanded(
@@ -159,7 +163,7 @@ class UserDetails extends StatelessWidget {
           const SizedBox(height: 10),
 
           buildRow(
-            icon: Icons.chat_bubble_outline_sharp,
+            icon: FontAwesomeIcons.whatsapp,
             value: phone.isNotEmpty ? phone : "N/A",
             onTap: phone.isNotEmpty
                 ? () {

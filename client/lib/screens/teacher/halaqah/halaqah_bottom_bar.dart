@@ -24,7 +24,17 @@ class _HalaqahBottomBarState extends State<HalaqahBottomBar> {
       AttendanceScreen(),
     ];
     return Scaffold(
-      body: screen[currentIndex],
+      body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/muz1.png"),
+              fit: BoxFit.fill,
+            ),
+          ),
+        child: screen[currentIndex],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (index){

@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:halqati/utils/string_transformation.dart';
 import 'package:halqati/widgets/custom_lable.dart';
 
 class StudentEventList extends StatelessWidget {
@@ -8,7 +9,7 @@ class StudentEventList extends StatelessWidget {
   final String title;
   final String date;
   final String sentTime;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const StudentEventList({
     super.key,
@@ -59,7 +60,7 @@ class StudentEventList extends StatelessWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      "$className • $teacherName",
+                      "${className.toFirstLetterUpper()} • ${teacherName.toFirstLetterUpper()}",
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.grey[700],
                       ),
@@ -73,7 +74,7 @@ class StudentEventList extends StatelessWidget {
 
               /// 🔹 Title
               Text(
-                title,
+                title.toFirstLetterUpper(),
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
