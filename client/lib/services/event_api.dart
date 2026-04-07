@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
+import 'package:halqati/models/FeedItem.dart';
 import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/attendance.dart';
 import 'package:halqati/models/event.dart';
@@ -241,6 +242,47 @@ class EventApi extends BaseApi{
       rethrow;
     } catch (e) {
       throw ApiException('Unexpected error: $e');
+    }
+  }
+
+  Future<List<FeedItem>> getFeed(
+      String token, {
+        int offset = 0,
+        int limit = 10,
+      }) async {
+    final url = Uri.parse(
+      '$baseUrl/event/get_student_feed?offset=$offset&limit=$limit',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 401) throw UnauthorizedException();
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        final List list = data['feed'] ?? [];
+
+        return list.map((e) => FeedItem.fromJson(e)).toList();
+      } else {
+        throw ApiException(
+          'Failed to fetch feed',
+          statusCode: response.statusCode,
+        );
+      }
+    } on SocketException {
+      throw NetworkException();
+    } on TimeoutException {
+      throw NetworkException();
+    } catch (e) {
+      rethrow;
     }
   }
 

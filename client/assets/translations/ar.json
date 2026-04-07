@@ -82,6 +82,7 @@
   "password_text_field":"فقط أحرف و أرقام مسموح استخدامها",
   "student_phone_number":"رقم هاتف الطالب",
   "select_students_attendance":"اختر تلاميذ, وفي حال لا يوج تلاميذ يمكنك حذف الحضور",
+  "read":"تم قرائته",
 
 
     "weekdays": {
