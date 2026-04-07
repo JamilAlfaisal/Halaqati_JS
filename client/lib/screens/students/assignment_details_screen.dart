@@ -1,10 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:halqati/models/FeedItem.dart';
 import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/event.dart';
-import 'package:halqati/provider/student_providers/student_feed_provider.dart';
+import 'package:halqati/provider/student_providers/feed_provider.dart';
 import 'package:halqati/provider/services_providers/juz_api_provider.dart';
+import 'package:halqati/provider/student_providers/student_state_provider.dart';
 // import 'package:halqati/provider/api_service_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
@@ -30,10 +32,12 @@ class _AssignmentDetailsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final selectedItem = ref.watch(studentFeedProvider.notifier).getSelectedItem();
+    final selectedItem = ref.read(feedProvider.notifier).getSelectedItem();
     final apiService = ref.read(juzApiProvider);
     final token = ref.watch(tokenProvider).value ?? "";
-    if (ref.watch(studentFeedProvider).isLoading){
+    final feedState = ref.watch(feedProvider);
+
+    if (feedState.isLoading){
       return Scaffold(
         body: Center(
           child: const Center(child: CircularProgressIndicator(),
@@ -41,6 +45,7 @@ class _AssignmentDetailsScreenState
       )
       );
     }
+
     return Scaffold(
       appBar: AppbarWithButton(
         text: "details".tr(),
@@ -53,12 +58,11 @@ class _AssignmentDetailsScreenState
           : Builder(
         builder: (_) {
           /// 🔥 TYPE CHECK
-          final isAssignment = selectedItem is Assignment;
-          print("is the selected list is assignment: ${isAssignment}");
+          final isAssignment = selectedItem.type == FeedType.assignment;
           final assignment =
-          isAssignment ? selectedItem as Assignment : null;
+          isAssignment ? selectedItem.data as Assignment : null;
           final event =
-          !isAssignment ? selectedItem as Event : null;
+          !isAssignment ? selectedItem.data as Event : null;
 
           /// 🔥 COMMON DATA
           final title =
@@ -263,10 +267,8 @@ class _AssignmentDetailsScreenState
                       );
 
                       if (success) {
-                        setState(() {
-                          ref.invalidate(
-                              studentFeedProvider);
-                        });
+                        ref.read(feedProvider.notifier).markAsCompleted(assignment?.id ??"0");
+                        ref.invalidate(studentStatsProvider);
                       }
 
                       setState(() {

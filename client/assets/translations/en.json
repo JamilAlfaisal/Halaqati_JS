@@ -83,6 +83,7 @@
   "password_text_field":"Only characters and number are allowed",
   "student_phone_number":"Student phone number",
   "select_students_attendance":"Select students, in case no students delete the attendance",
+  "read":"Read",
   
 
   "weekdays": {

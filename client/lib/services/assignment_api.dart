@@ -5,6 +5,7 @@ import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/attendance.dart';
 import 'package:halqati/models/event.dart';
+import 'package:halqati/models/student_states_model.dart';
 import 'package:halqati/models/teacher.dart';
 import 'package:http/http.dart' as http;
 import 'package:halqati/models/student.dart';
@@ -254,6 +255,40 @@ class AssignmentApi extends BaseApi{
     } catch (e) {
       // if (e is ApiException) rethrow;
       throw ApiException('Unexpected error: $e');
+    }
+  }
+
+  Future<StudentStats> getStudentStats(String token) async {
+    final url = Uri.parse('$baseUrl/assignment/student_state');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 401) {
+        throw UnauthorizedException();
+      }
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return StudentStats.fromJson(data);
+      } else {
+        throw ApiException(
+          'Failed to fetch stats',
+          statusCode: response.statusCode,
+        );
+      }
+    } on SocketException {
+      throw NetworkException();
+    } on TimeoutException {
+      throw NetworkException();
+    } catch (e) {
+      rethrow;
     }
   }
 
