@@ -9,7 +9,8 @@ import {
   markAsCompleteUncomplete,
   getStudentsAssignment,
   getStudentAssignmentsByTeacher,
-  markAssignmentAsRead
+  markAssignmentAsRead,
+  getStudentStats
 } from "../controllers/assignmentController";
 
 const router = Router();
@@ -24,5 +25,6 @@ router.put("/mark_as_complete_uncomplete/:id", markAsCompleteUncomplete);
 router.get("/get_student_assignment/:classId/:id", getStudentAssignmentsByTeacher);
 router.get("/get_student_assignment", getStudentsAssignment);
 router.put("/mark_as_read/:id", markAssignmentAsRead);
+router.get("/student_state", getStudentStats);
 
 export default router;

@@ -7,6 +7,8 @@ import { Assignment } from '../model/Assignment';
 import { AuthRequest } from '../middleware/middleware';
 import { HaveAssignment } from '../model/Have_assignment';
 import { In } from "typeorm";
+import { StudyIn } from '../model/Study_in';
+import { Event } from '../model/Events';
 
 export const createAssignment = async (req: AuthRequest, res: Response) => {
 
@@ -714,6 +716,90 @@ export const markAssignmentAsRead = async (req: AuthRequest, res: Response) => {
         console.log("❌ http://localhost:3000/api/assignment/mark_as_read");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to mark assignment as read" });
+    }
+};
+
+
+export const getStudentStats = async (req: AuthRequest, res: Response) => {
+    const haveAssignmentRepository = AppDataSource.getRepository(HaveAssignment);
+    const studentRepository = AppDataSource.getRepository(Student);
+    const eventRepository = AppDataSource.getRepository(Event);
+    const studyInRepository = AppDataSource.getRepository(StudyIn);
+
+    try {
+        const userId = req.user?.id;
+        const role = req.user?.role;
+
+        if (!userId) {
+            console.log("❌ /api/student/stats");
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        if (role !== "student") {
+            console.log("❌ /api/student/stats");
+            return res.status(403).json({ message: "Forbidden" });
+        }
+
+        // ✅ Get student
+        const student = await studentRepository.findOneBy({
+            user: { id: userId }
+        });
+
+        if (!student) {
+            console.log("❌ /api/student/stats");
+            return res.status(404).json({ message: "Student not found" });
+        }
+
+        // ✅ Get assignments
+        const haveAssignments = await haveAssignmentRepository.find({
+            where: { student: { id: student.id } },
+            relations: ['assignment']
+        });
+
+        const totalAssignments = haveAssignments.length;
+
+        const readAssignments = haveAssignments.filter(a => a.isRead).length;
+
+        const completedAssignments = haveAssignments.filter(a => a.isComplete).length;
+
+        const notCompletedAssignments = totalAssignments - completedAssignments;
+
+        // ✅ Get student classes
+        const studyInClasses = await studyInRepository.find({
+            where: { student: { id: student.id } },
+            relations: ['class']
+        });
+
+        const classIds = studyInClasses.map(s => s.class.id);
+
+        let totalEvents = 0;
+        console.log("where is the bug");
+
+        if (classIds.length > 0) {
+            totalEvents = await eventRepository.count({
+                where: {
+                    // Use the direct relation property name
+                    class: In(classIds)
+                }
+            });
+        }
+
+        console.log("✅ /api/student/stats");
+
+        return res.status(200).json({
+            stats: {
+                totalAssignments,
+                readAssignments,
+                completedAssignments,
+                notCompletedAssignments,
+                totalEvents
+            }
+        });
+
+    } catch (e) {
+        console.log("❌ /api/student/stats");
+        console.error(`❌ ${e}`);
+        return res.status(500).json({ message: "Failed to get stats" });
     }
 };
 

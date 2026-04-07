@@ -7,6 +7,7 @@ import { Event } from '../model/Events';
 import { AuthRequest } from '../middleware/middleware';
 import { StudyIn } from '../model/Study_in';
 import { In } from 'typeorm';
+import { HaveAssignment } from '../model/Have_assignment';
 export const createEvent = async (req: AuthRequest, res: Response) => {
 
     const classRepository = AppDataSource.getRepository(Class);
@@ -421,3 +422,120 @@ export const getStudentEvents = async (req: AuthRequest, res: Response) => {
         return res.status(500).json({ message: "Failed to get events" });
     }
 }
+
+export const getStudentFeed = async (req: AuthRequest, res: Response) => {
+    const haveAssignmentRepository = AppDataSource.getRepository(HaveAssignment);
+    const eventRepository = AppDataSource.getRepository(Event);
+    const studyInRepository = AppDataSource.getRepository(StudyIn);
+    const studentRepository = AppDataSource.getRepository(Student);
+
+    console.log("getStudentFeed has been called");
+
+    try {
+        const userId = req.user.id;
+        const role = req.user.role;
+
+        const offset = parseInt(req.query.offset as string) || 0;
+        const limit = parseInt(req.query.limit as string) || 10;
+
+        if (!userId) return res.status(401).json({ message: "Unauthorized" });
+        if (role !== "student") return res.status(403).json({ message: "Forbidden" });
+
+        const student = await studentRepository.findOneBy({
+            user: { id: userId }
+        });
+
+        if (!student) {
+            return res.status(404).json({ message: "Student profile not found" });
+        }
+
+        // 🔹 Assignments
+        const haveAssignment = await haveAssignmentRepository.find({
+            where: { student: { id: student.id } },
+            relations: ['assignment', 'assignment.teacher', 'assignment.class']
+        });
+
+        const assignments = haveAssignment.map((ass) => ({
+            type: "assignment",
+            createdAt: ass.assignment.createdAt,
+            data: {
+                teacher: {
+                    id: ass.assignment.teacher.id,
+                    name: ass.assignment.teacher.name,
+                },
+                class: {
+                    id: ass.assignment.class.id,
+                    name: ass.assignment.class.name
+                },
+                assignmentId: ass.assignment.id,
+                title: ass.assignment.title,
+                description: ass.assignment.description,
+                type: ass.assignment.type,
+                pages: ass.assignment.pages,
+                createdAt: ass.assignment.createdAt,
+                dueDate: ass.assignment.dueDate,
+                haveAssignment:
+                    [
+                        {
+                            isComplete: ass.isComplete,
+                            isRead: ass.isRead
+                        }
+                    ]
+            }
+        }));
+
+        // 🔹 Events
+        const studyInClasses = await studyInRepository.find({
+            where: { student: { id: student.id } },
+            relations: ['class']
+        });
+
+        const classIds = studyInClasses.map(s => s.class.id);
+
+        const eventsRaw = await eventRepository.find({
+            where: { class: { id: In(classIds) } },
+            relations: ['class', 'teacher']
+        });
+
+        const events = eventsRaw.map((event) => ({
+            type: "event",
+            createdAt: event.createdAt,
+            data: {
+                id: event.id,
+                title: event.title,
+                createdAt: event.createdAt,
+                dueDate: event.dueDate,
+                description: event.description,
+                class: {
+                    id: event.class.id,
+                    name: event.class.name
+                },
+                teacher: {
+                    id: event.teacher.id,
+                    name: event.teacher.name
+                }
+            }
+        }));
+
+        // 🔥 Merge + Sort
+        const combined = [...assignments, ...events];
+
+        combined.sort((a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        // 🔥 Pagination
+        const paginated = combined.slice(offset, offset + limit);
+
+        return res.status(200).json({
+            total: combined.length,
+            offset,
+            limit,
+            feed: paginated
+        });
+
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ message: "Failed to get feed" });
+    }
+};
