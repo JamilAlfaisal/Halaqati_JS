@@ -89,7 +89,7 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
             ElevatedDark(
               onPressed: createEvent,
               text: "create".tr(),
-              ability: true,
+              ability: !ref.watch(eventProvider).isLoading,
             ),
           ],
         ),

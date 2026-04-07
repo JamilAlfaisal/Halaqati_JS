@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
-import 'package:halqati/widgets/appbar/appbar_delete_button.dart';
-import 'package:halqati/widgets/appbar/appbar_with_button.dart';
+import 'package:halqati/widgets/appbar/appbar_extra_button.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
 import 'package:halqati/widgets/buttons/verse_number.dart';
 import 'package:halqati/widgets/confirmation_dialog.dart';
@@ -86,6 +85,23 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
 
     void updateHalaqah() async {
 
+      if (!_formKey.currentState!.validate()) {
+        setState(() {
+          ability = true;
+        });
+        return;
+      }
+
+      if (days.isEmpty){
+        setState(() {
+          ability = true;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('select_days'.tr()))
+        );
+        return;
+      }
+
       await ref.read(classDetailsProvider.notifier).updateHalaqah(
         name: name.text,
         description: des.text,
@@ -95,20 +111,31 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
         endTime: endTime.text,
       );
 
-      final state = ref.read(classDetailsProvider);
+      final state = ref.watch(classDetailsProvider);
 
       if (state.hasError) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${"error".tr()}: ${state.error}')),
+          SnackBar(content: Text('${"error".tr()}')),
+        );
+      }else{
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${"updated_success".tr()}')),
         );
       }
+      setState(() {
+        ability = true;
+      });
     }
 
 
     return Scaffold(
-      appBar: AppbarDeleteButton(
+      appBar: AppbarExtraButton(
         text: "class_details".tr(),
         addBackButton: true,
+        icon: Icon(
+          Icons.delete_outline,
+          color: Colors.red,
+        ),
         onPress: () async {
           final confirm = await showConfirmationDialog(
             context: context,
@@ -137,9 +164,10 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
                 loc.text = halaqa.location;
                 startTime.text = halaqa.startTime;
                 endTime.text = halaqa.endTime;
-
+                // days = halaqa.days.cast<int>();
                 halaqa.days.forEach((day){
                   weekDaysData[int.parse(day)-1]['selected'] = true;
+                  days.add(int.parse(day));
                 });
               }
               return SingleChildScrollView(
@@ -211,7 +239,7 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             child: Icon(
-                
+
                                 Icons.arrow_right_alt_outlined
                             ),
                           ),
@@ -242,7 +270,7 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
                 return const Center(child: CircularProgressIndicator());
               }
               return CustomErrorWidget(
-                providerToInvalidate: classesProvider,
+                providerToInvalidate: classDetailsProvider,
               );
             },
             loading: () => LoadingWidget(),

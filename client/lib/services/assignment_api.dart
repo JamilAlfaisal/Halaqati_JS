@@ -199,8 +199,16 @@ class AssignmentApi extends BaseApi{
     }
   }
 
-  Future<List<Assignment>?> getAssignmentOneStudentIassignments(String token, String studentId) async {
-    final url = Uri.parse('$baseUrl/assignment/get_student_assignment/${studentId}');
+  Future<List<Assignment>?> getAssignmentOneStudentIassignments(
+      String token,
+      String studentId,
+      String classId, {
+        int offset = 0,
+        int limit = 10,
+      }) async {
+    final url = Uri.parse(
+      '$baseUrl/assignment/get_student_assignment/$classId/$studentId?offset=$offset&limit=$limit',
+    );
 
     try {
       final response = await http.get(

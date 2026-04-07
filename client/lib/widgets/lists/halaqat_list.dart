@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:halqati/utils/string_transformation.dart';
 
 class HalaqatList extends StatelessWidget {
   final String title;
@@ -58,7 +59,7 @@ class HalaqatList extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    "${title.toFirstLetterUpper()}",
                     style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),

@@ -4,10 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/provider/selected_class_name_provider.dart';
-import 'package:halqati/provider/selected_student_name.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
-import 'package:halqati/widgets/appbar/appbar_rermove_student.dart';
-import 'package:halqati/widgets/appbar/appbar_with_button.dart';
+import 'package:halqati/widgets/appbar/appbar_extra_button.dart';
 import 'package:halqati/widgets/buttons/page_number.dart';
 import 'package:halqati/widgets/cards/user_details.dart';
 import 'package:halqati/widgets/confirmation_dialog.dart';
@@ -35,7 +33,8 @@ class _StudentProfileState extends ConsumerState<StudentProfile> {
     final String studentId = ref.watch(selectedStudentIdProvider)??"0";
     late final studentPhoneNumber;
     return Scaffold(
-      appBar: AppbarRemoveStudent(
+      appBar: AppbarExtraButton(
+        icon: Icon(Icons.person_remove_alt_1, color: Colors.red),
         text: halaqahName,
         onPress: () async {
           final confirm = await showConfirmationDialog(
@@ -59,18 +58,7 @@ class _StudentProfileState extends ConsumerState<StudentProfile> {
           data: (students){
             final Student student = students!.firstWhere(
               (s) => s.id == studentId,
-              orElse: () => new Student(
-                id: '',
-                name: '',
-                email: '',
-                role: '',
-                dob: DateTime(2017, 9, 7, 17, 30),
-                createdAt: DateTime(2017, 9, 7, 17, 30),
-                picProfile: '',
-                phone: '',
-                memorizedJuz: [],
-                enrolledClasses: []
-              ),
+              orElse: () => Student.emptyStudent(),
             );
             List<String> memorizedJuz = student.memorizedJuz;
             studentPhoneNumber = student.phone;

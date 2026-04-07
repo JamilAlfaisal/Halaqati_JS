@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:halqati/utils/string_transformation.dart';
 import 'package:halqati/widgets/custom_lable.dart';
 
 class StudentAssignmentList extends StatelessWidget {
@@ -89,7 +90,7 @@ class StudentAssignmentList extends StatelessWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      "$className • $teacherName",
+                      "${className.toFirstLetterUpper()} • ${teacherName.toFirstLetterUpper()}",
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.grey[700],
                       ),

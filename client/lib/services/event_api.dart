@@ -14,8 +14,11 @@ import 'package:halqati/services/base_api.dart';
 
 class EventApi extends BaseApi{
 
-  Future<List<Event>> getEvents(String token, String classId) async {
-    final url = Uri.parse('$baseUrl/event/get_teacher_events/$classId');
+  Future<List<Event>> getEvents(String token, String classId
+      ,{int offset = 0, int limit = 10}) async {
+    final url = Uri.parse(
+      '$baseUrl/event/get_teacher_events/$classId?offset=$offset&limit=$limit'
+    );
 
     try {
       final response = await http.get(

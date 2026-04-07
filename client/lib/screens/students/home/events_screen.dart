@@ -77,7 +77,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                         borderRadius: BorderRadius.all(Radius.circular(16))
                     ),
                     child: Image.asset(
-                      'assets/images/alsham.png',
+                      'assets/images/test_image.png',
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -138,12 +138,10 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                           bool isComplete = false;
                           bool isRead = false;
 
-                          print(currentAssignment.students);
                           if (currentAssignment.students.length > 0){
                             isComplete = currentAssignment.students[0].isComplete;
                             isRead = currentAssignment.students[0].isRead;
                           }
-                          print("events screen isRead: ${isRead}");
                           return StudentAssignmentList(
                               className: currentAssignment.halaqaClass.name,
                               isRead: isRead,

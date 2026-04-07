@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
+import 'package:halqati/provider/isLoadingMoreProvider.dart';
 import 'package:halqati/provider/services_providers/attendance_api_provider.dart';
 // import 'package:halqati/provider/api_service_provider.dart';
 import 'package:halqati/models/attendance.dart';
@@ -15,8 +16,20 @@ AsyncNotifierProvider<AttendanceNotifier, List<Attendance>?>(
 );
 
 class AttendanceNotifier extends AsyncNotifier<List<Attendance>?> {
+
+  int _offset = 0;
+  final int _limit = 10;
+  bool _hasMore = true;
+  bool get hasMore => _hasMore;
+
   @override
   FutureOr<List<Attendance>?> build() async {
+    _offset = 0;
+    _hasMore = true;
+    return await _fetch(reset: true);
+  }
+
+  Future<List<Attendance>?> _fetch({bool reset = false}) async {
     final tokenAsync = ref.watch(tokenProvider);
     final classId = ref.watch(selectedClassIdProvider) ?? "0";
 
@@ -26,9 +39,28 @@ class AttendanceNotifier extends AsyncNotifier<List<Attendance>?> {
     if (token == null || token.isEmpty) return [];
 
     try {
-      return await ref
+      final data = await ref
           .read(attendanceApiProvider)
-          .getAttendances(token: token, classId: classId);
+          .getAttendances(
+        token: token,
+        classId: classId,
+        offset: _offset,
+        limit: _limit,
+      );
+
+      if (reset) {
+        _offset = data.length;
+        _hasMore = data.length == _limit;
+        return data;
+      } else {
+        _offset += data.length;
+
+        if (data.length < _limit) {
+          _hasMore = false;
+        }
+
+        return [...?state.value, ...data];
+      }
     } catch (e) {
       if (e is UnauthorizedException) {
         await AuthHelper.handleLogout(ref);
@@ -36,6 +68,27 @@ class AttendanceNotifier extends AsyncNotifier<List<Attendance>?> {
       rethrow;
     }
   }
+
+  Future<void> loadMore() async {
+    final loadingProvider = isLoadingMoreProvider("attendance");
+
+    if (!_hasMore || ref.read(loadingProvider)) return;
+
+    ref.read(loadingProvider.notifier).state = true;
+
+    try {
+      final newData = await _fetch();
+      state = AsyncData(newData);
+    } catch (e, stack) {
+      state = AsyncError(e, stack);
+    } finally {
+      ref.read(loadingProvider.notifier).state = false;
+    }
+  }
+
+
+
+
 
   /// --- HELPER: Get attendance by ID ---
   Attendance? getAttendanceById(String attendanceId) {
@@ -84,26 +137,60 @@ class AttendanceNotifier extends AsyncNotifier<List<Attendance>?> {
   Future<void> updateAttendance({
     required List<int> studentIds,
   }) async {
-    final token = ref.read(tokenProvider).value;
-    final attendanceId = ref.read(selectedAttendanceProvider);
 
-    if (token == null || attendanceId == null) {
-      throw UnauthorizedException();
-    }
+    state = const AsyncLoading();
 
     try {
+      final token = ref.read(tokenProvider).value;
+      final attendanceId = ref.read(selectedAttendanceProvider);
+
+      if (token == null || attendanceId == null) {
+        throw UnauthorizedException();
+      }
+
       await ref.read(attendanceApiProvider).updateAttendance(
         token: token,
         attendanceId: attendanceId,
         studentIds: studentIds,
       );
+
       ref.invalidate(attendanceDetailsProvider);
       ref.invalidateSelf();
-    } catch (e) {
+
+    } catch (e, stack) {
+      state = AsyncError(e, stack);
+
       if (e is UnauthorizedException) {
         await AuthHelper.handleLogout(ref);
       }
-      rethrow;
+    }
+  }
+
+  Future<void> deleteAttendance() async {
+    state = const AsyncLoading();
+
+    try {
+      final token = ref.read(tokenProvider).value;
+      final attendanceId = ref.read(selectedAttendanceProvider);
+
+      if (token == null || attendanceId == null) {
+        throw UnauthorizedException();
+      }
+
+      await ref.read(attendanceApiProvider).deleteAttendance(
+        token: token,
+        attendanceId: attendanceId,
+      );
+
+      ref.invalidate(attendanceDetailsProvider);   // details
+      ref.invalidateSelf();
+
+    } catch (e, stack) {
+      state = AsyncError(e, stack);
+
+      if (e is UnauthorizedException) {
+        await AuthHelper.handleLogout(ref);
+      }
     }
   }
 

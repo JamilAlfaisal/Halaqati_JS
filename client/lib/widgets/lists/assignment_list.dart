@@ -1,12 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:halqati/utils/string_transformation.dart';
 import 'package:halqati/widgets/buttons/delete_button.dart';
 
 class AssignmentList extends StatelessWidget {
   final String title;
   final String dueDate;
   final VoidCallback onTap;
-  final VoidCallback onDelete;
+  final VoidCallback? onDelete;
   final bool? isComplete;
   final bool? isRead;
 
@@ -97,7 +98,7 @@ class AssignmentList extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      title,
+                      title.toFirstLetterUpper(),
                       style: theme.textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),

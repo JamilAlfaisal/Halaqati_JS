@@ -6,6 +6,7 @@ import 'package:halqati/core/utils/auth_utils.dart';
 import 'package:halqati/models/class_model.dart';
 import 'package:halqati/models/event.dart'; // Ensure this matches your file path
 import 'package:halqati/models/teacher.dart';
+import 'package:halqati/provider/isLoadingMoreProvider.dart';
 import 'package:halqati/provider/services_providers/event_api_provider.dart';
 // import 'package:halqati/provider/api_service_provider.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
@@ -15,32 +16,60 @@ import 'package:halqati/utils/helper_methods.dart';
 final eventProvider = AsyncNotifierProvider<EventNotifier, List<Event>?>(EventNotifier.new);
 
 class EventNotifier extends AsyncNotifier<List<Event>?> {
+
+  int _offset = 0;
+  final int _limit = 10;
+  bool _hasMore = true;
+  bool get hasMore => _hasMore;
+
   @override
-  FutureOr<List<Event>?> build() async {
+  Future<List<Event>?> build() async {
+    _offset = 0;
+    _hasMore = true;
+    print("build method is running");
+    return await _fetchEvents(reset: true);
+  }
+
+  Future<List<Event>?>
+  _fetchEvents({bool reset = false}) async {
     final tokenAsync = ref.watch(tokenProvider);
     final classId = ref.watch(selectedClassIdProvider) ?? "0";
-
-    if (tokenAsync.isLoading) {
-      return null;
-    }
+    if (tokenAsync.isLoading) return null;
 
     final token = tokenAsync.value;
-
-    if (token == null || token.isEmpty) {
-      print("No token found for EventProvider, returning empty list.");
-      return [];
-    }
+    if (token == null || token.isEmpty) return [];
 
     try {
-      final List<Event> events = await ref.read(eventApiProvider).getEvents(
-          token, classId);
-      return events;
-    } catch (e) {
-      print("catched error in the event provider: ${e}");
-      if (e is UnauthorizedException) {
-        await AuthHelper.handleLogout(ref);
+      final events = await ref
+          .read(eventApiProvider)
+          .getEvents(token, classId, offset: _offset, limit: _limit);
+
+      if (reset) {
+        _offset = events.length;
+        _hasMore = events.length == _limit;
+        return events;
+      } else {
+        _offset += events.length;
+        if (events.length < _limit) _hasMore = false;
+        return [...?state.value, ...events];
       }
+    } catch (e) {
+      if (e is UnauthorizedException) await AuthHelper.handleLogout(ref);
       rethrow;
+    }
+  }
+
+  Future<void> loadMore() async {
+    final isLoadingMore = isLoadingMoreProvider("events");
+    if (!_hasMore || ref.read(isLoadingMore)) return;
+    ref.read(isLoadingMore.notifier).state = true;
+    try {
+      final newEvents = await _fetchEvents();
+      state = AsyncData(newEvents);
+    } catch (e, stack) {
+      state = AsyncError(e, stack);
+    }finally{
+      ref.read(isLoadingMore.notifier).state = false;
     }
   }
 

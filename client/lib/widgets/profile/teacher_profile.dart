@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:halqati/models/teacher.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:halqati/utils/string_transformation.dart';
 import 'package:halqati/widgets/custom_lable.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -76,8 +77,8 @@ class TeacherProfile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  teacher?.name ??
-                      "teacher_profile.no_name".tr(),
+                  teacher?.name.toFirstLetterUpper() ??
+                      "undefined".tr(),
                   style: theme.textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

@@ -56,18 +56,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     children: [
                       SizedBox(height: 20,),
                       StudentProfileLeft(
-                        student: data??Student(
-                          id: '0',
-                          name: 'undefined'.tr(),
-                          email: 'undefined'.tr(),
-                          role: 'undefined'.tr(),
-                          dob: DateTime(2017, 9, 7, 17, 30),
-                          createdAt: DateTime(2017, 9, 7, 17, 30),
-                          picProfile: 'undefined'.tr(),
-                          phone: 'undefined'.tr(),
-                          memorizedJuz: [],
-                          enrolledClasses: []
-                        ),
+                        student: data??Student.emptyStudent()
                       ),
                       SizedBox(height: 20,),
                       Text(

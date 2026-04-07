@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:halqati/utils/string_transformation.dart';
 
 class EventsList extends StatelessWidget {
   final String date;
@@ -44,7 +45,7 @@ class EventsList extends StatelessWidget {
                     // maxLines: 2,
                   ),
                   Text(
-                    title,
+                    title.toFirstLetterUpper(),
                     style: Theme.of(context).textTheme.bodyLarge,
                     overflow: TextOverflow.ellipsis,               // Better than clip
                     // maxLines: 2,

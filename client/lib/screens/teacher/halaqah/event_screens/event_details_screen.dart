@@ -120,7 +120,7 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                       updateEvent();
                     },
                     text: "update".tr(),
-                    ability: ability,
+                    ability: !ref.watch(eventProvider).isLoading,
                   ),
                 ],
               ),
@@ -134,7 +134,7 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
           }
 
           return CustomErrorWidget(
-            providerToInvalidate: eventProvider,
+            providerToInvalidate: eventDetailsProvider,
           );
         },
       )

@@ -10,7 +10,10 @@ import 'package:halqati/utils/helper_methods.dart';
 
 class Student extends User {
   final List<String> memorizedJuz;
+  final DateTime registeredAt;
   final List<ClassModel> enrolledClasses;
+
+  // The copyWith method for immutability
 
   Student({
     required String id,
@@ -21,6 +24,7 @@ class Student extends User {
     required DateTime createdAt,
     required String picProfile,
     required String phone,
+    required this.registeredAt,
     required this.memorizedJuz,
     required this.enrolledClasses,
   }):super(
@@ -33,8 +37,6 @@ class Student extends User {
       createdAt: createdAt,
       picProfile: picProfile,
     );
-
-  // The copyWith method for immutability
   Student copyWith({
     String? id,
     String? name,
@@ -46,6 +48,7 @@ class Student extends User {
     String? picProfile,
     List<String>? memorizedJuz,
     List<ClassModel>? enrolledClasses,
+    DateTime? registeredAt
   }) {
     return Student(
       id: id ?? this.id,
@@ -58,6 +61,7 @@ class Student extends User {
       picProfile: picProfile ?? this.picProfile,
       memorizedJuz: memorizedJuz ?? this.memorizedJuz,
       enrolledClasses: enrolledClasses ?? this.enrolledClasses,
+      registeredAt: registeredAt ?? this.registeredAt
     );
   }
 
@@ -66,6 +70,7 @@ class Student extends User {
     return Student(
       id: HelperMethods.getTerms(json, ["id", "studentId"]),
       name: json['name'] as String? ?? "undefined".tr(),
+      registeredAt: DateTime.tryParse(json['registeredAt'] ?? "undefined".tr()) ?? DateTime.now(),
       email: json['email'] as String? ?? "undefined".tr(),
       role: json['role'] as String? ?? "student",
       picProfile: json['picProfile'] as String? ?? "undefined".tr(),
@@ -107,6 +112,7 @@ class Student extends User {
       createdAt: DateTime.now(),
       picProfile: '',
       phone: '',
+      registeredAt: DateTime.now(),
       memorizedJuz: [],
       enrolledClasses: []
     );

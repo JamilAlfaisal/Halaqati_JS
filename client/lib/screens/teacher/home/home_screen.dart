@@ -10,7 +10,6 @@ import 'package:halqati/widgets/lists/halaqat_list.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/main.dart';
-import 'package:halqati/models/class_model.dart';
 import 'package:halqati/widgets/loading_widget.dart';
 
 

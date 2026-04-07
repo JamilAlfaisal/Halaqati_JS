@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:halqati/utils/string_transformation.dart';
 
 class ClassListItem extends StatelessWidget {
   final String name;
@@ -52,7 +53,7 @@ class ClassListItem extends StatelessWidget {
                   children: [
                     /// Name
                     Text(
-                      name,
+                      name.toFirstLetterUpper(),
                       style: theme.textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),

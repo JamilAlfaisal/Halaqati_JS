@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:halqati/models/class_model.dart';
+import 'package:halqati/utils/string_transformation.dart';
 
 class HalaqahInfoCard extends StatelessWidget {
   final String name;
@@ -55,7 +56,7 @@ class HalaqahInfoCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    description,
+                    description.toFirstLetterUpper(),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],

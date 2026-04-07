@@ -166,9 +166,6 @@ class _AddHalaqahScreenState extends ConsumerState<AddHalaqahScreen> {
         }
       }
     }
-    // print(days);
-    // print(weekDaysData[0]['day']);
-    // print(enDays[weekDaysData[0]['day']]);
     return Scaffold(
       appBar: AppbarWithButton(
         text: "create_class".tr(),

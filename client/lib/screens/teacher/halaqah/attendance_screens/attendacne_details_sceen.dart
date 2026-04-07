@@ -7,6 +7,7 @@ import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/teacher_providers/attendance_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
+import 'package:halqati/widgets/buttons/elevated_dark.dart';
 import 'package:halqati/widgets/custom_lable.dart';
 import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/lists/student_attendance_item.dart';
@@ -16,10 +17,10 @@ class AttendacneDetailsSceen extends ConsumerStatefulWidget {
   const AttendacneDetailsSceen({super.key});
 
   @override
-  ConsumerState<AttendacneDetailsSceen> createState() => _AttendacneDetailsSceenState();
+  ConsumerState<AttendacneDetailsSceen> createState() => _AttendanceDetailsSceenState();
 }
 
-class _AttendacneDetailsSceenState extends ConsumerState<AttendacneDetailsSceen> {
+class _AttendanceDetailsSceenState extends ConsumerState<AttendacneDetailsSceen> {
 
   late List<int> selectedStudents = [];
   bool isInitialized = false;
@@ -83,25 +84,33 @@ class _AttendacneDetailsSceenState extends ConsumerState<AttendacneDetailsSceen>
                     },
                   ),
                 ),
-                ElevatedButton(
+                ElevatedDark(
                   onPressed: () async {
                     try {
+                      if (selectedStudents.isEmpty){
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("select_students_attendance".tr())),
+                        );
+                        return;
+                      }
+
                       await ref.read(attendanceProvider.notifier).updateAttendance(
                         studentIds: selectedStudents,
                       );
 
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("created_success".tr())),
+                      SnackBar(content: Text("created_success".tr())),
                       );
 
                       Navigator.pop(context);
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Error: $e")),
-                      );
-                    }
-                  },
-                  child: Text("update".tr()),
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Error: $e")),
+                        );
+                      }
+                    },
+                  text: "update".tr(),
+                  ability: !ref.watch(attendanceProvider).isLoading,
                 ),
                 SizedBox(
                   height: MediaQuery.of(context).padding.bottom+20,

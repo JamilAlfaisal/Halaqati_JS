@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/assignment.dart';
+import 'package:halqati/provider/isLoadingMoreProvider.dart';
 import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/selected_student_name.dart';
 import 'package:halqati/provider/student_providers/selected_assignment_notifier.dart';
 import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
+import 'package:halqati/widgets/appbar/appbar_extra_button.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
 import 'package:halqati/widgets/buttons/filter_button.dart';
@@ -39,18 +41,26 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
     final String studentName = ref.watch(selectedStudentNameProvider)??"name".tr();
     final String studentId = ref.watch(selectedStudentIdProvider)??"0";
     final theme = Theme.of(context);
+    final isLoadingMore = ref.watch(isLoadingMoreProvider("assignments"));
 
     return Scaffold(
-      appBar: AppbarWithButton(
+      appBar: AppbarExtraButton(
         text: halaqahName,
         addBackButton: true,
-      ),
-      floatingActionButton: FloatingButtonIcon(
-        onPressed: (){
+        icon: Icon(
+          Icons.add,
+          color: theme.colorScheme.primary,
+        ),
+        onPress: () async {
           Navigator.of(context).pushNamed('/add_assignment_screen');
         },
-        text: "${"create".tr()} ${"assignment".tr()}",
       ),
+      // floatingActionButton: FloatingButtonIcon(
+      //   onPressed: (){
+      //     Navigator.of(context).pushNamed('/add_assignment_screen');
+      //   },
+      //   text: "${"create".tr()} ${"assignment".tr()}",
+      // ),
       body: asyncAssignment.when(
         data: (assignments){
 
@@ -101,8 +111,33 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: assignments?.length??0,
+                    itemCount: assignments.length + (ref.watch(assignmentProvider.notifier).hasMore ? 1 : 0),
                     itemBuilder: (context, index) {
+
+
+                      if (index >= assignments.length) {
+                        if (isLoadingMore) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            ),
+                          );
+                        }
+                        return Center(
+                          child: IconButton(
+                            onPressed: () {
+                              ref.read(assignmentProvider.notifier).loadMore(); // ✅ NO setState
+                            },
+                            icon: const Icon(Icons.expand_more),
+                          ),
+                        );
+                      }
+
                       final students = assignments?[index].students;
                       final AssignedStudents? assignedStudent = students?.firstWhereOrNull(
                         (student) {

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:halqati/utils/string_transformation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TeacherDetailsCard extends StatelessWidget {
@@ -20,10 +22,11 @@ class TeacherDetailsCard extends StatelessWidget {
     }
   }
 
-  Future<void> _launchEmail(String email) async {
-    final Uri uri = Uri(scheme: 'mailto', path: email);
-    if (!await launchUrl(uri)) {
-      debugPrint("Could not launch email");
+  Future<void> _launchWhatsApp(String phone) async {
+    final Uri uri = Uri.parse("https://wa.me/$phone");
+
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      debugPrint("Could not launch WhatsApp");
     }
   }
 
@@ -75,7 +78,7 @@ class TeacherDetailsCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
+                      name.toFirstLetterUpper(),
                       style: theme.textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -108,10 +111,10 @@ class TeacherDetailsCard extends StatelessWidget {
                   /// Email button
                   IconButton(
                     onPressed: email.isNotEmpty
-                        ? () => _launchEmail(email)
+                        ? () => _launchWhatsApp(phone)
                         : null,
-                    icon: Icon(
-                      Icons.email_outlined,
+                    icon: FaIcon(
+                      FontAwesomeIcons.whatsapp ,
                       color: theme.primaryColor,
                     ),
                   ),

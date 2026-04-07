@@ -45,6 +45,7 @@ class StudentsNotifier extends AsyncNotifier<List<Student>?>{
       throw Exception("Missing token or class ID");
     }
 
+
     try {
       final success = await ref.read(classesApiProvider).addStudentToClass(
         token: token,
