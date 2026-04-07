@@ -314,8 +314,8 @@ export const getTeacherClasses = async (req:AuthRequest, res: Response) => {
                 // 'assignments.haveAssignment', 
                 // 'assignments.haveAssignment.student',
                 // 'assignments.haveAssignment.student.user',
-                // 'studyInRecords',
-                // 'studyInRecords.student'
+                'studyInRecords',
+                'studyInRecords.student'
             ]
         });
         

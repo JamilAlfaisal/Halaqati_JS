@@ -6,7 +6,7 @@ import { Attendance } from "./Attendance";
 import { HaveAssignment } from "./Have_assignment";
 
 @Entity("STUDENT")
-export class Student{
+export class Student {
 
   @PrimaryColumn()
   id!: number;
@@ -15,7 +15,7 @@ export class Student{
   @JoinColumn({ name: "user_id" })
   user!: User;
 
-  @Column({ type: "simple-array", nullable: true, default:'' })
+  @Column({ type: "simple-array", nullable: true, default: '' })
   memorized_juz!: string[];
 
   @OneToMany(() => HaveAssignment, (haveAssignment) => haveAssignment.student)
@@ -25,7 +25,6 @@ export class Student{
   studyIn!: StudyIn[];
 
   @ManyToMany(() => Attendance, (attendance) => attendance.students)
-  @JoinTable({ name: "student_attendance" })
   attendance!: Attendance[];
-  
+
 }

@@ -21,6 +21,7 @@ export const addStudentToClass = async (req:AuthRequest, res: Response) => {
         const userId = req.user?.id;
         const role = req.user?.role;
         const classId = Number(req.params.id);
+        console.log(classId);
         if (!userId) {
             console.log("❌ http://localhost:3000/api/student_class/add");
             return res.status(401).json({ message: "Unauthorized" });

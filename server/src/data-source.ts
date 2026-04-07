@@ -1,4 +1,4 @@
-import {DataSource} from "typeorm";
+import { DataSource } from "typeorm";
 import "reflect-metadata";
 import { User } from "./model/User";
 import { Student } from "./model/Student";
@@ -17,7 +17,7 @@ export const AppDataSource = new DataSource({
   port: 3306,
   password: "",
   database: "halaqati",
-  entities: [    
+  entities: [
     User,
     Student,
     Class,

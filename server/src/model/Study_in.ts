@@ -19,6 +19,6 @@ export class StudyIn {
   })
   class!: Class;
 
-  @Column({ type: "date", nullable: false })
-  registeredAt!: Date;
+  @Column({ type: "date" })
+  registeredAt: Date = new Date();
 }

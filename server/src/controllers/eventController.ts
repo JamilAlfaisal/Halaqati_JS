@@ -1,4 +1,4 @@
-import {Request, Response} from 'express';
+import { Request, Response } from 'express';
 import { AppDataSource } from '../data-source';
 import { User } from '../model/User';
 import { Student } from '../model/Student';
@@ -7,12 +7,12 @@ import { Event } from '../model/Events';
 import { AuthRequest } from '../middleware/middleware';
 import { StudyIn } from '../model/Study_in';
 import { In } from 'typeorm';
-export const createEvent = async (req:AuthRequest, res:Response) => {
+export const createEvent = async (req: AuthRequest, res: Response) => {
 
     const classRepository = AppDataSource.getRepository(Class);
     const eventRepository = AppDataSource.getRepository(Event);
 
-    try{
+    try {
         const userId = req.user?.id;
         const role = req.user?.role;
         const classId = Number(req.params.id);
@@ -22,20 +22,20 @@ export const createEvent = async (req:AuthRequest, res:Response) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if(role != "teacher"){
+        if (role != "teacher") {
             console.log("❌ http://localhost:3000/api/event/create");
-            return res.status(403).json({message:"Forbidden"})
+            return res.status(403).json({ message: "Forbidden" })
         }
 
-        if (isNaN(classId)){
+        if (isNaN(classId)) {
             console.log("❌ http://localhost:3000/api/event/create");
             return res.status(400).json({ message: "Invalid class id" });
         }
 
         const existingClass = await classRepository.findOne({
-            where: { 
-                id: classId, 
-                teacher: { id: userId } 
+            where: {
+                id: classId,
+                teacher: { id: userId }
             }
         });
 
@@ -45,15 +45,15 @@ export const createEvent = async (req:AuthRequest, res:Response) => {
         }
 
         const { dueDate, description, title } = req.body
-        console.log("dueDate: ",dueDate);
-        
+        console.log("dueDate: ", dueDate);
+
         if (!title || !dueDate || !description) {
             console.log("❌ http://localhost:3000/api/event/create");
             return res.status(400).json({ message: "Missing required fields" });
         }
 
         const newEvent = eventRepository.create({
-            title, description, dueDate, class: {id: classId}, teacher: {id: userId}
+            title, description, dueDate, class: { id: classId }, teacher: { id: userId }
         });
 
         await eventRepository.save(newEvent);
@@ -67,7 +67,7 @@ export const createEvent = async (req:AuthRequest, res:Response) => {
             classId
         });
 
-    }catch(e){
+    } catch (e) {
         console.log("❌ http://localhost:3000/api/event/create");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to create event" });
@@ -75,11 +75,11 @@ export const createEvent = async (req:AuthRequest, res:Response) => {
 
 }
 
-export const updateEvent = async (req:AuthRequest, res:Response) => {
+export const updateEvent = async (req: AuthRequest, res: Response) => {
 
     const eventRepository = AppDataSource.getRepository(Event);
 
-    try{
+    try {
 
         const userId = req.user?.id;
         const role = req.user?.role;
@@ -90,9 +90,9 @@ export const updateEvent = async (req:AuthRequest, res:Response) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if(role != "teacher"){
+        if (role != "teacher") {
             console.log("❌ http://localhost:3000/api/event/update");
-            return res.status(403).json({message:"Forbidden"})
+            return res.status(403).json({ message: "Forbidden" })
         }
 
         if (isNaN(eventId)) {
@@ -107,22 +107,22 @@ export const updateEvent = async (req:AuthRequest, res:Response) => {
             description === undefined &&
             dueDate === undefined
         ) {
-        return res.status(400).json({ message: "No fields to update" });
+            return res.status(400).json({ message: "No fields to update" });
         }
 
         const event = await eventRepository.findOne({
-            where: {id:eventId},
+            where: { id: eventId },
             relations: ['teacher', 'class']
         });
 
-        if (!event){
+        if (!event) {
             console.log("❌ http://localhost:3000/api/event/update");
-            return res.status(404).json({message:"Event not found"})
+            return res.status(404).json({ message: "Event not found" })
         }
 
-        if (event.teacher.id !== userId){
+        if (event.teacher.id !== userId) {
             console.log("❌ http://localhost:3000/api/event/update");
-            return res.status(403).json({message:"Forbidden"})
+            return res.status(403).json({ message: "Forbidden" })
         }
 
 
@@ -142,18 +142,18 @@ export const updateEvent = async (req:AuthRequest, res:Response) => {
             classId: event.class.id
         });
 
-    }catch(e){
+    } catch (e) {
         console.log("❌ http://localhost:3000/api/event/update");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to update event" });
     }
 }
 
-export const deleteEvent = async (req:AuthRequest, res:Response) => {
+export const deleteEvent = async (req: AuthRequest, res: Response) => {
 
     const eventRepository = AppDataSource.getRepository(Event);
 
-    try{
+    try {
         const userId = req.user?.id;
         const role = req.user?.role;
         const eventId = Number(req.params.id);
@@ -162,9 +162,9 @@ export const deleteEvent = async (req:AuthRequest, res:Response) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if(role != "teacher"){
+        if (role != "teacher") {
             console.log("❌ http://localhost:3000/api/event/delete");
-            return res.status(403).json({message:"Forbidden"})
+            return res.status(403).json({ message: "Forbidden" })
         }
 
         if (isNaN(eventId)) {
@@ -181,17 +181,17 @@ export const deleteEvent = async (req:AuthRequest, res:Response) => {
             return res.status(404).json({ message: "Event not found" });
         }
 
-        if(event.teacher.id != userId){
+        if (event.teacher.id != userId) {
             console.log("❌ http://localhost:3000/api/event/delete");
             return res.status(403).json({ message: "Not event owner" });
         }
 
         await eventRepository.delete(eventId);
-        
+
         console.log("✅ http://localhost:3000/api/event/delete");
         return res.status(204).send();
 
-    }catch(e){
+    } catch (e) {
         console.log("❌ http://localhost:3000/api/event/delete");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to delete event" });
@@ -199,10 +199,10 @@ export const deleteEvent = async (req:AuthRequest, res:Response) => {
 }
 
 
-export const getEventDetails = async (req:AuthRequest, res:Response) => {
-    const classRepository = AppDataSource.getRepository(Class); 
+export const getEventDetails = async (req: AuthRequest, res: Response) => {
+    const classRepository = AppDataSource.getRepository(Class);
     const eventRepository = AppDataSource.getRepository(Event);
-    try{
+    try {
         const userId = req.user?.id;
         const role = req.user?.role;
         const eventId = Number(req.params.id);
@@ -214,16 +214,16 @@ export const getEventDetails = async (req:AuthRequest, res:Response) => {
         if (isNaN(eventId)) {
             return res.status(400).json({ message: "Invalid event id" });
         }
-        
+
 
         const event = await eventRepository.findOne({
-            where: {id: eventId},
+            where: { id: eventId },
             relations: ['class', 'teacher']
         });
 
-        if (!event){
+        if (!event) {
             console.log("❌ http://localhost:3000/api/event/details");
-            return res.status(404).json({message:'event not found'})
+            return res.status(404).json({ message: 'event not found' })
         }
 
         if (role === 'teacher') {
@@ -235,8 +235,8 @@ export const getEventDetails = async (req:AuthRequest, res:Response) => {
         if (role === 'student') {
             const isEnrolled = await classRepository.exist({
                 where: {
-                id: event.class.id,
-                studyInRecords: { student: { id: userId } },
+                    id: event.class.id,
+                    studyInRecords: { student: { id: userId } },
                 },
             });
 
@@ -260,29 +260,32 @@ export const getEventDetails = async (req:AuthRequest, res:Response) => {
             }
         });
 
-    }catch(e){
+    } catch (e) {
         console.log("❌ http://localhost:3000/api/event/details");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to get the event details" });
     }
 }
 
-export const getTeacherEvents = async (req:AuthRequest, res: Response) => {
+export const getTeacherEvents = async (req: AuthRequest, res: Response) => {
     const eventRepository = AppDataSource.getRepository(Event);
     const classRepository = AppDataSource.getRepository(Class);
-    try{
+    try {
         const userId = req.user.id;
         const role = req.user.role;
         const classId = Number(req.params.id);
+
+        const offset = parseInt(req.query.offset as string) || 0;
+        const limit = parseInt(req.query.limit as string) || 10;
 
         if (!userId) {
             console.log("❌ http://localhost:3000/api/event/get_teacher_events");
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if(role != "teacher"){
+        if (role != "teacher") {
             console.log("❌ http://localhost:3000/api/event/get_teacher_events");
-            return res.status(403).json({message:"Forbidden"})
+            return res.status(403).json({ message: "Forbidden" })
         }
 
         if (isNaN(classId)) {
@@ -302,9 +305,12 @@ export const getTeacherEvents = async (req:AuthRequest, res: Response) => {
             return res.status(403).json({ message: "You do not own this class" });
         }
 
-        const events = await eventRepository.find({
-            where: {teacher: {id: userId}, class: {id: classId}},
-            relations: ['class', 'teacher']
+        const [events, total] = await eventRepository.findAndCount({
+            where: { teacher: { id: userId }, class: { id: classId } },
+            relations: ['class', 'teacher'],
+            order: { createdAt: "DESC" },
+            skip: offset,
+            take: limit,
         });
 
         const eventsConsistantData = events.map((event) => {
@@ -327,21 +333,24 @@ export const getTeacherEvents = async (req:AuthRequest, res: Response) => {
 
         console.log("✅ http://localhost:3000/api/event/get_teacher_events");
         return res.status(200).send({
-            events: eventsConsistantData
+            events: eventsConsistantData,
+            offset: offset,
+            limit: limit,
+            total: total
         });
 
-    }catch(e){
+    } catch (e) {
         console.log("❌ http://localhost:3000/api/event/get_teacher_events");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to get events" });
     }
 }
 
-export const getStudentEvents = async (req:AuthRequest, res: Response) => {
+export const getStudentEvents = async (req: AuthRequest, res: Response) => {
     const eventRepository = AppDataSource.getRepository(Event);
     const studyInRepository = AppDataSource.getRepository(StudyIn);
     const studentRepository = AppDataSource.getRepository(Student)
-    try{
+    try {
         const userId = req.user.id;
         const role = req.user.role;
 
@@ -350,23 +359,23 @@ export const getStudentEvents = async (req:AuthRequest, res: Response) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if(role != "student"){
+        if (role != "student") {
             console.log("❌ http://localhost:3000/api/event/get_student_events");
-            return res.status(403).json({message:"Forbidden"})
+            return res.status(403).json({ message: "Forbidden" })
         }
 
         const student = await studentRepository.findOneBy({
-            user: {id: userId}
+            user: { id: userId }
         });
 
-        if (!student){
+        if (!student) {
             console.log("❌ http://localhost:3000/api/event/get_student_events");
             return res.status(404).json({ message: "Student profile not found" });
         }
 
         const studyInClasses = await studyInRepository.find({
             where: {
-                student: {id: student.id},
+                student: { id: student.id },
             },
             relations: ['class']
         });
@@ -379,7 +388,7 @@ export const getStudentEvents = async (req:AuthRequest, res: Response) => {
         }
 
         const events = await eventRepository.find({
-            where: {class: {id: In(classIds)}},
+            where: { class: { id: In(classIds) } },
             relations: ['class', 'teacher']
         });
 
@@ -406,7 +415,7 @@ export const getStudentEvents = async (req:AuthRequest, res: Response) => {
             events: eventsConsistantData
         });
 
-    }catch(e){
+    } catch (e) {
         console.log("❌ http://localhost:3000/api/event/get_student_events");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to get events" });
