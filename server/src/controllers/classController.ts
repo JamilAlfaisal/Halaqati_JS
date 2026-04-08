@@ -1,4 +1,4 @@
-import {Request, Response} from 'express';
+import { Request, Response } from 'express';
 import { AppDataSource } from '../data-source';
 import { User } from '../model/User';
 import { Student } from '../model/Student';
@@ -10,7 +10,7 @@ import { StudyIn } from '../model/Study_in';
 // const userRepository = AppDataSource.getRepository(User);
 // const classRepository = AppDataSource.getRepository(Class);
 
-export const createClass = async (req:AuthRequest, res:Response) => {
+export const createClass = async (req: AuthRequest, res: Response) => {
 
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
@@ -19,7 +19,7 @@ export const createClass = async (req:AuthRequest, res:Response) => {
     const userRepository = queryRunner.manager.getRepository(User);
     const classRepository = queryRunner.manager.getRepository(Class);
 
-    try{
+    try {
         const userId = req.user?.id;
         const role = req.user?.role;
         if (!userId) {
@@ -27,17 +27,17 @@ export const createClass = async (req:AuthRequest, res:Response) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if(role != "teacher"){
+        if (role != "teacher") {
             console.log("❌ http://localhost:3000/api/class/create");
-            return res.status(403).json({message:"Forbidden"})
+            return res.status(403).json({ message: "Forbidden" })
         }
 
         const { startTime, endTime, days, description, location, name } = req.body
         console.log(days);
-        
-        if(!name){
+
+        if (!name) {
             console.log("❌ http://localhost:3000/api/class/create");
-            return res.status(400).json({message:"Missing Required Fields"})
+            return res.status(400).json({ message: "Missing Required Fields" })
         }
 
         if (!Array.isArray(days)) {
@@ -45,11 +45,11 @@ export const createClass = async (req:AuthRequest, res:Response) => {
             return res.status(400).json({ message: "Days must be an array" });
         }
 
-        const teacher = await userRepository.findOneBy({id:userId});
+        const teacher = await userRepository.findOneBy({ id: userId });
 
-        if (!teacher){
+        if (!teacher) {
             console.log("❌ http://localhost:3000/api/class/create");
-            return res.status(404).json({message:"User not found"})
+            return res.status(404).json({ message: "User not found" })
         }
 
         const newClass = classRepository.create({
@@ -70,18 +70,18 @@ export const createClass = async (req:AuthRequest, res:Response) => {
             days: newClass.days,
             students: []
         });
-    }catch(e){
+    } catch (e) {
         await queryRunner.rollbackTransaction();
         console.log("❌ http://localhost:3000/api/class/create");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to create class" });
-    }finally{
+    } finally {
         await queryRunner.release();
     }
 
 }
 
-export const updateClass = async (req:AuthRequest, res:Response) => {
+export const updateClass = async (req: AuthRequest, res: Response) => {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -89,7 +89,7 @@ export const updateClass = async (req:AuthRequest, res:Response) => {
     const userRepository = queryRunner.manager.getRepository(User);
     const classRepository = queryRunner.manager.getRepository(Class);
 
-    try{
+    try {
 
         const userId = req.user?.id;
         const role = req.user?.role;
@@ -100,9 +100,9 @@ export const updateClass = async (req:AuthRequest, res:Response) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if(role != "teacher"){
+        if (role != "teacher") {
             console.log("❌ http://localhost:3000/api/class/update");
-            return res.status(403).json({message:"Forbidden"})
+            return res.status(403).json({ message: "Forbidden" })
         }
 
         if (isNaN(classId)) {
@@ -111,18 +111,18 @@ export const updateClass = async (req:AuthRequest, res:Response) => {
         }
 
         const { startTime, endTime, days, description, location, name } = req.body
-        
+
 
         if (days !== undefined && !Array.isArray(days)) {
             console.log("❌ http://localhost:3000/api/class/update");
             return res.status(400).json({ message: "Days must be an array" });
         }
 
-        const teacher = await userRepository.findOneBy({id:userId});
+        const teacher = await userRepository.findOneBy({ id: userId });
 
-        if (!teacher){
+        if (!teacher) {
             console.log("❌ http://localhost:3000/api/class/update");
-            return res.status(404).json({message:"User not found"})
+            return res.status(404).json({ message: "User not found" })
         }
 
         const existingClass = await classRepository.findOne({
@@ -135,7 +135,7 @@ export const updateClass = async (req:AuthRequest, res:Response) => {
             return res.status(404).json({ message: "Class not found" });
         }
 
-        if(existingClass.teacher.id != userId){
+        if (existingClass.teacher.id != userId) {
             console.log("❌ http://localhost:3000/api/class/update");
             return res.status(403).json({ message: "Not class owner" });
         }
@@ -167,17 +167,17 @@ export const updateClass = async (req:AuthRequest, res:Response) => {
             }),
         });
 
-    }catch(e){
+    } catch (e) {
         await queryRunner.rollbackTransaction();
         console.log("❌ http://localhost:3000/api/class/update");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to update class" });
-    }finally{
+    } finally {
         await queryRunner.release();
     }
 }
 
-export const deleteClass = async (req:AuthRequest, res:Response) => {
+export const deleteClass = async (req: AuthRequest, res: Response) => {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -185,7 +185,7 @@ export const deleteClass = async (req:AuthRequest, res:Response) => {
     const userRepository = queryRunner.manager.getRepository(User);
     const classRepository = queryRunner.manager.getRepository(Class);
 
-    try{
+    try {
         const userId = req.user?.id;
         const role = req.user?.role;
         const classId = Number(req.params.id);
@@ -194,17 +194,17 @@ export const deleteClass = async (req:AuthRequest, res:Response) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if(role != "teacher"){
+        if (role != "teacher") {
             console.log("❌ http://localhost:3000/api/class/delete");
-            return res.status(403).json({message:"Forbidden"})
+            return res.status(403).json({ message: "Forbidden" })
         }
-        
 
-        const teacher = await userRepository.findOneBy({id:userId});
 
-        if (!teacher){
+        const teacher = await userRepository.findOneBy({ id: userId });
+
+        if (!teacher) {
             console.log("❌ http://localhost:3000/api/class/delete");
-            return res.status(404).json({message:"User not found"})
+            return res.status(404).json({ message: "User not found" })
         }
 
         const existingClass = await classRepository.findOne({
@@ -217,7 +217,7 @@ export const deleteClass = async (req:AuthRequest, res:Response) => {
             return res.status(404).json({ message: "Class not found" });
         }
 
-        if(existingClass.teacher.id != userId){
+        if (existingClass.teacher.id != userId) {
             console.log("❌ http://localhost:3000/api/class/delete");
             return res.status(403).json({ message: "Not class owner" });
         }
@@ -236,7 +236,7 @@ export const deleteClass = async (req:AuthRequest, res:Response) => {
         //     .from("assignment", "assignment")
         //     .where("assignment.classId = :classId", { classId })
         //     .getRawMany();
-        
+
         // const assignmentIds = assignments.map(a => a.id);
 
         // if (assignmentIds.length > 0) {
@@ -273,41 +273,41 @@ export const deleteClass = async (req:AuthRequest, res:Response) => {
         await classRepository.delete(classId);
 
         await queryRunner.commitTransaction();
-        
+
         console.log("✅ http://localhost:3000/api/class/delete");
         return res.status(204).send();
 
-    }catch(e){
+    } catch (e) {
         await queryRunner.rollbackTransaction();
         console.log("❌ http://localhost:3000/api/class/delete");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to delete class" });
-    }finally{
+    } finally {
         await queryRunner.release();
     }
 }
 
-export const getTeacherClasses = async (req:AuthRequest, res: Response) => {
+export const getTeacherClasses = async (req: AuthRequest, res: Response) => {
 
     const classRepository = AppDataSource.getRepository(Class);
-    try{
+    try {
         const userId = req.user?.id;
         const role = req.user?.role;
-        
+
         if (!userId) {
             console.log("❌ http://localhost:3000/api/class/get_my_classes");
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if(role != "teacher"){
+        if (role != "teacher") {
             console.log("❌ http://localhost:3000/api/class/get_my_classes");
-            return res.status(403).json({message:"Forbidden"})
+            return res.status(403).json({ message: "Forbidden" })
         }
 
         const allClasses = await classRepository.find({
             where: { teacher: { id: userId } },
             relations: [
-                'teacher', 
+                'teacher',
                 // 'events',
                 // 'attendances',
                 // 'assignments',
@@ -318,12 +318,12 @@ export const getTeacherClasses = async (req:AuthRequest, res: Response) => {
                 'studyInRecords.student'
             ]
         });
-        
+
 
         const properJson = allClasses.map((classes) => {
             return {
                 id: classes.id ?? "0",
-                name:classes.name,
+                name: classes.name,
                 description: classes.description,
                 days: classes.days,
                 teacherId: classes.teacher?.id ?? "0",
@@ -351,34 +351,34 @@ export const getTeacherClasses = async (req:AuthRequest, res: Response) => {
                 //         memorizedJuz: record.student.memorized_juz,
                 //         studentName: record.student.user.name,
                 //         picProfile: record.student.user.picProfile
-                        
+
                 //     })),
                 // })),
                 // attendances: (classes.attendances ?? []).map(attendance => ({
                 //     attendanceId: attendance.id ?? "0",
                 //     date: attendance.date
                 // })),
-                students: (classes.studyInRecords ?? []).map((record)=>record.student)
+                students: (classes.studyInRecords ?? []).map((record) => record.student)
             }
         });
-        
+
 
         console.log("✅ http://localhost:3000/api/class/get_my_classes");
         return res.status(200).send({
             classes: properJson,
         });
-    }catch(e){
+    } catch (e) {
         console.log("❌ http://localhost:3000/api/class/get_my_classes");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to get your classes" });
     }
 }
 
-export const getClassDetails = async (req:AuthRequest, res:Response) => {
+export const getClassDetails = async (req: AuthRequest, res: Response) => {
     const classRepository = AppDataSource.getRepository(Class);
     const studyInRepository = AppDataSource.getRepository(StudyIn);
     // const studentRepository = AppDataSource.getRepository(Student);
-    try{
+    try {
         const userId = req.user?.id;
         const role = req.user?.role;
         const classId = Number(req.params.id);
@@ -388,13 +388,13 @@ export const getClassDetails = async (req:AuthRequest, res:Response) => {
         }
 
         const classDetails = await classRepository.findOne({
-           where: {id: classId},
+            where: { id: classId },
             relations: ["teacher"],
         });
 
-        if (!classDetails){
+        if (!classDetails) {
             console.log("❌ http://localhost:3000/api/class/details");
-            return res.status(404).json({message:'Class not found'})
+            return res.status(404).json({ message: 'Class not found' })
         }
         if (role === "teacher") {
             if (classDetails.teacher.id !== userId) {
@@ -421,7 +421,7 @@ export const getClassDetails = async (req:AuthRequest, res:Response) => {
         console.log("❌ http://localhost:3000/api/class/details");
         return res.status(403).json({ message: "Forbidden" });
 
-    }catch(e){
+    } catch (e) {
         console.log("❌ http://localhost:3000/api/class/details");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to get the class details" });
@@ -472,7 +472,8 @@ export const getStudentClasses = async (req: AuthRequest, res: Response) => {
                 id: record.class.teacher.id,
                 name: record.class.teacher.name,
                 phone: record.class.teacher.phone,
-                email: record.class.teacher.email
+                email: record.class.teacher.email,
+                picProfile: record.class.teacher.picProfile,
             },
         }));
 

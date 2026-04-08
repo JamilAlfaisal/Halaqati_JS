@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { In, Between } from 'typeorm';
+import { In, Between, MoreThanOrEqual } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { User } from '../model/User';
 import { Student } from '../model/Student';
@@ -445,3 +445,84 @@ export const getAttendanceDetails = async (req: AuthRequest, res: Response) => {
         return res.status(500).json({ message: "Failed to get details" });
     }
 }
+
+
+export const getAttendanceStatsByClass = async (req: AuthRequest, res: Response) => {
+    const attendanceRepository = AppDataSource.getRepository(Attendance);
+    const classRepository = AppDataSource.getRepository(Class);
+
+    try {
+        console.log("✅ http://localhost:3000/api/attendance/stats/:classId");
+        const userId = req.user?.id;
+        const role = req.user?.role;
+        const classId = Number(req.params.classId);
+        const fromDate = req.query.fromDate ? new Date(req.query.fromDate as string) : null;
+
+        // 🔐 Auth checks
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        if (role !== "teacher") {
+            return res.status(403).json({ message: "Forbidden" });
+        }
+
+        if (isNaN(classId)) {
+            return res.status(400).json({ message: "Invalid class id" });
+        }
+
+        // 🔐 Ownership check
+        const ownsClass = await classRepository.exist({
+            where: {
+                id: classId,
+                teacher: { id: userId },
+            },
+        });
+
+        if (!ownsClass) {
+            return res.status(403).json({ message: "You do not own this class" });
+        }
+
+        // 📡 Fetch attendances
+        const attendances = await attendanceRepository.find({
+            where: {
+                class: { id: classId },
+                ...(fromDate && { date: MoreThanOrEqual(fromDate) }),
+            },
+            relations: ['students', 'students.user'],
+        });
+
+        // 🧠 Count per student
+        const studentMap = new Map<number, {
+            studentId: number,
+            name: string,
+            attendanceCount: number
+        }>();
+
+        attendances.forEach(att => {
+            att.students.forEach(student => {
+                const existing = studentMap.get(student.id);
+
+                if (existing) {
+                    existing.attendanceCount += 1;
+                } else {
+                    studentMap.set(student.id, {
+                        studentId: student.id,
+                        name: student.user.name,
+                        attendanceCount: 1
+                    });
+                }
+            });
+        });
+
+        const result = Array.from(studentMap.values());
+
+        return res.status(200).json({
+            stats: result
+        });
+
+    } catch (e) {
+        console.error("❌ getAttendanceStatsByClass", e);
+        return res.status(500).json({ message: "Failed to get attendance stats" });
+    }
+};
