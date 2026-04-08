@@ -8,6 +8,7 @@ import 'package:halqati/provider/selected_student_name.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_extra_button.dart';
+import 'package:halqati/widgets/appbar/appbar_with_action_list.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
 import 'package:halqati/widgets/error_widget.dart';
@@ -100,6 +101,7 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
                         itemBuilder: (context, index){
                           return StudentList(
                               name: searchedStudents[index].name ?? "Name not found",
+                              profileUrl: searchedStudents[index].picProfile  ,
                               totalPagesMemorized: searchedStudents[index].memorizedJuz?.length ?? 0,
                               onTap: (){
                                 ref.read(selectedStudentNameProvider.notifier).setName(searchedStudents[index].name);

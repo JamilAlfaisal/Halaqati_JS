@@ -2,11 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
-import 'package:halqati/provider/isLoadingMoreProvider.dart';
+import 'package:halqati/provider/is_loading_more_provider.dart';
 import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/teacher_providers/attendance_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_extra_button.dart';
+import 'package:halqati/widgets/appbar/appbar_with_action_list.dart';
 import 'package:halqati/widgets/buttons/floating_button_icon.dart';
 import 'package:halqati/widgets/confirmation_dialog.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
@@ -35,16 +36,35 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
       //   },
       //   text: "${"take".tr()} ${"attendance".tr()}",
       // ),
-      appBar: AppbarExtraButton(
+      // appBar: AppbarExtraButton(
+      //   text: halaqahName,
+      //   addBackButton: true,
+      //   icon: Icon(
+      //     Icons.playlist_add_check_rounded,
+      //     color: Theme.of(context).colorScheme.primary,
+      //   ),
+      //   onPress: () async {
+      //     Navigator.of(context).pushNamed("/take_attendance_screen");
+      //   },
+      // ),
+
+      appBar: AppbarWithActionList(
         text: halaqahName,
         addBackButton: true,
-        icon: Icon(
-          Icons.playlist_add_check_rounded,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        onPress: () async {
-          Navigator.of(context).pushNamed("/take_attendance_screen");
-        },
+        actionList: [
+          TextButton(
+              onPressed: (){
+                Navigator.of(context).pushNamed("/take_attendance_screen");
+              },
+              child: Text("${"take".tr()} ${"attendance".tr()}")
+          ),
+          TextButton(
+              onPressed: (){
+                Navigator.of(context).pushNamed("/attendance_state_screen");
+              },
+              child: Text("attendance_state".tr())
+          )
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -105,7 +125,6 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                       confirmColor: Colors.red,
                     );
                     if (confirm){
-                      print(confirm);
                       try {
                         await ref
                             .read(attendanceProvider.notifier)

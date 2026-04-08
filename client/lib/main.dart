@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:halqati/config/app_theme.dart';
 import 'package:halqati/screens/common_screens/login_screen.dart';
+import 'package:halqati/screens/teacher/halaqah/attendance_screens/attendance_state_screen.dart';
 import 'package:halqati/screens/teacher/halaqah/event_screens/add_event_screen.dart';
 import 'package:halqati/screens/teacher/halaqah/event_screens/event_details_screen.dart';
 import 'package:halqati/screens/teacher/student/assignment_screens/update_assignment_screen.dart';
@@ -75,6 +76,7 @@ class MyApp extends StatelessWidget {
         '/attendance_screen':(context) => const AttendanceScreen(),
         '/take_attendance_screen':(context) => const TakeAttendanceScreen(),
         '/root_screen': (context) => const RootScreen(),
+        '/attendance_state_screen': (context) => const AttendanceStateScreen(),
       },
     );
   }

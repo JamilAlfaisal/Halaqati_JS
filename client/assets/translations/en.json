@@ -84,6 +84,10 @@
   "student_phone_number":"Student phone number",
   "select_students_attendance":"Select students, in case no students delete the attendance",
   "read":"Read",
+  "add_student":"Add Student",
+  "attendance_state":"Attendance Statistics",
+  "attendance_update_ability":"Attendance can be updated only on same date of taking it.",
+  "times":"Times",
   
 
   "weekdays": {

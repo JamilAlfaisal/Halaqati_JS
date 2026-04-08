@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/attendance.dart';
+import 'package:halqati/models/attendance_state.dart';
 import 'package:http/http.dart' as http;
 import 'package:halqati/services/base_api.dart';
 
@@ -252,6 +253,61 @@ class AttendanceApi extends BaseApi{
         'Failed to delete attendance: ${response.statusCode}',
         statusCode: response.statusCode,
       );
+    } on SocketException {
+      throw NetworkException();
+    } on TimeoutException {
+      throw NetworkException();
+    } on UnauthorizedException {
+      rethrow;
+    } on NetworkException {
+      rethrow;
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Unexpected error: $e');
+    }
+  }
+
+  Future<List<AttendanceStats>> getAttendanceStats({
+    required String token,
+    required String classId,
+    String? fromDate, // optional
+  }) async {
+
+    final url = Uri.parse(
+        '$baseUrl/attendance/stats/$classId'
+            '${fromDate != null ? "?fromDate=$fromDate" : ""}'
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 401) {
+        throw UnauthorizedException();
+      }
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['stats'] != null && data['stats'] is List) {
+          return (data['stats'] as List)
+              .map((json) => AttendanceStats.fromJson(json))
+              .toList();
+        }
+
+        return [];
+      } else {
+        throw ApiException(
+          'Failed to fetch attendance stats: ${response.statusCode}',
+          statusCode: response.statusCode,
+        );
+      }
     } on SocketException {
       throw NetworkException();
     } on TimeoutException {

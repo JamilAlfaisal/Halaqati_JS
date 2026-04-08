@@ -6,7 +6,7 @@ import 'package:halqati/core/utils/auth_utils.dart';
 import 'package:halqati/models/class_model.dart';
 import 'package:halqati/models/event.dart'; // Ensure this matches your file path
 import 'package:halqati/models/teacher.dart';
-import 'package:halqati/provider/isLoadingMoreProvider.dart';
+import 'package:halqati/provider/is_loading_more_provider.dart';
 import 'package:halqati/provider/services_providers/event_api_provider.dart';
 // import 'package:halqati/provider/api_service_provider.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';

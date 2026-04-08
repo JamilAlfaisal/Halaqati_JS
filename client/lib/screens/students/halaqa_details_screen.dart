@@ -127,6 +127,7 @@ class HalaqaDetailsScreen extends ConsumerWidget {
             name: selectedClass.teacher?.name ?? 'not_defined'.tr(),
             email: selectedClass.teacher?.email ?? 'not_defined'.tr(),
             phone: selectedClass.teacher?.phone ?? 'not_defined'.tr(),
+            picProfile: selectedClass.teacher?.picProfile,
           ),
         ],
       ),

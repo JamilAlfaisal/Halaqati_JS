@@ -83,6 +83,10 @@
   "student_phone_number":"رقم هاتف الطالب",
   "select_students_attendance":"اختر تلاميذ, وفي حال لا يوج تلاميذ يمكنك حذف الحضور",
   "read":"تم قرائته",
+  "add_student":"اضافة تلميذ",
+  "attendance_state":"احصائيات الحضور",
+  "attendance_update_ability":"يمكنك تعديل الحضور في نفس تاريخ اخذه فقظ",
+  "times":"مرات",
 
 
     "weekdays": {
