@@ -24,4 +24,14 @@ class StudentStats {
       totalEvents: stats['totalEvents'] ?? 0,
     );
   }
+
+  static StudentStats emptyStats (){
+    return StudentStats(
+      totalAssignments: 0,
+      readAssignments: 0,
+      completedAssignments: 0,
+      notCompletedAssignments: 0,
+      totalEvents: 0
+    );
+  }
 }

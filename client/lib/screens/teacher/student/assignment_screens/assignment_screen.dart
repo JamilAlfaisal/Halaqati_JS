@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/assignment.dart';
-import 'package:halqati/provider/isLoadingMoreProvider.dart';
+import 'package:halqati/provider/is_loading_more_provider.dart';
 import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/selected_student_name.dart';
 import 'package:halqati/provider/student_providers/selected_assignment_notifier.dart';

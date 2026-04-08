@@ -24,7 +24,7 @@ class _AttendanceDetailsSceenState extends ConsumerState<AttendacneDetailsSceen>
 
   late List<int> selectedStudents = [];
   bool isInitialized = false;
-
+  DateTime today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   @override
   Widget build(BuildContext context) {
 
@@ -84,33 +84,43 @@ class _AttendanceDetailsSceenState extends ConsumerState<AttendacneDetailsSceen>
                     },
                   ),
                 ),
-                ElevatedDark(
-                  onPressed: () async {
-                    try {
-                      if (selectedStudents.isEmpty){
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("select_students_attendance".tr())),
-                        );
-                        return;
-                      }
-
-                      await ref.read(attendanceProvider.notifier).updateAttendance(
-                        studentIds: selectedStudents,
-                      );
-
+                GestureDetector(
+                  onTap: !ref.watch(attendanceProvider).isLoading && today.compareTo(attendances.date) != 1?null:
+                    (){
                       ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("created_success".tr())),
+                        SnackBar(content: Text("attendance_update_ability".tr())),
                       );
-
-                      Navigator.pop(context);
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Error: $e")),
-                        );
-                      }
+                      return;
                     },
-                  text: "update".tr(),
-                  ability: !ref.watch(attendanceProvider).isLoading,
+                  child: ElevatedDark(
+                    onPressed: () async {
+                      try {
+                        if (selectedStudents.isEmpty){
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("select_students_attendance".tr())),
+                          );
+                          return;
+                        }
+
+                        await ref.read(attendanceProvider.notifier).updateAttendance(
+                          studentIds: selectedStudents,
+                        );
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("created_success".tr())),
+                        );
+
+                        Navigator.pop(context);
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Error: $e")),
+                          );
+                        }
+                      },
+                    text: "update".tr(),
+                    ability:
+                      !ref.watch(attendanceProvider).isLoading && today.compareTo(attendances.date) != 1,
+                  ),
                 ),
                 SizedBox(
                   height: MediaQuery.of(context).padding.bottom+20,

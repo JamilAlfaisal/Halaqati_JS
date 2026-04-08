@@ -4,7 +4,7 @@ import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/FeedItem.dart';
 import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/event.dart';
-import 'package:halqati/provider/isLoadingMoreProvider.dart';
+import 'package:halqati/provider/is_loading_more_provider.dart';
 import 'package:halqati/provider/services_providers/juz_api_provider.dart';
 import 'package:halqati/provider/student_providers/feed_provider.dart';
 import 'package:halqati/provider/student_providers/selected_assignment_notifier.dart';
