@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "711004625444",
+    "project_id": "halaqati-2bd22",
+    "storage_bucket": "halaqati-2bd22.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:711004625444:android:739e81b3f778f3a7f016b1",
+        "android_client_info": {
+          "package_name": "com.example.halqati"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUyx7a8q2VHx8olGBH7W9njKzidaT1wYM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
