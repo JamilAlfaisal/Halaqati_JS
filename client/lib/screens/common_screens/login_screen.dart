@@ -14,7 +14,7 @@ import 'package:halqati/models/teacher.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/provider/token_notifier.dart';
 import 'package:halqati/provider/services_providers/auth_provider.dart';
-// import 'package:halqati/provider/api_service_provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -53,10 +53,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     if (userData != null) {
       await ref.read(tokenProvider.notifier).login(userData['token']);
+      await syncDeviceToken(ref);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login Successful!')),
       );
 
+      FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+        ref.read(authApiProvider).updateFcmToken(newToken);
+      });
 
       if (userData['user']['role'] == 'teacher'){
         final Teacher teacher = Teacher.fromJson(userData['user']);
@@ -74,6 +78,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
     }
     ref.read(countryCodeProvider.notifier).clear();
+  }
+
+  Future<void> syncDeviceToken(WidgetRef ref) async {
+    final token = await ref.read(tokenProvider).value ?? "";
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    NotificationSettings settings = await messaging.requestPermission();
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      String? fcmToken = await messaging.getToken();
+
+      if (fcmToken != null) {
+        // 3. Send this to your Express.js backend
+        // POST /users/device-token { token: "..." }
+        await ref.read(authApiProvider).updateFcmToken(token: token, fcmToken: fcmToken);
+      }
+    }
   }
 
   @override

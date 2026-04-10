@@ -145,4 +145,23 @@ class AuthApi extends BaseApi{
     }
   }
 
+  Future<void> updateFcmToken({required String token, required String fcmToken}) async {
+    final url = Uri.parse('$baseUrl/auth/update-fcm-token');
+
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${token}',
+      },
+      body: jsonEncode({
+        'fcmToken': fcmToken,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update FCM token');
+    }
+  }
+
 }
