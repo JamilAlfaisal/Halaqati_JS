@@ -9,6 +9,8 @@ import { HaveAssignment } from '../model/Have_assignment';
 import { In } from "typeorm";
 import { StudyIn } from '../model/Study_in';
 import { Event } from '../model/Events';
+import { sendNotification } from '../utils/notificationHelper';
+import * as admin from 'firebase-admin';
 
 export const createAssignment = async (req: AuthRequest, res: Response) => {
 
@@ -109,6 +111,7 @@ export const createAssignment = async (req: AuthRequest, res: Response) => {
 
         await queryRunner.manager.save(assignment);
 
+
         const allHaveAssignments = studentsIds.map((id) => {
             return haveAssignmentRepository.create({
                 assignment,
@@ -119,6 +122,23 @@ export const createAssignment = async (req: AuthRequest, res: Response) => {
         console.log(allHaveAssignments.map((ass) => ass.student.id));
 
         await queryRunner.manager.save(allHaveAssignments);
+
+        const studentTokens = existingClass.studyInRecords
+            .filter(record => studentsIds.includes(record.student.user.id.toString()))
+            .map(record => record.student.user.fcmToken)
+            .filter(Boolean);
+
+        await sendNotification({
+            tokens: studentTokens as string[],
+            title: existingClass.name,
+            body: assignment.title,
+            data: {
+                assignmentId: assignment.id.toString(),
+                classId: classId.toString(),
+                type: "assignment",
+            },
+        });
+
         await queryRunner.commitTransaction();
 
         console.log("✅ http://localhost:3000/api/assignment/create");
@@ -536,32 +556,33 @@ export const getStudentsAssignment = async (req: AuthRequest, res: Response) => 
             relations: ['assignment', 'assignment.teacher', 'assignment.class']
         });
 
-        const assignments = haveAssignment.map((ass) => {
-            return {
-                teacher: {
-                    id: ass.assignment.teacher.id,
-                    name: ass.assignment.teacher.name,
-                },
-                class: {
-                    id: ass.assignment.class.id,
-                    name: ass.assignment.class.name
-                },
-                assignmentId: ass.assignment.id,
-                title: ass.assignment.title,
-                description: ass.assignment.description,
-                type: ass.assignment.type,
-                pages: ass.assignment.pages,
-                createdAt: ass.assignment.createdAt,
-                dueDate: ass.assignment.dueDate,
-                haveAssignment:
-                    [
+        const assignments = haveAssignment
+            .filter((ass) => ass.assignment) // 🔥 VERY IMPORTANT
+            .map((ass) => {
+                return {
+                    teacher: {
+                        id: ass.assignment.teacher.id,
+                        name: ass.assignment.teacher.name,
+                    },
+                    class: {
+                        id: ass.assignment.class.id,
+                        name: ass.assignment.class.name
+                    },
+                    assignmentId: ass.assignment.id,
+                    title: ass.assignment.title,
+                    description: ass.assignment.description,
+                    type: ass.assignment.type,
+                    pages: ass.assignment.pages,
+                    createdAt: ass.assignment.createdAt,
+                    dueDate: ass.assignment.dueDate,
+                    haveAssignment: [
                         {
                             isComplete: ass.isComplete,
                             isRead: ass.isRead
                         }
                     ]
-            }
-        });
+                }
+            });
 
 
         console.log("✅ http://localhost:3000/api/assignment/get_student_assignment");

@@ -1,7 +1,17 @@
 import express, { Request, Response } from "express";
 import "reflect-metadata";
 import { AppDataSource } from "./data-source";
+import * as admin from 'firebase-admin';
 import dotenv from "dotenv";
+
+
+const serviceAccount = require("../service_key.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+export const messaging = admin.messaging();
 
 dotenv.config();
 const app = express();

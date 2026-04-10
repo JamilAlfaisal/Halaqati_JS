@@ -13,6 +13,9 @@ export class User {
   @PrimaryGeneratedColumn()
   id!: number;
 
+  @Column({ nullable: true })
+  fcmToken!: string;
+
   @Column()
   name!: string;
 
@@ -22,7 +25,7 @@ export class User {
   @Column({ nullable: false, unique: true })
   phone!: string;
 
-  @Column({ nullable: false, unique: false, select:true })
+  @Column({ nullable: false, unique: false, select: true })
   role!: string;
 
   @Column({ type: "date", nullable: true })
@@ -32,12 +35,12 @@ export class User {
   createdAt!: Date;
 
 
-  @Column({ nullable: false, select: false})
+  @Column({ nullable: false, select: false })
   password!: string;
 
   @Column({ nullable: true })
   picProfile!: string;
-  
+
   @OneToOne(() => Student, (student) => student.user)
   student!: Student;
 
