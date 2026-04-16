@@ -213,7 +213,7 @@ export const verifyUsers = async (req: AuthRequest, res: Response) => {
 }
 
 
-export const updateFcmToken = async (req: Request, res: Response) => {
+export const updateFcmToken = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user?.id;
         const { fcmToken } = req.body;

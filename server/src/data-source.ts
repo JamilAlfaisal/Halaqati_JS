@@ -8,6 +8,7 @@ import { Attendance } from "./model/Attendance";
 import { Event } from "./model/Events";
 import { Assignment } from "./model/Assignment";
 import { HaveAssignment } from "./model/Have_assignment";
+import { AboutUs } from "./model/About_us_model";
 
 
 export const AppDataSource = new DataSource({
@@ -25,7 +26,8 @@ export const AppDataSource = new DataSource({
     Attendance,
     Event,
     Assignment,
-    HaveAssignment
+    HaveAssignment,
+    AboutUs
   ],
   // synchronize: true,
   // dropSchema: true

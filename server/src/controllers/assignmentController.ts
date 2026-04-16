@@ -62,7 +62,7 @@ export const createAssignment = async (req: AuthRequest, res: Response) => {
 
         const { dueDate, description, pages, title, type, studentsIds } = req.body
 
-        if (!Array.isArray(pages) || pages.length === 0) {
+        if (!Array.isArray(pages)) {
             return res.status(400).json({ message: "Missing pages field" });
         }
 
@@ -742,70 +742,75 @@ export const markAssignmentAsRead = async (req: AuthRequest, res: Response) => {
 
 
 export const getStudentStats = async (req: AuthRequest, res: Response) => {
-    const haveAssignmentRepository = AppDataSource.getRepository(HaveAssignment);
-    const studentRepository = AppDataSource.getRepository(Student);
-    const eventRepository = AppDataSource.getRepository(Event);
-    const studyInRepository = AppDataSource.getRepository(StudyIn);
+    const haveAssignmentRepo = AppDataSource.getRepository(HaveAssignment);
+    const studentRepo = AppDataSource.getRepository(Student);
+    const eventRepo = AppDataSource.getRepository(Event);
+    const studyInRepo = AppDataSource.getRepository(StudyIn);
 
     try {
         const userId = req.user?.id;
         const role = req.user?.role;
 
         if (!userId) {
-            console.log("❌ /api/student/stats");
             return res.status(401).json({ message: "Unauthorized" });
         }
 
         if (role !== "student") {
-            console.log("❌ /api/student/stats");
             return res.status(403).json({ message: "Forbidden" });
         }
 
-        // ✅ Get student
-        const student = await studentRepository.findOneBy({
+        const student = await studentRepo.findOneBy({
             user: { id: userId }
         });
 
         if (!student) {
-            console.log("❌ /api/student/stats");
             return res.status(404).json({ message: "Student not found" });
         }
 
-        // ✅ Get assignments
-        const haveAssignments = await haveAssignmentRepository.find({
-            where: { student: { id: student.id } },
-            relations: ['assignment']
+        // ✅ ALL COUNTS FROM DB (REAL-TIME)
+        const totalAssignments = await haveAssignmentRepo.count({
+            where: { student: { id: student.id } }
         });
 
-        const totalAssignments = haveAssignments.length;
+        const readAssignments = await haveAssignmentRepo.count({
+            where: {
+                student: { id: student.id },
+                isRead: true
+            }
+        });
 
-        const readAssignments = haveAssignments.filter(a => a.isRead).length;
+        const completedAssignments = await haveAssignmentRepo.count({
+            where: {
+                student: { id: student.id },
+                isComplete: true
+            }
+        });
 
-        const completedAssignments = haveAssignments.filter(a => a.isComplete).length;
+        const notCompletedAssignments = await haveAssignmentRepo.count({
+            where: {
+                student: { id: student.id },
+                isComplete: false
+            }
+        });
 
-        const notCompletedAssignments = totalAssignments - completedAssignments;
-
-        // ✅ Get student classes
-        const studyInClasses = await studyInRepository.find({
+        const studyIn = await studyInRepo.find({
             where: { student: { id: student.id } },
             relations: ['class']
         });
 
-        const classIds = studyInClasses.map(s => s.class.id);
+        const classIds = studyIn.map(s => s.class.id);
 
         let totalEvents = 0;
-        console.log("where is the bug");
 
         if (classIds.length > 0) {
-            totalEvents = await eventRepository.count({
+            totalEvents = await eventRepo.count({
                 where: {
-                    // Use the direct relation property name
-                    class: In(classIds)
+                    class: {
+                        id: In(classIds)
+                    }
                 }
             });
         }
-
-        console.log("✅ /api/student/stats");
 
         return res.status(200).json({
             stats: {
@@ -818,8 +823,7 @@ export const getStudentStats = async (req: AuthRequest, res: Response) => {
         });
 
     } catch (e) {
-        console.log("❌ /api/student/stats");
-        console.error(`❌ ${e}`);
+        console.error(e);
         return res.status(500).json({ message: "Failed to get stats" });
     }
 };
