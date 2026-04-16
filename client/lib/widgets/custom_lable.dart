@@ -18,7 +18,7 @@ class CustomLabel extends StatelessWidget {
         vertical: 3,
       ),
       decoration: BoxDecoration(
-        color: theme.primaryColor.withOpacity(.1),
+        color: theme.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(

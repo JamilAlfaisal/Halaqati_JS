@@ -6,9 +6,7 @@ import 'package:halqati/provider/is_loading_more_provider.dart';
 import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/teacher_providers/attendance_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
-import 'package:halqati/widgets/appbar/appbar_extra_button.dart';
 import 'package:halqati/widgets/appbar/appbar_with_action_list.dart';
-import 'package:halqati/widgets/buttons/floating_button_icon.dart';
 import 'package:halqati/widgets/confirmation_dialog.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
 import 'package:halqati/widgets/error_widget.dart';
@@ -30,23 +28,6 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     final isLoadingMore = ref.watch(isLoadingMoreProvider("attendance"));
 
     return Scaffold(
-      // floatingActionButton: FloatingButtonIcon(
-      //   onPressed: (){
-      //     Navigator.of(context).pushNamed("/take_attendance_screen");
-      //   },
-      //   text: "${"take".tr()} ${"attendance".tr()}",
-      // ),
-      // appBar: AppbarExtraButton(
-      //   text: halaqahName,
-      //   addBackButton: true,
-      //   icon: Icon(
-      //     Icons.playlist_add_check_rounded,
-      //     color: Theme.of(context).colorScheme.primary,
-      //   ),
-      //   onPress: () async {
-      //     Navigator.of(context).pushNamed("/take_attendance_screen");
-      //   },
-      // ),
 
       appBar: AppbarWithActionList(
         text: halaqahName,
@@ -82,7 +63,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               itemBuilder: (context, index) {
 
                 if (index >= attendances.length) {
-                  if (isLoadingMore) {
+                  if (isLoadingMore || ref.watch(attendanceProvider).isLoading) {
                     return const Padding(
                       padding: EdgeInsets.all(16),
                       child: Center(
@@ -97,7 +78,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   return Center(
                     child: IconButton(
                       onPressed: () {
-                        ref.read(attendanceProvider.notifier).loadMore(); // ✅ NO setState
+                        ref.read(attendanceProvider.notifier).loadMore();
                       },
                       icon: const Icon(Icons.expand_more),
                     ),

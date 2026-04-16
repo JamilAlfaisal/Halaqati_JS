@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/models/teacher.dart';
 import 'package:halqati/models/class_model.dart';
-import 'package:halqati/test/printJson.dart';
 import 'package:halqati/utils/helper_methods.dart';
 
 class AssignedStudents {
@@ -20,7 +19,7 @@ class AssignedStudents {
     return AssignedStudents(
       student: Student.fromJson(json),
       isComplete: json['isComplete'] as bool? ?? false,
-      isRead: json['isRead'] as bool ?? false
+      isRead: json['isRead'] as bool
     );
   }
 

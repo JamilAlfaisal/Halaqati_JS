@@ -61,7 +61,6 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
       }
     }
 
-    bool ability = true;
 
     return Scaffold(
       appBar: AppbarWithButton(

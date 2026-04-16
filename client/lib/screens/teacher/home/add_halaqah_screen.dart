@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
-import 'package:halqati/provider/teacher_providers/profile_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/textfields/text_field_normal.dart';
 import 'package:halqati/widgets/textfields/text_area.dart';
 import 'package:halqati/widgets/buttons/verse_number.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
-import 'package:halqati/widgets/textfields/num_text_field.dart';
 import 'package:halqati/widgets/textfields/text_field_time.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
@@ -96,16 +94,15 @@ class _AddHalaqahScreenState extends ConsumerState<AddHalaqahScreen> {
       }
 
       try{
-        final success = await ref.read(classesProvider.notifier)
+        await ref.read(classesProvider.notifier)
             .createClass(
-          name: name.text,
-          description: des.text,
-          roomNumber: loc.text,
-          scheduleDays: days,
-          startTime: startTime.text,
-          endTime: endTime.text,
-          // scheduleTime: '${startTime.text}-${endTime.text}',
-        );
+              name: name.text,
+              description: des.text,
+              roomNumber: loc.text,
+              scheduleDays: days,
+              startTime: startTime.text,
+              endTime: endTime.text,
+            );
 
         if (mounted) {
           Navigator.of(context).pop();

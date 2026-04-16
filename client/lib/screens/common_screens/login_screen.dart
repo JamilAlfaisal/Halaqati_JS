@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/provider/country_code_provider.dart';
-import 'package:halqati/provider/teacher_providers/classes_provider.dart';
-import 'package:halqati/test/printJson.dart';
 import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/widgets/textfields/text_phone.dart';

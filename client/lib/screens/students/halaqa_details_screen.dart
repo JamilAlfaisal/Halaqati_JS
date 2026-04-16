@@ -40,7 +40,7 @@ class HalaqaDetailsScreen extends ConsumerWidget {
       );
     }
 
-    final days = selectedClass.days ?? [];
+    final days = selectedClass.days;
 
     return Scaffold(
       appBar: AppbarWithButton(
@@ -53,8 +53,8 @@ class HalaqaDetailsScreen extends ConsumerWidget {
           /// 🔹 Halaqah Info
           HalaqahInfoCard(
             description:
-            selectedClass.description ?? 'not_defined'.tr(),
-            name: selectedClass.name ?? 'not_defined'.tr(),
+            selectedClass.description,
+            name: selectedClass.name,
           ),
 
           const SizedBox(height: 20),
@@ -69,9 +69,9 @@ class HalaqaDetailsScreen extends ConsumerWidget {
           /// 🔹 Study Time
           StudyTimeCard(
             location:
-            selectedClass.location ?? 'not_defined'.tr(),
+            selectedClass.location,
             hours:
-            "${selectedClass.startTime ?? '-'} - ${selectedClass.endTime ?? '-'}",
+            "${selectedClass.startTime} - ${selectedClass.endTime}",
           ),
 
           const SizedBox(height: 10),
@@ -91,7 +91,7 @@ class HalaqaDetailsScreen extends ConsumerWidget {
                 ? days.map((day) {
               return Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(.1),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.symmetric(
@@ -124,11 +124,12 @@ class HalaqaDetailsScreen extends ConsumerWidget {
           const SizedBox(height: 10),
 
           TeacherDetailsCard(
-            name: selectedClass.teacher?.name ?? 'not_defined'.tr(),
-            email: selectedClass.teacher?.email ?? 'not_defined'.tr(),
-            phone: selectedClass.teacher?.phone ?? 'not_defined'.tr(),
-            picProfile: selectedClass.teacher?.picProfile,
+            name: selectedClass.teacher.name,
+            email: selectedClass.teacher.email,
+            phone: selectedClass.teacher.phone,
+            picProfile: selectedClass.teacher.picProfile,
           ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
       ),
     );

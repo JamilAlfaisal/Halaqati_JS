@@ -18,4 +18,11 @@ extension StringTransformations on String {
     }
     return result;
   }
+
+  String truncate({int maxLength = 10}) {
+    if (this.length <= maxLength) {
+      return this;
+    }
+    return '${this.substring(0, maxLength)}...';
+  }
 }

@@ -52,7 +52,7 @@ class StudentAssignmentList extends StatelessWidget {
             border: Border.all(
               color: isRead
                   ? Colors.transparent
-                  : theme.primaryColor.withOpacity(.4), // 🔥 unread border
+                  : theme.primaryColor.withValues(alpha: 0.4), // 🔥 unread border
               width: 1.2,
             ),
             borderRadius: BorderRadius.circular(14),
@@ -90,7 +90,7 @@ class StudentAssignmentList extends StatelessWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      "${className.toFirstLetterUpper()} • ${teacherName.toFirstLetterUpper()}",
+                      "${className.toFirstLetterUpper().truncate(maxLength: 20)} • ${teacherName.toFirstLetterUpper().truncate(maxLength: 20)}",
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.grey[700],
                       ),
@@ -109,6 +109,8 @@ class StudentAssignmentList extends StatelessWidget {
                   fontWeight:
                   isRead ? FontWeight.normal : FontWeight.bold,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
 
               const SizedBox(height: 10),
@@ -152,8 +154,8 @@ class StudentAssignmentList extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: isComplete
-                        ? Colors.green.withOpacity(.15)
-                        : Colors.orange.withOpacity(.15),
+                        ? Colors.green.withValues(alpha: 0.15)
+                        : Colors.orange.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(

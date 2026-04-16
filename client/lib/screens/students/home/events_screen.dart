@@ -7,7 +7,6 @@ import 'package:halqati/models/event.dart';
 import 'package:halqati/provider/is_loading_more_provider.dart';
 import 'package:halqati/provider/services_providers/juz_api_provider.dart';
 import 'package:halqati/provider/student_providers/feed_provider.dart';
-import 'package:halqati/provider/student_providers/selected_assignment_notifier.dart';
 import 'package:halqati/provider/student_providers/selected_feed_provider.dart';
 import 'package:halqati/provider/student_providers/student_state_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
@@ -98,7 +97,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                         itemBuilder: (context, index) {
 
                           if (index >= assignmentCount) {
-                            if (isLoadingMore) {
+                            if (isLoadingMore || ref.watch(feedProvider).isLoading) {
                               return const Padding(
                                 padding: EdgeInsets.all(16),
                                 child: Center(
@@ -188,7 +187,6 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                                     type: FeedType.event,
                                   ),
                                 );
-
                                 Navigator.of(context)
                                     .pushNamed("/assignment_details_screen");
                               },

@@ -8,9 +8,9 @@ plugins {
 
 android {
     namespace = "com.example.halqati"
-    compileSdk = flutter.compileSdkVersion
-//    ndkVersion = flutter.ndkVersion
-    ndkVersion = "28.0.12916984"
+    compileSdk = 36
+    //    ndkVersion = flutter.ndkVersion
+    ndkVersion = "28.2.13676358"
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -39,6 +39,7 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+    buildToolsVersion = "36.1.0"
 }
 
 flutter {
@@ -48,7 +49,7 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
-    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.12.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-messaging")
 }

@@ -5,19 +5,14 @@ import 'package:halqati/models/student.dart';
 import 'package:halqati/provider/country_code_provider.dart';
 import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/selected_student_name.dart';
-import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_extra_button.dart';
-import 'package:halqati/widgets/appbar/appbar_with_action_list.dart';
-import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
 import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/loading_widget.dart';
 import 'package:halqati/widgets/textfields/text_field_search.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/widgets/lists/student_list.dart';
-import 'package:halqati/widgets/buttons/floating_button_icon.dart';
-import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/widgets/textfields/text_phone.dart';
 
 class StudentScreen extends ConsumerStatefulWidget {
@@ -84,7 +79,7 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
                             searchedStudents = students;
                           }else{
                             final List<Student> filtered = students.where((student){
-                              return student.name != null && student.name.toLowerCase().trim().contains(
+                              return student.name.toLowerCase().trim().contains(
                                   search.text.toLowerCase().trim());
                             }).toList();
                             searchedStudents = filtered;
@@ -100,12 +95,12 @@ class _HalaqahScreenState extends ConsumerState<StudentScreen> {
                         itemCount: searchedStudents.length,
                         itemBuilder: (context, index){
                           return StudentList(
-                              name: searchedStudents[index].name ?? "Name not found",
+                              name: searchedStudents[index].name,
                               profileUrl: searchedStudents[index].picProfile  ,
-                              totalPagesMemorized: searchedStudents[index].memorizedJuz?.length ?? 0,
+                              totalPagesMemorized: searchedStudents[index].memorizedJuz.length,
                               onTap: (){
                                 ref.read(selectedStudentNameProvider.notifier).setName(searchedStudents[index].name);
-                                ref.watch(selectedStudentIdProvider.notifier).select(searchedStudents[index].id??"0");
+                                ref.watch(selectedStudentIdProvider.notifier).select(searchedStudents[index].id);
                                 Navigator.of(context).pushNamed('/student_bottom_appbar');
                               }
                           );

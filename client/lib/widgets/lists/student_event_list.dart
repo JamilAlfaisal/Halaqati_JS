@@ -60,7 +60,7 @@ class StudentEventList extends StatelessWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      "${className.toFirstLetterUpper()} • ${teacherName.toFirstLetterUpper()}",
+                      "${className.toFirstLetterUpper().truncate(maxLength: 20)} • ${teacherName.toFirstLetterUpper().truncate(maxLength: 20)}",
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.grey[700],
                       ),
@@ -78,6 +78,8 @@ class StudentEventList extends StatelessWidget {
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
 
               const SizedBox(height: 10),

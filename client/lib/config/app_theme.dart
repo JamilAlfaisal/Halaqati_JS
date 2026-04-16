@@ -23,7 +23,6 @@ class AppTheme {
     final ColorScheme colorScheme = const ColorScheme.light().copyWith(
       primary: AppColors.primaryBlue,
       secondary: AppColors.accentCyan,
-      background: AppColors.backgroundWhite,
       surface: AppColors.backgroundWhite,
       // Text color on primary buttons is defined here for the general scheme
       onPrimary: AppColors.textOnPrimary,

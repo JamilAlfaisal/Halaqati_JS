@@ -13,7 +13,7 @@ class StudentProfileLeft extends StatelessWidget {
   });
 
   String getInitial() {
-    final name = student.name ?? "";
+    final name = student.name;
     if (name.trim().isEmpty) return "?";
     return name.trim()[0].toUpperCase();
   }
@@ -46,10 +46,10 @@ class StudentProfileLeft extends StatelessWidget {
             height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: theme.primaryColor.withOpacity(.1),
+              color: theme.primaryColor.withValues(alpha: 0.1),
             ),
             child: ClipOval(
-              child: (imageUrl != null && imageUrl.isNotEmpty)
+              child: (imageUrl.isNotEmpty)
                   ? Image.network(
                 imageUrl,
                 fit: BoxFit.cover,

@@ -31,7 +31,7 @@ class _TextFieldNormalState extends State<TextFieldNormal> {
         TextFormField(
           controller: widget.textController,
           validator: (value) {
-            final forbiddenPattern  = RegExp(r'^[ a-zA-Z0-9\u0600-\u06FF\u0660-\u0669_\-(){}:*]+$');
+            final forbiddenPattern = RegExp(r'^[ a-zA-Z0-9\u0600-\u06FF\u0660-\u0669_\-(){}:*.,]+$');
             if (value == null || value.isEmpty) {
               return 'empty'.tr();
             }

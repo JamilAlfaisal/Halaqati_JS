@@ -35,7 +35,7 @@ class ClassListItem extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: theme.primaryColor.withOpacity(.1),
+                  color: theme.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -83,10 +83,14 @@ class ClassListItem extends StatelessWidget {
                             color: Colors.grey[600],
                           ),
                           const SizedBox(width: 4),
-                          Text(
-                            room!,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[600],
+                          Expanded(
+                            child: Text(
+                              room!,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: Colors.grey[600],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],

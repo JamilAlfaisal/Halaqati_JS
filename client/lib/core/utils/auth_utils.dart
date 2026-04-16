@@ -1,8 +1,5 @@
-// lib/core/utils/auth_helper.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/provider/services_providers/auth_provider.dart';
-// import 'package:halqati/provider/api_service_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
 import 'package:halqati/provider/teacher_providers/profile_provider.dart';
 import 'package:halqati/main.dart'; // For navigatorKey

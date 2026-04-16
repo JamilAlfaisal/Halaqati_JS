@@ -28,7 +28,7 @@ class PageNumber extends StatelessWidget {
         boxShadow: selected
             ? [
           BoxShadow(
-            color: theme.colorScheme.primary.withOpacity(0.4),
+            color: theme.colorScheme.primary.withValues(alpha: 0.4),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -46,8 +46,8 @@ class PageNumber extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: onPressed,
-          splashColor: theme.colorScheme.onPrimary.withOpacity(0.2),
-          highlightColor: theme.colorScheme.onPrimary.withOpacity(0.1),
+          splashColor: theme.colorScheme.onPrimary.withValues(alpha: 0.2),
+          highlightColor: theme.colorScheme.onPrimary.withValues(alpha: 0.1),
           child: Center(
             child: Text(
               "$num",

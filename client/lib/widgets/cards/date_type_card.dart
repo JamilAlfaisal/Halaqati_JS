@@ -35,7 +35,7 @@ class DateTypeCard extends StatelessWidget {
                     width: 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                     ),
                     child: Icon(Icons.menu_book_outlined),
                   ),
@@ -76,7 +76,7 @@ class DateTypeCard extends StatelessWidget {
                     width: 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                     ),
                     child: Icon(Icons.calendar_today),
                   ),

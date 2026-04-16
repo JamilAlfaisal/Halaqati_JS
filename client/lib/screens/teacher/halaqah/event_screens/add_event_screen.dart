@@ -91,6 +91,9 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
               text: "create".tr(),
               ability: !ref.watch(eventProvider).isLoading,
             ),
+            SizedBox(
+              height: MediaQuery.of(context).padding.bottom,
+            )
           ],
         ),
       ),

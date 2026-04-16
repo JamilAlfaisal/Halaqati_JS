@@ -74,7 +74,6 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
     final studentId = ref.watch(selectedStudentIdProvider);
     final String halaqahName = ref.watch(selectedClassNameProvider)??"name".tr();
     final String studentName = ref.watch(selectedStudentNameProvider)??"name".tr();
-    final theme = Theme.of(context);
     final List<Map<String, String>> dropdownItems = [
       {'value': 'Revision', 'label': 'revision'.tr()},
       {'value': 'Memorization', 'label': 'memorization'.tr()},
@@ -305,6 +304,7 @@ class _AddAssignmentScreenState extends ConsumerState<AddAssignmentScreen> {
                   text: "create".tr(),
                   ability: ability,
                 ),
+                SizedBox(height: MediaQuery.of(context).padding.bottom),
               ],
             ),
           ),

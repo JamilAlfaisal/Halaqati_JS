@@ -134,7 +134,7 @@ class _AddAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen> {
 
     return Scaffold(
       appBar: AppbarWithButton(
-        text: halaqahName??"name".tr(),
+        text: halaqahName,
         addBackButton: true,
       ),
       body: asyncAssignment == null

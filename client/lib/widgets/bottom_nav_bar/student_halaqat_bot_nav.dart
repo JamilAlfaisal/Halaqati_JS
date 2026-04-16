@@ -10,26 +10,26 @@ class StudentHalaqatBotNav extends StatefulWidget {
 class _StudentHalaqatBotNavState extends State<StudentHalaqatBotNav> {
   // 1. Current selected index for the BottomNavigationBar
   int _selectedIndex = 0;
-  static const List<Widget> _widgetOptions = <Widget>[
-    Center(
-      child: Text(
-        'Home Page',
-        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-      ),
-    ),
-    Center(
-      child: Text(
-        'Search Page',
-        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-      ),
-    ),
-    Center(
-      child: Text(
-        'Profile Page',
-        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-      ),
-    ),
-  ];
+  // static const List<Widget> _widgetOptions = <Widget>[
+  //   Center(
+  //     child: Text(
+  //       'Home Page',
+  //       style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+  //     ),
+  //   ),
+  //   Center(
+  //     child: Text(
+  //       'Search Page',
+  //       style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+  //     ),
+  //   ),
+  //   Center(
+  //     child: Text(
+  //       'Profile Page',
+  //       style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+  //     ),
+  //   ),
+  // ];
   // 3. Method to update the selected index
   void _onItemTapped(int index) {
     setState(() {
