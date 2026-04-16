@@ -36,68 +36,79 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 void main() async{
-  WidgetsFlutterBinding.ensureInitialized();
-  await EasyLocalization.ensureInitialized();
-  await Firebase.initializeApp();
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-  await messaging.requestPermission();
 
-  await messaging.setForegroundNotificationPresentationOptions(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    debugPrint(details.toString());
+  };
+  try{
+    WidgetsFlutterBinding.ensureInitialized();
+    await EasyLocalization.ensureInitialized();
+    await Firebase.initializeApp();
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    await messaging.requestPermission();
 
-  const AndroidInitializationSettings initializationSettingsAndroid =
-  AndroidInitializationSettings('@mipmap/ic_launcher');
+    await messaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
 
-  const InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-  );
+    const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('@mipmap/launcher_icon');
 
-  await flutterLocalNotificationsPlugin.initialize(
-    settings: initializationSettings,
-    onDidReceiveNotificationResponse: (NotificationResponse response) {
-      print("Notification tapped: ${response.payload}");
-    },
-  );
+    const InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+    );
 
-  // Listen for foreground messages
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print("🔥 FOREGROUND MESSAGE RECEIVED");
-    print("DATA: ${message.data}");
-    print("NOTIFICATION: ${message.notification?.title}");
+    await flutterLocalNotificationsPlugin.initialize(
+      settings: initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        print("Notification tapped: ${response.payload}");
+      },
+    );
 
-    final title = message.notification?.title ?? message.data['title'];
-    final body = message.notification?.body ?? message.data['body'];
+    // Listen for foreground messages
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("🔥 FOREGROUND MESSAGE RECEIVED");
+      print("DATA: ${message.data}");
+      print("NOTIFICATION: ${message.notification?.title}");
 
-    if (title != null && body != null) {
-      flutterLocalNotificationsPlugin.show(
-        id: 0,
-        title: title,
-        body: body,
-        notificationDetails: const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'default_channel',
-            'Default',
-            importance: Importance.max,
-          ),
-        )
-      );
-    }
-  });
+      final title = message.notification?.title ?? message.data['title'];
+      final body = message.notification?.body ?? message.data['body'];
 
-  runApp(
-    ProviderScope(
-      child: EasyLocalization(
-        supportedLocales: const [Locale('en'), Locale('ar')],
-        path: 'assets/translations',
-        fallbackLocale: const Locale('ar'),
-        child: const MyApp(),
-      )
-    ),
-  );
+      if (title != null && body != null) {
+        flutterLocalNotificationsPlugin.show(
+            id: 0,
+            title: title,
+            body: body,
+            notificationDetails: const NotificationDetails(
+              android: AndroidNotificationDetails(
+                'default_channel',
+                'Default',
+                importance: Importance.max,
+              ),
+            )
+        );
+      }
+    });
+
+    runApp(
+      ProviderScope(
+          child: EasyLocalization(
+            supportedLocales: const [Locale('en'), Locale('ar')],
+            path: 'assets/translations',
+            fallbackLocale: const Locale('ar'),
+            child: const MyApp(),
+          )
+      ),
+    );
+  }catch(e){
+    debugPrint('Initialization Error: $e');
+    // Run a basic error app so you don't just see a black screen
+    runApp(MaterialApp(home: Scaffold(body: Center(child: Text('Error: $e')))));
+  }
 }
 
 class MyApp extends StatelessWidget {
