@@ -43,26 +43,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RouteAware{
   @override
   Widget build(BuildContext context) {
     var classesAsync = ref.watch(classesProvider);
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double appBarHeight = kToolbarHeight;
-
-    // ref.listen<AsyncValue<List<HalaqaClass?>>>(
-    //   classesProvider,
-    //       (previous, next) {
-    //     next.whenOrNull(
-    //       error: (error, _) {
-    //         if (error is UnauthorizedException) {
-    //           ScaffoldMessenger.of(context).showSnackBar(
-    //             SnackBar(
-    //               content: Text('Session expired. Please login again.'.tr()),
-    //               duration: const Duration(seconds: 3),
-    //             ),
-    //           );
-    //         }
-    //       },
-    //     );
-    //   },
-    // );
 
     return Scaffold(
       appBar: AppbarWithLogo(text: "classes".tr()),
@@ -114,7 +94,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RouteAware{
                       '/halaqah_bottom_bar',
                     );
                   },
-                  title: halaqat[index].name!,
+                  title: halaqat[index].name,
                   studentNumber: halaqat[index].studentCount(),
                 );
               },

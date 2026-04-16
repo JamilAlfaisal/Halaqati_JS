@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/provider/teacher_providers/attendnace_state_provider.dart';
-import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
 import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/loading_widget.dart';
-import 'package:intl/intl.dart';
+
 
 class AttendanceStateScreen extends ConsumerStatefulWidget {
   const AttendanceStateScreen({super.key});
@@ -188,7 +187,7 @@ class _StudentAttendanceCard extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 22,
-            backgroundColor: color.withOpacity(0.15),
+            backgroundColor: color.withValues(alpha: 0.5),
             child: Icon(_getRankIcon(), color: color),
           ),
           const SizedBox(width: 12),
@@ -204,7 +203,7 @@ class _StudentAttendanceCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(

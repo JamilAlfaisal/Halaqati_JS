@@ -62,7 +62,7 @@ class TeacherDetailsCard extends StatelessWidget {
               /// Avatar or Network Image
               CircleAvatar(
                 radius: 35,
-                backgroundColor: theme.primaryColor.withOpacity(.1),
+                backgroundColor: theme.primaryColor.withValues(alpha: 0.1),
                 child: picProfile == null
                     ? Text(
                   firstLetter,

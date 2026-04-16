@@ -44,7 +44,7 @@ class AssignmentList extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: theme.primaryColor.withOpacity(.1),
+                      color: theme.primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -138,8 +138,8 @@ class AssignmentList extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: isComplete!
-                        ? Colors.green.withOpacity(.15)
-                        : Colors.orange.withOpacity(.15),
+                        ? Colors.green.withValues(alpha: 0.15)
+                        : Colors.orange.withValues(alpha: .15),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(

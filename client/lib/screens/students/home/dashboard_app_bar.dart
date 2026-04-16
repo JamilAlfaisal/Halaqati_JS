@@ -27,7 +27,8 @@ class _HomeAppBarState extends ConsumerState<DashboardAppBar> {
   @override
   Widget build(BuildContext context) {
     final StudentStats studentState = ref.watch(studentStatsProvider).value ?? StudentStats.emptyStats();
-    final unreadAssignments = (studentState.totalAssignments - studentState.readAssignments);
+    final int unreadAssignments = (studentState.totalAssignments - studentState.readAssignments);
+    final String stringUnreadAssignment = unreadAssignments > 10 ? "10+":unreadAssignments.toString();
     return Scaffold(
       body: screen[currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -47,7 +48,7 @@ class _HomeAppBarState extends ConsumerState<DashboardAppBar> {
             icon: Badge(
               largeSize: 7,
               backgroundColor: Theme.of(context).colorScheme.primary,
-              label: Text("${unreadAssignments}"), // Replace '3' with your dynamic unread count variable
+              label: Text(stringUnreadAssignment), // Replace '3' with your dynamic unread count variable
               child: const Icon(Icons.event),
             ),
             label: "assignments".tr(),

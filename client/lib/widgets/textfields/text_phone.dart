@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/provider/country_code_provider.dart';
-import 'package:halqati/provider/teacher_providers/classes_provider.dart';
 
 class TextPhone extends ConsumerStatefulWidget {
   final TextEditingController textController;

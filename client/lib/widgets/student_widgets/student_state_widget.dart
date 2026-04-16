@@ -31,7 +31,7 @@ class _StudentStatsWidgetState
       error: (e, _) => const SizedBox(),
       data: (stats) {
         if (stats == null) return const SizedBox();
-
+        final int unread = stats.totalAssignments - stats.readAssignments;
         return SizedBox(
           height: 90,
           child: RefreshIndicator(
@@ -41,25 +41,25 @@ class _StudentStatsWidgetState
               padding: const EdgeInsets.symmetric(horizontal: 12),
               children: [
                 _MiniStatCard(
+                  label: "uncompleted".tr(),
+                  value: stats.notCompletedAssignments,
+                  icon: Icons.pending_actions,
+                ),
+                _MiniStatCard(
+                  label: "unread".tr(),
+                  value: unread,
+                  icon: Icons.visibility_off,
+                ),
+                _MiniStatCard(
                   label: "assignments".tr(),
                   value: stats.totalAssignments,
                   icon: Icons.menu_book,
                 ),
-                _MiniStatCard(
-                  label: "read".tr(),
-                  value: stats.readAssignments,
-                  icon: Icons.visibility,
-                ),
-                _MiniStatCard(
-                  label: "completed".tr(),
-                  value: stats.completedAssignments,
-                  icon: Icons.check_circle,
-                ),
-                _MiniStatCard(
-                  label: "pending".tr(),
-                  value: stats.notCompletedAssignments,
-                  icon: Icons.schedule,
-                ),
+                // _MiniStatCard(
+                //   label: "pending".tr(),
+                //   value: stats.notCompletedAssignments,
+                //   icon: Icons.schedule,
+                // ),
                 _MiniStatCard(
                   label: "events".tr(),
                   value: stats.totalEvents,
@@ -87,6 +87,8 @@ class _MiniStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final String stringValue = value > 9999999?"999999+":value.toString();
     return Container(
       width: 110,
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
@@ -110,7 +112,7 @@ class _MiniStatCard extends StatelessWidget {
               color: Theme.of(context).colorScheme.primary),
           const SizedBox(height: 6),
           Text(
-            value.toString(),
+            stringValue,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,

@@ -64,10 +64,6 @@ class _AssignmentDetailsScreenState
           final event =
           !isAssignment ? selectedItem.data as Event : null;
 
-          /// 🔥 COMMON DATA
-          final title =
-          isAssignment ? assignment!.title : event!.title;
-
           final description = isAssignment
               ? assignment!.description
               : event!.description;
@@ -95,155 +91,148 @@ class _AssignmentDetailsScreenState
           return Column(
             children: [
               Expanded(
-                child: Padding(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 16),
-                  child: ListView(
-                    children: [
-                      /// 🔹 TITLE + STATUS
-                      Row(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              title,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge,
+                child: ListView(
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    bottom: MediaQuery.of(context).padding.bottom + 10
+                  ),
+                  children: [
+                    /// 🔹 TITLE + STATUS
+                    Row(
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                      children: [
+
+                        /// ✅ ONLY FOR ASSIGNMENT
+                        if (isAssignment)
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isCompleted
+                                  ? Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  : Theme.of(context)
+                                  .colorScheme
+                                  .secondary,
+                              borderRadius:
+                              BorderRadius.circular(16),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  isCompleted
+                                      ? Icons
+                                      .timer_off_outlined
+                                      : Icons.timer_outlined,
+                                  size: 20,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimary,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  isCompleted
+                                      ? "completed".tr()
+                                      .tr()
+                                      : "pending".tr()
+                                      .tr(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge,
+                                ),
+                              ],
                             ),
                           ),
+                      ],
+                    ),
 
-                          /// ✅ ONLY FOR ASSIGNMENT
-                          if (isAssignment)
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: isCompleted
-                                    ? Theme.of(context)
-                                    .colorScheme
-                                    .primary
-                                    : Theme.of(context)
-                                    .colorScheme
-                                    .secondary,
-                                borderRadius:
-                                BorderRadius.circular(16),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    isCompleted
-                                        ? Icons
-                                        .timer_off_outlined
-                                        : Icons.timer_outlined,
-                                    size: 20,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    isCompleted
-                                        ? "completed".tr()
-                                        .tr()
-                                        : "pending".tr()
-                                        .tr(),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge,
-                                  ),
-                                ],
-                              ),
-                            ),
+                    const SizedBox(height: 30),
+
+                    /// 🔹 DATE + TYPE
+                    DateTypeCard(
+                      date: displayDate(dueDate),
+                      type: isAssignment
+                          ? "${assignment!.type.toLowerCase()}".tr()
+                          : "event".tr(),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    /// 🔹 CLASS + TEACHER
+                    Text(
+                      "$className • $teacherName",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    /// 🔹 DESCRIPTION
+                    Text(
+                      "des".tr()
+                          .tr(),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium,
+                    ),
+                    const SizedBox(height: 10),
+
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        borderRadius:
+                        BorderRadius.circular(15),
+                        color: Colors.white,
+                        boxShadow: const [
+                          BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 10,
+                              spreadRadius: 2),
                         ],
                       ),
+                      child: Text(description),
+                    ),
 
-                      const SizedBox(height: 30),
-
-                      /// 🔹 DATE + TYPE
-                      DateTypeCard(
-                        date: displayDate(dueDate),
-                        type: isAssignment
-                            ? "${assignment!.type.toLowerCase()}".tr()
-                            : "event".tr(),
-                      ),
-
+                    /// 🔥 PAGES ONLY FOR ASSIGNMENT
+                    if (isAssignment) ...[
                       const SizedBox(height: 20),
-
-                      /// 🔹 CLASS + TEACHER
                       Text(
-                        "$className • $teacherName",
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium,
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      /// 🔹 DESCRIPTION
-                      Text(
-                        "des".tr()
-                            .tr(),
+                        "pages".tr(),
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium,
                       ),
                       const SizedBox(height: 10),
-
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          borderRadius:
-                          BorderRadius.circular(15),
-                          color: Colors.white,
-                          boxShadow: const [
-                            BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 10,
-                                spreadRadius: 2),
-                          ],
-                        ),
-                        child: Text(description),
-                      ),
-
-                      /// 🔥 PAGES ONLY FOR ASSIGNMENT
-                      if (isAssignment) ...[
-                        const SizedBox(height: 20),
-                        Text(
-                          "pages".tr(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium,
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          height: 50,
-                          child: ListView.builder(
-                            scrollDirection:
-                            Axis.horizontal,
-                            itemCount: pages.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding:
-                                const EdgeInsets.symmetric(
-                                    horizontal: 8),
-                                child: SizedBox(
-                                  width: 50,
-                                  child: PageNumber(
-                                    onPressed: () {},
-                                    num: int.tryParse(
-                                        pages[index]) ??
-                                        0,
-                                    selected: false,
-                                  ),
+                      SizedBox(
+                        height: 50,
+                        child: ListView.builder(
+                          scrollDirection:
+                          Axis.horizontal,
+                          itemCount: pages.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding:
+                              const EdgeInsets.symmetric(
+                                  horizontal: 8),
+                              child: SizedBox(
+                                width: 50,
+                                child: PageNumber(
+                                  onPressed: () {},
+                                  num: int.tryParse(
+                                      pages[index]) ??
+                                      0,
+                                  selected: false,
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            );
+                          },
                         ),
-                      ],
+                      ),
                     ],
-                  ),
+                  ],
                 ),
               ),
 
@@ -277,6 +266,9 @@ class _AssignmentDetailsScreenState
                     },
                     child: Container(
                       padding: const EdgeInsets.all(16),
+                      margin: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).padding.bottom
+                      ),
                       decoration: BoxDecoration(
                         borderRadius:
                         BorderRadius.circular(15),
@@ -301,13 +293,6 @@ class _AssignmentDetailsScreenState
                     ),
                   ),
                 ),
-
-              Padding(
-                padding: EdgeInsets.only(
-                  bottom:
-                  MediaQuery.of(context).padding.bottom,
-                ),
-              ),
             ],
           );
         },

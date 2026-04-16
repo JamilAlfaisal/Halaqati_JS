@@ -44,7 +44,7 @@ class TeacherProfile extends StatelessWidget {
             height: 80,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              color: theme.primaryColor.withOpacity(.1),
+              color: theme.primaryColor.withValues(alpha: 0.1),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),

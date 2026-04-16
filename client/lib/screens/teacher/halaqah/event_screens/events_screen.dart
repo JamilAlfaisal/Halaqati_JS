@@ -4,13 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/provider/is_loading_more_provider.dart';
 import 'package:halqati/provider/selected_class_name_provider.dart';
-import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
 import 'package:halqati/provider/teacher_providers/events_provider.dart';
-import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_extra_button.dart';
-import 'package:halqati/widgets/appbar/appbar_with_button.dart';
-import 'package:halqati/widgets/buttons/floating_button_icon.dart';
 import 'package:halqati/widgets/confirmation_dialog.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
 import 'package:halqati/widgets/error_widget.dart';
@@ -81,7 +77,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                     itemCount: events.length + (ref.watch(eventProvider.notifier).hasMore ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index >= events.length) {
-                        if (isLoadingMore) {
+                        if (isLoadingMore || ref.watch(eventProvider).isLoading) {
                           return const Padding(
                             padding: EdgeInsets.all(16),
                             child: Center(
@@ -103,8 +99,8 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                         );
                       }
                       return AssignmentList(
-                        title: events[index].title??"",
-                        dueDate: HelperMethods.formatDate(events[index].dueDate)??"",
+                        title: events[index].title,
+                        dueDate: HelperMethods.formatDate(events[index].dueDate),
                         onTap: (){
 
                           ref.read(selectedEventIdProvider.notifier).select(events[index].id);

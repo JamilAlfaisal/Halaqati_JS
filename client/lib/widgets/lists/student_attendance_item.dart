@@ -35,7 +35,7 @@ class StudentAttendanceItem extends StatelessWidget {
               /// Avatar (first letter)
               CircleAvatar(
                 radius: 20,
-                backgroundColor: theme.primaryColor.withOpacity(.1),
+                backgroundColor: theme.primaryColor.withValues(alpha: 0.1),
                 child: Text(
                   studentName.isNotEmpty
                       ? studentName[0].toUpperCase()

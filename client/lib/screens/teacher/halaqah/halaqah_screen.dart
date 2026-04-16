@@ -2,19 +2,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
-import 'package:halqati/core/utils/auth_utils.dart';
 import 'package:halqati/widgets/appbar/appbar_extra_button.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
 import 'package:halqati/widgets/buttons/verse_number.dart';
 import 'package:halqati/widgets/confirmation_dialog.dart';
 import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/loading_widget.dart';
-import 'package:halqati/widgets/textfields/num_text_field.dart';
 import 'package:halqati/widgets/textfields/text_area.dart';
 import 'package:halqati/widgets/textfields/text_field_normal.dart';
 import 'package:halqati/widgets/textfields/text_field_time.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
-import 'package:halqati/models/class_model.dart';
 
 class HalaqahScreen extends ConsumerStatefulWidget {
 

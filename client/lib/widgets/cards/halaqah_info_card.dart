@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:halqati/models/class_model.dart';
 import 'package:halqati/utils/string_transformation.dart';
 
 class HalaqahInfoCard extends StatelessWidget {
@@ -14,6 +13,7 @@ class HalaqahInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isEnglish = context.locale.languageCode == 'en';
     return Container(
       width: double.infinity, // Adjust width as needed
       decoration: BoxDecoration(
@@ -38,14 +38,37 @@ class HalaqahInfoCard extends StatelessWidget {
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),
+                // if (!isEnglish)
                 Positioned(
                   bottom: 10,
                   left: 10,
-                  child: Text(
-                    name,
-                    style: Theme.of(context).textTheme.titleLarge,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.blueGrey.withValues(alpha: 0.2), // This creates the black highlighter effect
+                      borderRadius: BorderRadius.circular(4), // Optional: rounds the edges
+                    ),
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width - 40, // Adjusted for padding
+                      child: Text(
+                        name,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              offset: Offset(2.0, 2.0),
+                              blurRadius: 3.0,
+                              color: Color.fromARGB(150, 0, 0, 150),
+                            ),
+                          ],
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
+                      ),
+                    ),
                   ),
-                ),
+                )
+
               ],
             ),
             // Second Half: Text Content

@@ -1,5 +1,3 @@
-import 'package:halqati/models/class_model.dart';
-
 abstract class User {
   final String id;
   final String name;

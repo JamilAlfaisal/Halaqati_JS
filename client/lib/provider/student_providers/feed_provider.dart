@@ -6,7 +6,6 @@ import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/event.dart';
 import 'package:halqati/provider/is_loading_more_provider.dart';
 import 'package:halqati/provider/services_providers/event_api_provider.dart';
-import 'package:halqati/provider/student_providers/selected_assignment_notifier.dart';
 import 'package:halqati/provider/student_providers/selected_feed_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
 

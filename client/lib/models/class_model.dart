@@ -4,12 +4,7 @@ import 'package:halqati/models/attendance.dart';
 import 'package:halqati/models/event.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/test/printJson.dart';
-import 'package:halqati/models/assignment.dart';
-import 'package:halqati/models/attendance.dart';
-import 'package:halqati/models/event.dart';
-import 'package:halqati/models/student.dart';
 import 'package:halqati/models/teacher.dart';
-import 'package:halqati/test/printJson.dart';
 
 class ClassModel {
   final String id;

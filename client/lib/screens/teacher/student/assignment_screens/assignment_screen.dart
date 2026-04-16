@@ -11,9 +11,6 @@ import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_extra_button.dart';
-import 'package:halqati/widgets/appbar/appbar_with_button.dart';
-import 'package:halqati/widgets/buttons/floating_button_icon.dart';
-import 'package:halqati/widgets/buttons/filter_button.dart';
 import 'package:halqati/widgets/confirmation_dialog.dart';
 import 'package:halqati/widgets/custom_lable.dart';
 import 'package:halqati/widgets/empty_state_view.dart';
@@ -83,27 +80,6 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // SingleChildScrollView(
-                //   scrollDirection: Axis.horizontal,
-                //   child: Row(
-                //     spacing: 10,
-                //     children: [
-                //       FilterButton(
-                //         onPressed: (){},
-                //         text: "All",
-                //       ),
-                //       FilterButton(
-                //         onPressed: (){},
-                //         text: "Last Week",
-                //       ),
-                //       FilterButton(
-                //         onPressed: (){},
-                //         text: "Last Month",
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                // SizedBox(height: 50,),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: CustomLabel(text: studentName),
@@ -116,7 +92,7 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
 
 
                       if (index >= assignments.length) {
-                        if (isLoadingMore) {
+                        if (isLoadingMore || ref.watch(assignmentProvider).isLoading) {
                           return const Padding(
                             padding: EdgeInsets.all(16),
                             child: Center(
@@ -138,20 +114,20 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
                         );
                       }
 
-                      final students = assignments?[index].students;
-                      final AssignedStudents? assignedStudent = students?.firstWhereOrNull(
+                      final students = assignments[index].students;
+                      final AssignedStudents? assignedStudent = students.firstWhereOrNull(
                         (student) {
                           return student.student.id.toString() == studentId.toString();
                         },
                       );
 
                       return AssignmentList(
-                          title: assignments?[index].title??"",
+                          title: assignments[index].title,
                           isRead: assignedStudent?.isRead??false,
                           isComplete: assignedStudent?.isComplete??false,
-                          dueDate: HelperMethods.formatDate(assignments?[index].dueDate),
+                          dueDate: HelperMethods.formatDate(assignments[index].dueDate),
                           onTap: (){
-                            ref.read(selectedAssignmentProvider.notifier).select(int.parse(assignments?[index].id.toString()??"0"));
+                            ref.read(selectedAssignmentProvider.notifier).select(int.parse(assignments[index].id.toString()));
                             Navigator.of(context).pushNamed("/update_assignment_screen");
                           },
                           onDelete: () async {
@@ -168,7 +144,7 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
                               ref
                                   .read(assignmentProvider.notifier)
                                   .deleteAssignment(
-                                  assignments?[index].id ?? "0");
+                                  assignments[index].id);
                             }
                           }
                       );

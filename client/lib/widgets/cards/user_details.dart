@@ -76,7 +76,7 @@ class UserDetails extends StatelessWidget {
               vertical: 12,
             ),
             decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(.05),
+              color: Colors.grey.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(

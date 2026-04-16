@@ -64,16 +64,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: (){
-                  final snackBar = SnackBar(
-                    content: Text('not_available'.tr()),
-                  );
-
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  Navigator.of(context).pushNamed("/about_us_screen");
                 },
                 child: Container(
                   width: double.infinity,
                   height: 80,
-                  // padding: const EdgeInsets.symmetric(horizontal: 16),
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
