@@ -64,6 +64,10 @@ class _AssignmentDetailsScreenState
           final event =
           !isAssignment ? selectedItem.data as Event : null;
 
+
+          final title =
+          isAssignment ? assignment!.title : event!.title;
+
           final description = isAssignment
               ? assignment!.description
               : event!.description;
@@ -103,6 +107,14 @@ class _AssignmentDetailsScreenState
                       crossAxisAlignment:
                       CrossAxisAlignment.start,
                       children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge,
+                          ),
+                        ),
 
                         /// ✅ ONLY FOR ASSIGNMENT
                         if (isAssignment)
