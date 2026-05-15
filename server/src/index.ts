@@ -41,6 +41,9 @@ import juzRouter from './router/juzRouter';
 import assignmentRouter from './router/assignmentRouter';
 import eventRouter from './router/evenRouter';
 import aboutUsRouter from './router/aboutUsRouter';
+import pagesRouter from './router/pagesRouter';
+import gradesRouter from './router/gradesRouter';
+
 
 app.use('/api/auth', authRouter);
 app.use('/api/class', classRouter);
@@ -50,3 +53,5 @@ app.use('/api/update_student', juzRouter);
 app.use('/api/assignment', assignmentRouter);
 app.use('/api/event', eventRouter);
 app.use('/api/about_us', aboutUsRouter);
+app.use('/api/pages', pagesRouter);
+app.use('/api/grades', gradesRouter);

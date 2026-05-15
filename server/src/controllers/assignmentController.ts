@@ -12,6 +12,15 @@ import { Event } from '../model/Events';
 import { sendNotification } from '../utils/notificationHelper';
 import * as admin from 'firebase-admin';
 
+
+function parseArabicDate(dateStr) {
+    // 1. Replace Arabic digits with Western digits
+    const westernDigits = dateStr.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+
+    // 2. Try to parse the normalized string
+    return Date.parse(westernDigits);
+}
+
 export const createAssignment = async (req: AuthRequest, res: Response) => {
 
     const queryRunner = AppDataSource.createQueryRunner();
@@ -65,6 +74,7 @@ export const createAssignment = async (req: AuthRequest, res: Response) => {
         if (!Array.isArray(pages)) {
             return res.status(400).json({ message: "Missing pages field" });
         }
+        console.log(dueDate);
 
         if (dueDate && isNaN(Date.parse(dueDate))) {
             return res.status(400).json({ message: "Invalid due date" });
