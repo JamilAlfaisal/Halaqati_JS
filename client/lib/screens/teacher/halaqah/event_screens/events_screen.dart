@@ -100,12 +100,14 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                       }
                       return AssignmentList(
                         title: events[index].title,
+                        seeGrade: null,
                         dueDate: HelperMethods.formatDate(events[index].dueDate),
                         onTap: (){
 
                           ref.read(selectedEventIdProvider.notifier).select(events[index].id);
                           Navigator.of(context).pushNamed("/event_details_screen");
                         },
+                        setGrade: (){},
                         onDelete: ref.watch(eventProvider).isLoading?null:() async {
                           final confirm = await showConfirmationDialog(
                             context: context,

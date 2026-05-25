@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:halqati/models/grade_model.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/models/teacher.dart';
 import 'package:halqati/models/class_model.dart';
@@ -8,18 +9,25 @@ class AssignedStudents {
   final Student student;
   final bool isComplete;
   final bool isRead;
+  final GradeModel? grade;
 
   const AssignedStudents({
     required this.isComplete,
     required this.student,
-    required this.isRead
+    required this.isRead,
+    this.grade,
   });
 
   factory AssignedStudents.fromJson(Map<String, dynamic> json) {
     return AssignedStudents(
+
       student: Student.fromJson(json),
       isComplete: json['isComplete'] as bool? ?? false,
-      isRead: json['isRead'] as bool
+      isRead: json['isRead'] as bool? ?? false,
+
+      grade: json['grade'] != null
+          ? GradeModel.fromJson(json['grade'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -27,7 +35,8 @@ class AssignedStudents {
     return {
       'student': student.toJson(),
       'isComplete': isComplete,
-      'isRead': isRead
+      'isRead': isRead,
+      'grade': grade?.toJson(),
     };
   }
 
@@ -35,14 +44,15 @@ class AssignedStudents {
     Student? student,
     bool? isComplete,
     bool? isRead,
+    GradeModel? grade,
   }) {
     return AssignedStudents(
       student: student ?? this.student,
       isComplete: isComplete ?? this.isComplete,
       isRead: isRead ?? this.isRead,
+      grade: grade ?? this.grade,
     );
   }
-
 }
 
 class Assignment {

@@ -38,7 +38,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       body: asyncStudent.when(
         data: (data){
           List<String> memorizedJuz = data?.memorizedJuz??[];
-          print(memorizedJuz);
 
           return RefreshIndicator(
             onRefresh: () async {

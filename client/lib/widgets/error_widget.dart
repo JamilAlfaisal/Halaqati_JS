@@ -33,7 +33,6 @@ class CustomErrorWidget extends ConsumerWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                print("method ha");
                 if (providerToInvalidate != null) {
                   ref.invalidate(providerToInvalidate!);
                 }

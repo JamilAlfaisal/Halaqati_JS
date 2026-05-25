@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/assignment.dart';
+import 'package:halqati/models/grade_model.dart';
 import 'package:halqati/provider/is_loading_more_provider.dart';
 import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/selected_student_name.dart';
 import 'package:halqati/provider/student_providers/selected_assignment_notifier.dart';
 import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
+import 'package:halqati/screens/teacher/student/grades_screens/add_update_grade.dart';
+import 'package:halqati/screens/teacher/student/grades_screens/set_grade_on_assignment.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_extra_button.dart';
 import 'package:halqati/widgets/confirmation_dialog.dart';
@@ -38,8 +41,8 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
     final String studentName = ref.watch(selectedStudentNameProvider)??"name".tr();
     final String studentId = ref.watch(selectedStudentIdProvider)??"0";
     final theme = Theme.of(context);
-    final isLoadingMore = ref.watch(isLoadingMoreProvider("assignments"));
 
+    final isLoadingMore = ref.watch(isLoadingMoreProvider("assignments"));
     return Scaffold(
       appBar: AppbarExtraButton(
         text: halaqahName,
@@ -52,16 +55,8 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
           Navigator.of(context).pushNamed('/add_assignment_screen');
         },
       ),
-      // floatingActionButton: FloatingButtonIcon(
-      //   onPressed: (){
-      //     Navigator.of(context).pushNamed('/add_assignment_screen');
-      //   },
-      //   text: "${"create".tr()} ${"assignment".tr()}",
-      // ),
       body: asyncAssignment.when(
         data: (assignments){
-
-
           if(assignments == null || assignments.length == 0){
             return RefreshIndicator(
                 onRefresh: ()async {
@@ -71,6 +66,11 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
               child: EmptyStateView(),
             );
           }
+          // print("sdfsdf");
+          // assignments.forEach((ass){
+          //   print(ass.students);
+          //    print(ass.students[0].isComplete);
+          // });
 
           return RefreshIndicator(
             onRefresh: ()async {
@@ -107,7 +107,7 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
                         return Center(
                           child: IconButton(
                             onPressed: () {
-                              ref.read(assignmentProvider.notifier).loadMore(); // ✅ NO setState
+                              ref.read(assignmentProvider.notifier).loadMore();
                             },
                             icon: const Icon(Icons.expand_more),
                           ),
@@ -122,31 +122,55 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
                       );
 
                       return AssignmentList(
-                          title: assignments[index].title,
-                          isRead: assignedStudent?.isRead??false,
-                          isComplete: assignedStudent?.isComplete??false,
-                          dueDate: HelperMethods.formatDate(assignments[index].dueDate),
-                          onTap: (){
-                            ref.read(selectedAssignmentProvider.notifier).select(int.parse(assignments[index].id.toString()));
-                            Navigator.of(context).pushNamed("/update_assignment_screen");
-                          },
-                          onDelete: () async {
-                            final confirm = await showConfirmationDialog(
-                                context: context,
-                                title: "delete_assignment".tr(),
-                                message: "delete_assignment_msg".tr(),
-                                cancelText: "cancel".tr(),
-                                confirmText: "confirm".tr(),
-                                confirmColor: Colors.red,
-                            );
+                        title: assignments[index].title,
+                        isRead: assignedStudent?.isRead??false,
+                        isComplete: assignedStudent?.isComplete??false,
+                        dueDate: HelperMethods.formatDate(assignments[index].dueDate),
+                        onTap: (){
+                          ref.read(selectedAssignmentProvider.notifier).select(int.parse(assignments[index].id.toString()));
+                          Navigator.of(context).pushNamed("/update_assignment_screen");
+                        },
+                        seeGrade: assignments[index].students[0].grade != null?(){
+                          Navigator.push(
+                            context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  GradeModel grade = assignments[index].students[0].grade!.copyWith(
+                                    assignment: assignments[index]
+                                  );
+                                  return AddGradeScreen(
+                                  grade: grade,
+                              );
+                              }
+                            ),
+                          );
+                        }:null,
+                        setGrade: (){
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => SetGradeOnAssignment(
+                              assignmentId: assignments[index].id,
+                              assignmentName: assignments[index].title,
+                            )),
+                          );
+                        },
+                        onDelete: () async {
+                          final confirm = await showConfirmationDialog(
+                              context: context,
+                              title: "delete_assignment".tr(),
+                              message: "delete_assignment_msg".tr(),
+                              cancelText: "cancel".tr(),
+                              confirmText: "confirm".tr(),
+                              confirmColor: Colors.red,
+                          );
 
-                            if (confirm){
-                              ref
-                                  .read(assignmentProvider.notifier)
-                                  .deleteAssignment(
-                                  assignments[index].id);
-                            }
+                          if (confirm){
+                            ref
+                              .read(assignmentProvider.notifier)
+                              .deleteAssignment(
+                              assignments[index].id);
                           }
+                        }
                       );
                     },
                   ),
@@ -157,7 +181,7 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
         },
         loading: () => LoadingWidget(),
         error: (e, stack) {
-
+          print(e);
           if (e is UnauthorizedException) {
             return const Center(child: CircularProgressIndicator());
           }

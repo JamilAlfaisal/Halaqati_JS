@@ -26,7 +26,7 @@ class EventNotifier extends AsyncNotifier<List<Event>?> {
   Future<List<Event>?> build() async {
     _offset = 0;
     _hasMore = true;
-    print("build method is running");
+
     return await _fetchEvents(reset: true);
   }
 

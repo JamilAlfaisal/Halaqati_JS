@@ -30,12 +30,9 @@ class AuthNotifier extends AsyncNotifier<AuthUser?> {
       if (profileData['user']['role'] == 'teacher') {
         print("it is teacher");
         final teacher = Teacher.fromJson(profileData['user']);
-        print("user data set in the model");
         ref.read(teacherProvider.notifier).setTeacher(teacher);
-        print("provider now is holding teacher data");
         return AuthTeacher(teacher);
       } else if (profileData['user']['role'] == 'student'){
-        print("this is studetn ");
         final student = Student.fromJson(profileData);
         ref.read(studentProvider.notifier).setStudent(student);
         return AuthStudent(student);

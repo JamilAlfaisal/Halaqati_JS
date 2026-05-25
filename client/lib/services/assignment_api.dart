@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/student_states_model.dart';
+import 'package:halqati/test/printJson.dart';
 import 'package:http/http.dart' as http;
 import 'package:halqati/services/base_api.dart';
 
@@ -115,7 +116,7 @@ class AssignmentApi extends BaseApi{
           'Accept': 'application/json',
         },
       ).timeout(const Duration(seconds: 10));
-      print(response.statusCode);
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final Assignment assignment = Assignment.fromJson(data);
@@ -221,6 +222,7 @@ class AssignmentApi extends BaseApi{
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        printJson(data, "data: ");
         if (data != null && data is List) {
           return data.map((json) => Assignment.fromJson(json)).toList();
         }else if(data != null && data["assignments"] is List ){
@@ -284,6 +286,63 @@ class AssignmentApi extends BaseApi{
       throw NetworkException();
     } catch (e) {
       rethrow;
+    }
+  }
+
+  Future<List<Assignment>?> getTeacherClassAssignments(
+      String token,
+      String classId, {
+        int page = 1,
+        int limit = 10,
+      }) async {
+    // Using page/limit to match the skip/take logic we wrote in the backend
+    final url = Uri.parse(
+      '$baseUrl/assignment/get_class_assignments/$classId?page=$page&limit=$limit',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 401) {
+        throw UnauthorizedException();
+      }
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        // Handle the case where the backend returns the object { assignments: [], pagination: {} }
+        if (data != null && data is Map<String, dynamic> && data["assignments"] is List) {
+          final List<dynamic> list = data["assignments"];
+          return list.map((json) => Assignment.fromJson(json)).toList();
+        }
+        // Fallback for simple list responses
+        else if (data != null && data is List) {
+          return data.map((json) => Assignment.fromJson(json)).toList();
+        }
+
+        return [];
+      } else {
+        throw ApiException(
+          'Failed to fetch Class Assignments: ${response.statusCode}',
+          statusCode: response.statusCode,
+        );
+      }
+    } on SocketException {
+      throw NetworkException();
+    } on TimeoutException {
+      throw NetworkException();
+    } on UnauthorizedException {
+      rethrow;
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Unexpected error fetching class assignments: $e');
     }
   }
 

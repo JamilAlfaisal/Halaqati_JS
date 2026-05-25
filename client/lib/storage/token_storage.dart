@@ -7,7 +7,6 @@ class TokenStorage {
 
   Future<void> saveToken(String token) async {
     await _storage.write(key: _tokenKey, value: token);
-    // print('Token saved successfully!');
   }
 
   Future<void> saveRefreshToken(String refreshToken) async {
@@ -24,7 +23,6 @@ class TokenStorage {
     // The delete method removes the key-value pair.
     await _storage.delete(key: _tokenKey);
     await _storage.delete(key: _refreshTokenKey); // Good practice to delete both
-    print('Tokens deleted successfully!');
   }
 
   Future<bool> hasToken() async {

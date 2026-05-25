@@ -71,7 +71,6 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
         data: (event){
           if (!_initialized && event != null) {
             _initialized = true;
-            print(event.title);
             des.text = event.description;
             title.text = event.title;
             date.text = HelperMethods.formatDate(event.dueDate);

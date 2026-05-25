@@ -22,13 +22,11 @@ class StudentsNotifier extends AsyncNotifier<List<Student>?>{
     }
 
     final token = tokenAsync.value;
-    print("token class provider build: $token");
+
     if (token == null  || token.isEmpty) {
-      print("No token found, returning empty state to stop loop.");
       return [];
     }
     try{
-      print("try to get Students List");
       return await ref.read(classesApiProvider).getStudents(token, classId??"");
     }catch(e){
       if (e is UnauthorizedException) {
@@ -68,7 +66,7 @@ class StudentsNotifier extends AsyncNotifier<List<Student>?>{
     if (token == null || classId == null) return;
 
     try {
-      print("phone: ${phone}");
+
       if (state.hasValue) {
         final currentStudents = state.value!;
         final updatedList = currentStudents.where((s) => s.phone != phone).toList();

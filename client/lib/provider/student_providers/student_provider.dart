@@ -22,7 +22,6 @@ class AuthNotifier extends AsyncNotifier<Student?> {
       return await ref.read(authApiProvider).getStudentDashboard(token);
     } catch (e) {
       if (e is UnauthorizedException) {
-        print('Clearing token due to auth/API error');
         await AuthHelper.handleLogout(ref);
       }
       rethrow;

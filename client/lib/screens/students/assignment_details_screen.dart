@@ -32,6 +32,8 @@ class _AssignmentDetailsScreenState
 
   @override
   Widget build(BuildContext context) {
+    final bottomSafeArea = MediaQuery.of(context).padding.bottom;
+
     final selectedItem = ref.read(feedProvider.notifier).getSelectedItem();
     final apiService = ref.read(juzApiProvider);
     final token = ref.watch(tokenProvider).value ?? "";

@@ -32,7 +32,6 @@ class TextArea extends StatelessWidget {
           ),
 
           validator: (value){
-            // print(value);
             final forbiddenPattern = RegExp(r'^[ a-zA-Z0-9\u0600-\u06FF\u0660-\u0669_{}():*,.,. \- \? ؟ !\n\r]+$');
 
             if (value == null || value.isEmpty) {

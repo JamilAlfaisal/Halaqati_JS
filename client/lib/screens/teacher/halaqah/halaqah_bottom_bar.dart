@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:halqati/screens/teacher/halaqah/student_screen.dart';
+import 'package:halqati/screens/teacher/halaqah/all_assignments_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/screens/teacher/halaqah/event_screens/events_screen.dart';
 import 'package:halqati/screens/teacher/halaqah/halaqah_screen.dart';
 import 'package:halqati/screens/teacher/halaqah/attendance_screens/attendance_screen.dart';
+
 
 class HalaqahBottomBar extends StatefulWidget {
   const HalaqahBottomBar({super.key});
@@ -21,6 +23,7 @@ class _HalaqahBottomBarState extends State<HalaqahBottomBar> {
       StudentScreen(),
       EventsScreen(),
       AttendanceScreen(),
+      AllAssignmentsScreen()
     ];
     return Scaffold(
       body: Container(
@@ -58,6 +61,10 @@ class _HalaqahBottomBarState extends State<HalaqahBottomBar> {
           BottomNavigationBarItem(
             icon: Icon(Icons.how_to_reg),
             label: "attendance".tr(),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.all_inbox),
+            label: "all_assignment".tr(),
           ),
         ],
       ),

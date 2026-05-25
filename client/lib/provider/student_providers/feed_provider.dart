@@ -21,7 +21,6 @@ class FeedNotifier extends AsyncNotifier<List<FeedItem>?> {
 
   @override
   Future<List<FeedItem>?> build() async {
-    print("build has been triggered");
     ref.keepAlive();
     _offset = 0;
     _hasMore = true;
@@ -29,7 +28,6 @@ class FeedNotifier extends AsyncNotifier<List<FeedItem>?> {
   }
 
   Future<List<FeedItem>?> _fetch({bool reset = false}) async {
-    print("_fetch has been triggered");
     final token = ref.read(tokenProvider).value;
 
     if (token == null || token.isEmpty) return [];
@@ -63,7 +61,6 @@ class FeedNotifier extends AsyncNotifier<List<FeedItem>?> {
   }
 
   Future<void> loadMore() async {
-    print("loadMore has been triggered");
     final loadingProvider = isLoadingMoreProvider("feed");
 
     if (!_hasMore || ref.read(loadingProvider)) return;
@@ -81,7 +78,7 @@ class FeedNotifier extends AsyncNotifier<List<FeedItem>?> {
   }
 
   FeedItem? getSelectedItem() {
-    print("getSelectedItem has been triggered");
+
     final selected = ref.read(selectedFeedItemProvider);
 
     if (!state.hasValue || state.value == null || selected == null) {

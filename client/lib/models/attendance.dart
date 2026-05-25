@@ -26,7 +26,6 @@ class Attendance {
   }
 
   factory Attendance.fromJson(Map<String, dynamic> json) {
-    printJson(json, "attendanceModel");
     return Attendance(
       id: HelperMethods.getTerms(json, ["id", "attendanceId"]).toString(),
       date: DateTime.parse(json['date']),

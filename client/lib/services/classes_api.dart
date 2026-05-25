@@ -50,7 +50,6 @@ class ClassesApi extends BaseApi{
 
       if (response.statusCode == 201) {
         // ✅ Success: 201 Created is the standard for successful creation
-        print('Class created successfully!');
         return true;
       }
 
@@ -64,10 +63,8 @@ class ClassesApi extends BaseApi{
         statusCode: response.statusCode,
       );
     } on SocketException {
-      print("Network error - no internet connection");
       throw NetworkException();
     } on TimeoutException {
-      print("Network timeout");
       throw NetworkException();
     } on UnauthorizedException {
       rethrow;
@@ -76,9 +73,6 @@ class ClassesApi extends BaseApi{
     } on ValidationException {
       rethrow;
     } catch (e) {
-      // print("Unexpected error in getProfile: $e");
-      // if (e is ApiException) rethrow;
-      // throw ApiException('Unexpected error: $e');
       rethrow;
     }
   }
@@ -103,14 +97,12 @@ class ClassesApi extends BaseApi{
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['classes'] != null && data['classes'] is List) {
-          print("classes we got: ${data['classes']}");
           List<ClassModel> listHalaqatiClass =  (data['classes'] as List).map((json)
           => ClassModel.fromJson(json)
           ).toList();
 
           return listHalaqatiClass;
         }
-        print("getting empty list");
         return []; // Empty but valid response
       } else {
         throw ApiException(
@@ -208,7 +200,6 @@ class ClassesApi extends BaseApi{
         throw UnauthorizedException();
       }
       if (response.statusCode == 204 || response.statusCode == 200) {
-        print('Class $classId deleted successfully');
         return;
       }
       final responseBody = jsonDecode(response.body);
@@ -257,7 +248,6 @@ class ClassesApi extends BaseApi{
         },
         body: jsonEncode(requestBody),
       ).timeout(const Duration(seconds: 10));
-      print("updateClasses: ${response.statusCode}");
       if (response.statusCode == 401) {
         throw UnauthorizedException();
       }

@@ -89,7 +89,21 @@
   "attendance_state":"احصائيات الحضور",
   "attendance_update_ability":"يمكنك تعديل الحضور في نفس تاريخ اخذه فقظ",
   "times":"مرات",
+  "sent_to":"أُرْسِلَتْ إِلَى",
+  "all_assignment":"جميع الواجبات",
+  "grades":"العلامات",
+  "general_assignment":"تَقْيِيم مُبَاشِر",
 
+  "cumulative_grade":"المعدل التراكمي",
+  "out_of":"من",
+  "enrolled_since":"تم التسجيل منذ",
+  "total_weight":"مجموع النقاط",
+  "academic_overview":"المعلومات الاكاديمية",
+
+  "set_grade":"ضع علامه",
+  "see_grade":"معاينة العلامة",
+  "You_unselect_student_already_have_grade":"لا يمكن ازالة تلميذ لديه علامة",
+  "not_graded_yet":"لم يتم وضع علامه",
 
     "weekdays": {
       "1": "الإثنين",

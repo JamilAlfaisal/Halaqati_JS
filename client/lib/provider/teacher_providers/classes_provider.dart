@@ -20,16 +20,14 @@ class ClassesNotifier extends AsyncNotifier<List<ClassModel>?> {
     }
 
     final token = tokenAsync.value;
-    print("token class provider build: $token");
+
     if (token == null  || token.isEmpty) {
-      print("No token found, returning empty state to stop loop.");
       return [];
     }
 
     try {
       return await ref.read(classesApiProvider).getClasses(token);
     } catch (e) {
-      print("error catched $e");
       if (e is UnauthorizedException) {
 
         print("error type UnauthorizedException");
