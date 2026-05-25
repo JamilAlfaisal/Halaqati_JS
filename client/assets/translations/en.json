@@ -90,6 +90,21 @@
   "attendance_state":"Attendance Statistics",
   "attendance_update_ability":"Attendance can be updated only on same date of taking it.",
   "times":"Times",
+  "sent_to":"Sent To",
+  "all_assignment":"All Assignment",
+  "grades":"Grades",
+  "general_assignment":"Direct Rating",
+
+  "cumulative_grade":"Cumulative Grade",
+  "out_of":"Out of",
+  "enrolled_since":"Enrolled Since",
+  "total_weight":"Total Weight",
+  "academic_overview":"Academic Overview",
+
+  "set_grade":"Set Grade",
+  "see_grade":"See Grade",
+  "You_unselect_student_already_have_grade":"Not possible to remove student has grade",
+  "not_graded_yet":"Not Graded Yet",
   
 
   "weekdays": {

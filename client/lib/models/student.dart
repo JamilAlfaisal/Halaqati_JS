@@ -1,7 +1,3 @@
-
-
-
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/models/class_model.dart';
 import 'package:halqati/models/user.dart';
@@ -66,7 +62,6 @@ class Student extends User {
   }
 
   factory Student.fromJson(Map<String, dynamic> json) {
-    printJson(json, "this is the students");
     return Student(
       id: HelperMethods.getTerms(json, ["id", "studentId"]),
       name: json['name'] as String? ?? "undefined".tr(),

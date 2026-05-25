@@ -63,8 +63,6 @@ class JuzApi extends BaseApi{
         body: jsonEncode(requestBody),
       ).timeout(const Duration(seconds: 10));
 
-      print(response.statusCode);
-
       if (response.statusCode == 401) {
         throw UnauthorizedException();
       }
@@ -112,8 +110,6 @@ class JuzApi extends BaseApi{
         },
       ).timeout(const Duration(seconds: 10));
 
-      print(response.statusCode);
-
       if (response.statusCode == 401) {
         throw UnauthorizedException();
       }
@@ -143,7 +139,6 @@ class JuzApi extends BaseApi{
     } on ValidationException {
       rethrow;
     } catch (e) {
-      print(e);
       rethrow;
     }
   }

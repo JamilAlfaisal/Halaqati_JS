@@ -189,6 +189,14 @@ class AssignmentNotifier extends AsyncNotifier<List<Assignment>?> {
       rethrow;
     }
   }
+
+  Future<void> refreshAssignments() async {
+    _offset = 0;
+    _hasMore = true;
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => _fetch(reset: true));
+  }
+
 }
 
 final activeAssignmentProvider = Provider<Assignment?>((ref) {
@@ -198,4 +206,19 @@ final activeAssignmentProvider = Provider<Assignment?>((ref) {
   return assignmentsAsync.whenData((list) =>
       list?.firstWhere((a) => a.id.toString() == selectedId)
   ).value;
+});
+
+
+final assignmentDetailsProvider = FutureProvider.family<Assignment, String>((ref, assignmentId) async {
+  final token = ref.read(tokenProvider).value;
+  if (token == null) throw UnauthorizedException();
+
+  final api = ref.read(assignmentApiProvider);
+
+  // This calls your backend method: get assignment by id
+  final assignment = await api.getAssignmentDetails(token, assignmentId);
+
+  if (assignment == null) throw Exception("Assignment not found");
+
+  return assignment;
 });

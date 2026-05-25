@@ -24,7 +24,6 @@ class _NumTextFieldState extends State<TextFieldTime> {
     );
     if (picked != null) {
       // Handle the selected time here (e.g., update a state variable)
-      print('Selected time: ${picked.format(context)}');
       final String formattedTime = picked.format(context);
       setState(() {
         widget.textController.text = formattedTime;

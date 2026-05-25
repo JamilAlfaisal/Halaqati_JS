@@ -68,7 +68,6 @@ class ClassModel {
 
   /// Factory
   factory ClassModel.fromJson(Map<String, dynamic> json) {
-    printJson(json, "class_model");
 
     /// ✅ Handle teacher safely
     Teacher teacher;

@@ -142,7 +142,6 @@ class _HalaqahScreenState extends ConsumerState<HalaqahScreen> {
             confirmText: "confirm".tr(),
             confirmColor: Colors.red,
           );
-          print("");
           if (confirm){
             ref.watch(classesProvider.notifier).deleteClass();
             Navigator.of(context).pop();

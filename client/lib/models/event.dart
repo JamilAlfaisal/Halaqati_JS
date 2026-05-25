@@ -64,7 +64,6 @@ class Event {
   }
 
   factory Event.fromJson(Map<String, dynamic> json) {
-    printJson(json, "event_model");
 
     /// ✅ Teacher handling
     Teacher teacher;

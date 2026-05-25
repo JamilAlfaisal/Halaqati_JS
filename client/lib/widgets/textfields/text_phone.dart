@@ -40,7 +40,6 @@ class _TextPhoneState extends ConsumerState<TextPhone> {
           keyboardType: TextInputType.phone,
           validator: (value) {
             final forbiddenPattern  = RegExp(r'^[0-9\u0660-\u0669]+$');
-            print(value);
             if (value == null || value.isEmpty) {
               return 'text_phone.empty'.tr();
             }

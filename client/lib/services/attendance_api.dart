@@ -194,7 +194,6 @@ class AttendanceApi extends BaseApi{
       if (response.statusCode == 401) {
         throw UnauthorizedException();
       }
-      print("response.statusCode: ${response.statusCode}");
       if (response.statusCode == 200 || response.statusCode == 204) {
         return true;
       }

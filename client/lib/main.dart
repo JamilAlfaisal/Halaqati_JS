@@ -23,6 +23,7 @@ import 'package:halqati/screens/teacher/halaqah/attendance_screens/attendacne_de
 import 'package:halqati/screens/teacher/halaqah/attendance_screens/attendance_screen.dart';
 import 'package:halqati/screens/teacher/halaqah/attendance_screens/take_attendance_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:halqati/screens/teacher/student/grades_screens/add_update_grade.dart';
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -71,9 +72,9 @@ void main() async{
     // Listen for foreground messages
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("🔥 FOREGROUND MESSAGE RECEIVED");
-      print("DATA: ${message.data}");
-      print("NOTIFICATION: ${message.notification?.title}");
+      // print("🔥 FOREGROUND MESSAGE RECEIVED");
+      // print("DATA: ${message.data}");
+      // print("NOTIFICATION: ${message.notification?.title}");
 
       final title = message.notification?.title ?? message.data['title'];
       final body = message.notification?.body ?? message.data['body'];
@@ -148,6 +149,7 @@ class MyApp extends StatelessWidget {
         '/root_screen': (context) => const RootScreen(),
         '/attendance_state_screen': (context) => const AttendanceStateScreen(),
         '/about_us_screen': (context) => const AboutUsScreen(),
+        '/add_grade_screen': (context) => const AddGradeScreen(),
       },
     );
   }

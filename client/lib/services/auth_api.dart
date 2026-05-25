@@ -26,23 +26,19 @@ class AuthApi extends BaseApi{
         }),
       );
 
-      print("statusCode: ${response.statusCode}");
       final responseBody = jsonDecode(response.body);
       if (response.statusCode == 200) {
         return responseBody;
 
       } else if (response.statusCode >= 400 && response.statusCode < 500) {
         final message = responseBody['message'] ?? 'Authentication failed.';
-        print('Login Failed: $message');
         return null;
 
       } else {
-        print('Server Error: ${response.statusCode}');
         return null;
       }
 
     } catch (e) {
-      print('Network connection failed or data invalid: $e');
       return null;
     }
   }
@@ -50,8 +46,6 @@ class AuthApi extends BaseApi{
   Future<Map<String, dynamic>?> getProfile(String token) async {
     final url = Uri.parse('$baseUrl/auth/auth_me/user');
     try {
-      print("profile method has been called");
-      print("token: $token");
 
       final response = await http.get(
         url,
@@ -60,22 +54,16 @@ class AuthApi extends BaseApi{
           'Accept': 'application/json',
         },
       );
-      print("status code: ${response.statusCode}");
 
       // response.statusCode == 404
       if (response.statusCode == 401 || response.statusCode == 404) {
-        print("Unauthorized - invalid token");
         throw UnauthorizedException();
       }
 
       if (response.statusCode == 200) {
         final responseBody = jsonDecode(response.body);
-        printJson(responseBody, "auth me method");
         return responseBody;
       } else {
-        // For other errors, try to decode or return raw body
-        print("API error: ${response.statusCode}");
-        print("Response body: ${response.body}");
         throw ApiException(
           'Failed to fetch profile: ${response.statusCode}',
           statusCode: response.statusCode,

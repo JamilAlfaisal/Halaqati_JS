@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:halqati/screens/teacher/student/grades_screens/set_grade_on_assignment.dart';
 import 'package:halqati/utils/string_transformation.dart';
 import 'package:halqati/widgets/buttons/delete_button.dart';
 
@@ -8,6 +9,8 @@ class AssignmentList extends StatelessWidget {
   final String dueDate;
   final VoidCallback onTap;
   final VoidCallback? onDelete;
+  final VoidCallback? setGrade;
+  final VoidCallback? seeGrade;
   final bool? isComplete;
   final bool? isRead;
 
@@ -17,6 +20,8 @@ class AssignmentList extends StatelessWidget {
     required this.dueDate,
     required this.onTap,
     required this.onDelete,
+    required this.setGrade,
+    required this.seeGrade,
     this.isComplete,
     this.isRead,
   });
@@ -24,7 +29,6 @@ class AssignmentList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    print("assignment list is read: ${isRead}");
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -166,6 +170,28 @@ class AssignmentList extends StatelessWidget {
               const SizedBox(width: 10),
 
               /// Delete button
+              if (isComplete != null)
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'delete') {
+                    onDelete != null?onDelete!():(){};
+                  }
+                  if (value == "grading" && seeGrade == null){
+                    setGrade != null?setGrade!():(){};
+                  }
+                  if (value == "seeGrade" && seeGrade != null){
+                    seeGrade != null?seeGrade!():(){};
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(value: 'delete', child: Text('delete_assignment'.tr())),
+                  if (seeGrade == null)
+                  PopupMenuItem(value: 'grading', child: Text('set_grade'.tr())),
+                  if (seeGrade != null)
+                  PopupMenuItem(value: 'seeGrade', child: Text('see_grade'.tr())),
+                ],
+              ),
+              if (isComplete == null)
               DeleteButton(onPressed: onDelete),
             ],
           ),

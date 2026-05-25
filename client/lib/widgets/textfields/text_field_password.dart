@@ -32,7 +32,6 @@ class _TextFieldPasswordState extends State<TextFieldPassword> {
           controller: widget.textController,
           validator: (value) {
             final forbiddenPattern  = RegExp(r'^[a-zA-Z0-9_-]+$');
-            print(value);
             if (value == null || value.isEmpty) {
               return 'empty'.tr();
             }

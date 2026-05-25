@@ -43,7 +43,6 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       );
 
       if(isSuccess){
-        debugPrint("isSuccess: ${isSuccess}");
         ref.read(feedProvider.notifier).markAsRead(
             assignmentId, 0
         );
@@ -128,14 +127,9 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
 
                             bool isComplete = false;
                             bool isRead = false;
-
-                            print("wow");
-                            print("is not it empty: ${currentAssignment.students.isNotEmpty}");
-                            print(currentAssignment.students.length);
+;
                             if (currentAssignment.students.isNotEmpty) {
 
-                              print(currentAssignment.title);
-                              print(currentAssignment.students[0].isComplete);
                               isComplete = currentAssignment.students[0].isComplete;
                               isRead = currentAssignment.students[0].isRead;
                             }

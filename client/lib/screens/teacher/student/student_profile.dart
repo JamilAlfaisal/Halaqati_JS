@@ -5,9 +5,10 @@ import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
+import 'package:halqati/utils/juz_data.dart';
 import 'package:halqati/widgets/appbar/appbar_extra_button.dart';
-import 'package:halqati/widgets/buttons/page_number.dart';
 import 'package:halqati/widgets/cards/user_details.dart';
+import 'package:halqati/widgets/chapter_toggle_widget.dart';
 import 'package:halqati/widgets/confirmation_dialog.dart';
 import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/loading_widget.dart';
@@ -25,12 +26,13 @@ class StudentProfile extends ConsumerStatefulWidget {
 
 class _StudentProfileState extends ConsumerState<StudentProfile> {
   final List<int> pages = List.generate(30, (index) => index + 1);
-
   @override
   Widget build(BuildContext context) {
+    final languageCode = context.locale.languageCode;
     final studentsAsync = ref.watch(studentsProvider);
     final String halaqahName = ref.watch(selectedClassNameProvider)??"name".tr();
     final String studentId = ref.watch(selectedStudentIdProvider)??"0";
+
     late final studentPhoneNumber;
     return Scaffold(
       appBar: AppbarExtraButton(
@@ -83,34 +85,28 @@ class _StudentProfileState extends ConsumerState<StudentProfile> {
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 SizedBox(height: 20,),
-                SizedBox(
-                  height: 200,
-                  child: GridView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: pages.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 5,
-                      mainAxisSpacing:5,
-                      childAspectRatio: 1.1,
-                    ),
+                Container(
+                  height: MediaQuery.of(context).size.height*0.65,
+                  padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white,
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: ListView.builder(
+                    itemCount: JuzData.juzNamesArabic.length,
                     itemBuilder: (context, index){
-                      return PageNumber(
-                        onPressed: (){
-                          setState(() {
-                            if (memorizedJuz.contains(pages[index].toString())){
-                              memorizedJuz.remove(pages[index].toString());
-                            }else{
-                              memorizedJuz.add(pages[index].toString());
-                            }
-                          });
-                          ref.watch(studentsProvider.notifier).updateMemorizedJuz(
-                            studentId: student.id,
-                            newJuzList: memorizedJuz
-                          );
-                        },
-                        num: pages[index],
-                        selected: memorizedJuz.contains(pages[index].toString()),
+                      return ChapterToggleWidget(
+                        chapterNumber: index + 1,
+                        isMemorized: memorizedJuz.contains(pages[index].toString()),
+                        title: languageCode == "en"?JuzData.juzNamesEnglish[index]:JuzData.juzNamesArabic[index],
                       );
                     }
                   ),
