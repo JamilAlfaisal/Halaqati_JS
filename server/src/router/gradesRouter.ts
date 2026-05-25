@@ -7,7 +7,7 @@ router.use(authenticate);
 
 const gradesController = new GradesController();
 
-
+router.get('/get_grades/:studentId/class/:classId', gradesController.getStudentGrades);
 router.post('/set_grade', gradesController.setGrade);
 router.post('/update_grade', gradesController.updateGrade);
 router.post('/delete_grade', gradesController.deleteGrade);

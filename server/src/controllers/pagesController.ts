@@ -74,7 +74,7 @@ export class PagesController {
 
                 if (completedPagesInJuzCount === totalPagesInThisJuz) {
                     const student = await transactionalEntityManager.findOne(Student, { where: { id: studentId } });
-                    if (student) {
+                    if (student && !student.memorized_juz.includes(currentJuz.toString())) {
                         student.memorized_juz = [...student.memorized_juz, currentJuz.toString()];
                         await transactionalEntityManager.save(Student, student);
                     }
@@ -95,8 +95,8 @@ export class PagesController {
 
 
     private static getJuzFromPage(page: number): number {
-        if (page === 1 || page === 2) return 1;
-        return Math.ceil((page - 2) / 20);
+        if (page <= 21) return 1;
+        return Math.min(Math.floor((page - 22) / 20) + 2, 30);
     }
 
     private static getPageRangeForJuz(juz: number): { startPage: number; endPage: number } {
@@ -199,16 +199,40 @@ export class PagesController {
                 // 4. Calculate the Juz before deleting the page
                 const currentJuz = PagesController.getJuzFromPage(pageNumber);
 
+
                 // 5. Delete the progress record
                 await transactionalEntityManager.remove(PageProgress, existingProgress);
 
                 // 6. Manage the student's completed Juz' array
-                const student = await transactionalEntityManager.findOne(Student, { where: { id: studentId } });
+                const student = await transactionalEntityManager.findOne(
+                    Student, { where: { id: studentId } }
+                );
+                if (!student) {
+                    return res.status(404).json({ message: "Student not found" });
+                }
 
-                if (student && student.memorized_juz.includes(currentJuz.toString())) {
-                    // Since a page was just removed, this Juz can no longer be marked as fully complete.
-                    // We filter out this Juz from the student's list.
-                    student.memorized_juz = student.memorized_juz.filter(juz => juz !== currentJuz.toString());
+                // 2. SAFETY CHECK: Initialize the array if it's null/undefined
+
+                if (!student.memorized_juz || student.memorized_juz === null || student.memorized_juz === undefined) {
+                    student.memorized_juz = [];
+                }
+
+                // 3. Now your logic is safe
+                const juzString = currentJuz.toString();
+
+                console.log("🚀 ~ student.memorized_juz: before delete ", student.memorized_juz)
+                if (student.memorized_juz.includes(juzString)) {
+                    // filter() creates a new array reference, which is good
+                    console.log("🚀 ~ student.memorized_juz:2 ", student.memorized_juz)
+                    const updatedList = student.memorized_juz.filter(juz => juz.toString() !== juzString);
+
+                    // Explicitly update the property
+                    student.memorized_juz = updatedList;
+
+                    console.log("🚀 ~ Removing Juz:", juzString);
+                    console.log("🚀 ~ New List to be saved:", student.memorized_juz);
+
+                    // Use the entity manager to save the specific student
                     await transactionalEntityManager.save(Student, student);
                 }
 
@@ -220,6 +244,71 @@ export class PagesController {
         } catch (error) {
             console.error('Error unselecting page progress:', error);
             return res.status(500).json({ message: 'An internal server error occurred while resetting page progress.' });
+        }
+    }
+
+    public async getPagesByJuz(req: AuthRequest, res: Response): Promise<Response> {
+        const { studentId, chapter } = req.body;
+
+        if (!studentId || !chapter) {
+            console.log("❌ http://localhost:3000/api/pages/get-by-chapter - Missing Fields");
+            return res.status(400).json({ message: 'Student ID and Chapter (Juz) number are required.' });
+        }
+
+        const juzNumber = Number(chapter);
+        if (juzNumber < 1 || juzNumber > 30) {
+            return res.status(400).json({ message: 'Invalid chapter. Quran Juz must be between 1 and 30.' });
+        }
+
+        try {
+            // 2. Calculate the exact page boundaries for this Juz'
+            const { startPage, endPage } = PagesController.getPageRangeForJuz(juzNumber);
+
+            // 3. Query the database and eager-load the Teacher and Class details
+            const memorizedPages = await AppDataSource.getRepository(PageProgress).find({
+                where: {
+                    studentId: studentId,
+                    pageNumber: require('typeorm').Between(startPage, endPage)
+                },
+                relations: ['teacher', 'class'], // Automatically joins the teacher and class tables
+                select: {
+                    id: true,
+                    pageNumber: true,
+                    markingDate: true,
+                    reviewDate: true,
+                    teacherId: true,
+                    // Selectively filter what sensitive teacher profile info goes to the frontend
+                    teacher: {
+                        id: true,
+                        name: true,
+                        email: true
+                    },
+                    class: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                order: {
+                    pageNumber: 'ASC'
+                }
+            });
+
+            // 4. Return packaged data
+            return res.status(200).json({
+                message: `Successfully retrieved progress data for Juz ${juzNumber} with instructor and class metadata.`,
+                data: {
+                    chapter: juzNumber,
+                    startPage: startPage,
+                    endPage: endPage,
+                    totalPages: (endPage - startPage) + 1,
+                    memorizedCount: memorizedPages.length,
+                    memorizedPages: memorizedPages
+                }
+            });
+
+        } catch (error) {
+            console.error('Error fetching pages by chapter with relations:', error);
+            return res.status(500).json({ message: 'An internal server error occurred while retrieving chapter details.' });
         }
     }
 }

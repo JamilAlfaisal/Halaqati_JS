@@ -7,54 +7,56 @@ import { AuthRequest } from '../middleware/middleware';
 
 export class GradesController {
     public async setGrade(req: AuthRequest, res: Response): Promise<Response> {
-        // assignmentId is now optional in the destructuring
         const { studentId, classId, assignmentId, score, weight, description } = req.body;
         const currentTeacherId = req.user?.id;
         const role = req.user?.role;
 
-        // 1. Core Authorization Check
         if (role !== "teacher") {
             console.log("❌ http://localhost:3000/api/grades/set-grade - Unauthorized Role");
             return res.status(403).json({ message: "Forbidden: Only teachers can assign grades." });
         }
 
-        // 2. Core Input Validation (assignmentId is excluded here because it's optional)
         if (!studentId || !classId || score === undefined || !weight) {
             console.log("❌ http://localhost:3000/api/grades/set-grade - Missing Fields");
             return res.status(400).json({ message: 'Missing required fields: studentId, classId, score, and weight are mandatory.' });
         }
 
         if (score < 0 || score > 20) {
+            console.log("❌ http://localhost:3000/api/grades/set-grade - Invalid score");
             return res.status(400).json({ message: 'Invalid score. Grades must be capped strictly between 0 and 20.' });
         }
 
         if (![1, 2, 3].includes(Number(weight))) {
+            console.log("❌ http://localhost:3000/api/grades/set-grade - Invalid weight");
             return res.status(400).json({ message: 'Invalid weight value. Weight must be 1, 2, or 3.' });
         }
 
         try {
             return await AppDataSource.transaction(async (transactionalEntityManager) => {
 
-                // 3. Conditional Validation: If an assignmentId is sent, verify it exists
                 if (assignmentId) {
                     const assignmentExists = await transactionalEntityManager.findOne(Assignment, {
-                        where: { id: assignmentId }
+                        where: { 
+                            id: assignmentId,
+                            haveAssignment: {
+                                student: {id: studentId}
+                            }
+                        }
                     });
                     if (!assignmentExists) {
+                        console.log("❌ http://localhost:3000/api/grades/set-grade - assignment template could not be found.");
                         return res.status(404).json({ message: 'The referenced assignment template could not be found.' });
                     }
                 }
 
-                // 4. Locate the student's enrollment record for this class
                 const enrollment = await transactionalEntityManager.findOne(StudyIn, {
                     where: { student: { id: studentId }, class: { id: classId } }
                 });
                 if (!enrollment) {
+                    console.log("❌ http://localhost:3000/api/grades/set-grade - Enrollment record not found");
                     return res.status(404).json({ message: 'Enrollment record not found. The student is not registered in this class.' });
                 }
 
-
-                // 5. Instantiate and save the unified Grade record
                 const newGrade = new Grade();
                 newGrade.score = Number(score);
                 newGrade.weight = Number(weight);
@@ -64,12 +66,10 @@ export class GradesController {
                 newGrade.teacher = currentTeacherId;
                 newGrade.dateTime = new Date();
 
-                // If assignmentId exists, link it. Otherwise, TypeORM stores it as NULL natively
                 newGrade.assignment = assignmentId || null;
 
                 await transactionalEntityManager.save(Grade, newGrade);
 
-                // 6. Running Cache Calculations (Incremental Math)
                 const oldWeightPoints = Number(enrollment.totalWeightPoints);
                 const oldCumulativeGrade = Number(enrollment.cumulativeGrade);
 
@@ -86,12 +86,11 @@ export class GradesController {
                     newCumulativeGrade = (totalPreviousWeightedScores + newWeightedScoreContribution) / newWeightPoints;
                 }
 
-                // Update the cache values in the junction row
                 enrollment.totalWeightPoints = newWeightPoints;
                 enrollment.cumulativeGrade = Number(newCumulativeGrade.toFixed(2));
 
                 await transactionalEntityManager.save(StudyIn, enrollment);
-
+                console.log("✅ http://localhost:3000/api/grades/set-grade ");
                 return res.status(201).json({
                     message: assignmentId
                         ? 'Grade recorded successfully against the assignment.'
@@ -296,6 +295,67 @@ export class GradesController {
         } catch (error) {
             console.error('Error executing deleteGrade transaction block:', error);
             return res.status(500).json({ message: 'An internal server error occurred while deleting the grade record.' });
+        }
+    }
+
+    public async getStudentGrades(req: AuthRequest, res: Response): Promise<Response> {
+        const { studentId, classId } = req.params;
+
+        if (!studentId || !classId) {
+            return res.status(400).json({ message: 'Student ID and Class ID are required parameters.' });
+        }
+
+        try {
+            // 1. Fetch the Cumulative stats first for the header/dashboard
+            const summary = await AppDataSource.getRepository(StudyIn).findOne({
+                where: { student: { id: Number(studentId) }, class: { id: Number(classId) } }
+            });
+
+            // 2. Fetch the detailed grade list with relations
+            const gradeHistory = await AppDataSource.getRepository(Grade).find({
+                where: {
+                    student: { id: Number(studentId) },
+                    class: { id: Number(classId) }
+                },
+                relations: ['teacher', 'assignment'],
+                select: {
+                    id: true,
+                    score: true,
+                    weight: true,
+                    description: true,
+                    dateTime: true,
+                    teacher: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        phone: true,
+                        picProfile: true,
+                    },
+                    assignment: {
+                        id: true,
+                        title: true
+                    }
+                },
+                order: {
+                    dateTime: 'DESC'
+                }
+            });
+
+            return res.status(200).json({
+                message: "Grades retrieved successfully.",
+                data: {
+                    overallStats: {
+                        cumulativeGrade: summary?.cumulativeGrade || 0,
+                        dateOfregistration: summary?.registeredAt || 0,
+                        totalWeightPoints: summary?.totalWeightPoints || 0
+                    },
+                    history: gradeHistory
+                }
+            });
+
+        } catch (error) {
+            console.error('Error fetching student grades:', error);
+            return res.status(500).json({ message: 'Internal server error while retrieving grade history.' });
         }
     }
 }

@@ -10,5 +10,6 @@ const pagesController = new PagesController();
 router.post('/memorize', pagesController.updateMemorizedPage);
 router.post('/review', pagesController.updateReviewDate);
 router.post('/unselect_memorized', pagesController.unselectMemorizedPage);
+router.post('/pages_by_juz', pagesController.getPagesByJuz);
 
 export default router;

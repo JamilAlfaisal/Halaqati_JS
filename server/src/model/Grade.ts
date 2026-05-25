@@ -47,4 +47,5 @@ export class Grade {
     @ManyToOne(() => Assignment, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'assignment_id' })
     assignment?: Assignment | null; // Optional link for ad-hoc grading
+
 }

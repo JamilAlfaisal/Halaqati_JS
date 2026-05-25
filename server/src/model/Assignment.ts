@@ -1,11 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinTable, CreateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinTable, CreateDateColumn, OneToOne } from "typeorm";
 import { Student } from "./Student";
 import { User } from "./User";
 import { Class } from "./Class";
 import { HaveAssignment } from "./Have_assignment";
+import { Grade } from "./Grade";
 @Entity()
 export class Assignment {
-  
+
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -15,7 +16,7 @@ export class Assignment {
   @Column({ type: "text", nullable: true })
   description!: string;
 
-  @Column({ type: "simple-array", nullable: true, default:''})
+  @Column({ type: "simple-array", nullable: true, default: '' })
   pages!: number[];
 
   @Column({
@@ -41,6 +42,11 @@ export class Assignment {
   })
   class!: Class;
 
-  @OneToMany(() => HaveAssignment, (HaveAssignment) => HaveAssignment.assignment)
+  @OneToMany(() => Grade, (grade) => grade.assignment)
+  grades!: Grade[];
+
+  @OneToMany(() => HaveAssignment, (HaveAssignment) => HaveAssignment.assignment, {
+    onDelete: "CASCADE"
+  })
   haveAssignment!: HaveAssignment[];
 }

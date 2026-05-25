@@ -4,6 +4,7 @@ import { Assignment } from "./Assignment";
 import { StudyIn } from "./Study_in";
 import { Attendance } from "./Attendance";
 import { HaveAssignment } from "./Have_assignment";
+import { Grade } from "./Grade";
 
 @Entity("STUDENT")
 export class Student {
@@ -27,4 +28,6 @@ export class Student {
   @ManyToMany(() => Attendance, (attendance) => attendance.students)
   attendance!: Attendance[];
 
+  @OneToMany(() => Grade, (grade) => grade.student)
+  grades!: Grade[];
 }

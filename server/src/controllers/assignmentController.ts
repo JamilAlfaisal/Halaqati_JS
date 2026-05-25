@@ -11,15 +11,16 @@ import { StudyIn } from '../model/Study_in';
 import { Event } from '../model/Events';
 import { sendNotification } from '../utils/notificationHelper';
 import * as admin from 'firebase-admin';
+import { Grade } from '../model/Grade';
 
 
-function parseArabicDate(dateStr) {
-    // 1. Replace Arabic digits with Western digits
-    const westernDigits = dateStr.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+// function parseArabicDate(dateStr) {
+//     // 1. Replace Arabic digits with Western digits
+//     const westernDigits = dateStr.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
 
-    // 2. Try to parse the normalized string
-    return Date.parse(westernDigits);
-}
+//     // 2. Try to parse the normalized string
+//     return Date.parse(westernDigits);
+// }
 
 export const createAssignment = async (req: AuthRequest, res: Response) => {
 
@@ -129,14 +130,13 @@ export const createAssignment = async (req: AuthRequest, res: Response) => {
             });
         });
 
-        console.log(allHaveAssignments.map((ass) => ass.student.id));
-
         await queryRunner.manager.save(allHaveAssignments);
 
         const studentTokens = existingClass.studyInRecords
             .filter(record => studentsIds.includes(record.student.user.id.toString()))
             .map(record => record.student.user.fcmToken)
             .filter(Boolean);
+
 
         await sendNotification({
             tokens: studentTokens as string[],
@@ -173,6 +173,11 @@ export const createAssignment = async (req: AuthRequest, res: Response) => {
     }
 }
 
+
+//===============================================================
+//  updateAssignment
+//===============================================================
+
 export const updateAssignment = async (req: AuthRequest, res: Response) => {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
@@ -181,6 +186,7 @@ export const updateAssignment = async (req: AuthRequest, res: Response) => {
     const classRepository = queryRunner.manager.getRepository(Class);
     const assignmentRepository = queryRunner.manager.getRepository(Assignment);
     const haveAssignmentRepository = queryRunner.manager.getRepository(HaveAssignment);
+    const gradesRepository = queryRunner.manager.getRepository(Grade);
 
     try {
 
@@ -205,11 +211,22 @@ export const updateAssignment = async (req: AuthRequest, res: Response) => {
 
         const { dueDate, description, pages, title, type, studentsIds } = req.body
 
-        const existingAssignment = await assignmentRepository.findOne({
-            where: { id: assignmentId },
-            relations: ["teacher", "class", "haveAssignment", "haveAssignment.student"],
-        });
+        // const existingAssignment = await assignmentRepository.findOne({
+        //     where: { id: assignmentId },
+        //     relations: ["teacher", "class", "haveAssignment", "haveAssignment.student.grades"],
+        // });
 
+        const existingAssignment = await assignmentRepository.createQueryBuilder("assignment")
+            .leftJoinAndSelect("assignment.haveAssignment", "haveAssignment")
+            .leftJoinAndSelect("assignment.teacher", "teacher")
+            .leftJoinAndSelect("assignment.class", "class")
+            .leftJoinAndSelect("haveAssignment.student", "student")
+            .leftJoinAndSelect("student.user", "user")
+            .leftJoinAndSelect("student.grades", "grades", "grades.assignment_id = :id", { id: assignmentId })
+            .where("assignment.id = :id", { id: assignmentId })
+            .getOne();
+
+        console.log(existingAssignment?.haveAssignment[0].student.grades.length);
         if (!existingAssignment) {
             console.log("❌ http://localhost:3000/api/assignment/update");
             return res.status(404).json({ message: "assignment not found" });
@@ -227,8 +244,13 @@ export const updateAssignment = async (req: AuthRequest, res: Response) => {
 
         const existingClass = await classRepository.findOne({
             where: { id: existingAssignment.class.id },
-            relations: ['studyInRecords', 'studyInRecords.student']
+            relations: ['studyInRecords', 'studyInRecords.student.user']
         });
+
+        if (!existingClass) {
+            console.log("❌ http://localhost:3000/api/assignment/update");
+            return res.status(403).json({ message: "Class not exist" });
+        }
 
         const allStudentsBelongToClass = studentsIds.every((student) => {
             return existingClass?.studyInRecords.some((record) => {
@@ -244,9 +266,21 @@ export const updateAssignment = async (req: AuthRequest, res: Response) => {
         const existingStudentIds = existingAssignment.haveAssignment.map(s => s.student.id);
 
         const toAdd = studentsIds.filter(s => !existingStudentIds.includes(s));
-        const toRemove = existingStudentIds.filter(s => !studentsIds.includes(s));
 
-        await haveAssignmentRepository.delete({ student: { id: In(toRemove) }, assignment: { id: assignmentId } });
+        const toRemove = existingStudentIds.filter(s => !studentsIds.includes(s));
+        console.log("1: ",toRemove)
+        const restrictedRemoval = existingAssignment.haveAssignment.find(ha => 
+            {
+                return toRemove.includes(ha.student.id) && ha.student.grades.length > 0;
+            }
+        );
+
+        if (restrictedRemoval) {
+            throw new Error(`Cannot remove ${restrictedRemoval.student.user.name} because they already have a grade.`);
+        }
+
+        await haveAssignmentRepository.delete({ student: { id: In(toRemove) }, assignment: { id: assignmentId } }); 
+
         const allHaveAssignments = toAdd.map((id) => {
             return haveAssignmentRepository.create({
                 assignment: existingAssignment,
@@ -265,7 +299,24 @@ export const updateAssignment = async (req: AuthRequest, res: Response) => {
         await queryRunner.manager.save(allHaveAssignments);
         await queryRunner.commitTransaction();
 
-        const allStudentsBelongToAssignment = existingAssignment.haveAssignment;
+        // const allStudentsBelongToAssignment = existingAssignment.haveAssignment;0
+
+        const studentTokens = existingClass.studyInRecords
+            .filter(record => toAdd.includes(record.student.id))
+            .map(record => record.student.user.fcmToken)
+            .filter(Boolean);
+            
+        console.log("studentTokens: ",studentTokens);
+        await sendNotification({
+            tokens: studentTokens as string[],
+            title: existingClass.name,
+            body: existingAssignment.title,
+            data: {
+                assignmentId: existingAssignment.id.toString(),
+                classId: existingClass.id.toString(),
+                type: "assignment",
+            },
+        });
 
         console.log("✅ http://localhost:3000/api/assignment/update");
         return res.status(200).json({
@@ -289,6 +340,10 @@ export const updateAssignment = async (req: AuthRequest, res: Response) => {
         await queryRunner.release();
     }
 }
+
+//===============================================================
+//  deleteAssignment
+//===============================================================
 
 export const deleteAssignment = async (req: AuthRequest, res: Response) => {
     const assignmentRepository = AppDataSource.getRepository(Assignment);
@@ -345,6 +400,12 @@ export const getTeacherAssignments = async (req: AuthRequest, res: Response) => 
     try {
         const userId = req.user?.id;
         const role = req.user?.role;
+        const { classId } = req.params;
+
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const skip = (page - 1) * limit;
+
         if (!userId) {
             console.log("❌ http://localhost:3000/api/assignment/get");
             return res.status(401).json({ message: "Unauthorized" });
@@ -355,14 +416,22 @@ export const getTeacherAssignments = async (req: AuthRequest, res: Response) => 
             return res.status(403).json({ message: "Forbidden" })
         }
 
-        const allAssignments = await assignmentRepository
+        const [allAssignments, totalCount] = await assignmentRepository
             .createQueryBuilder('assignment')
             .leftJoinAndSelect('assignment.class', 'class')
             .leftJoinAndSelect('assignment.haveAssignment', 'haveAssignment')
             .leftJoinAndSelect('haveAssignment.student', 'student')
+            .leftJoinAndSelect(
+                'student.grades',
+                'grade',
+                'grade.assignment_id = assignment.id'
+            )
             .where('assignment.teacherId = :teacherId', { teacherId: userId })
+            .andWhere('assignment.classId = :classId', { classId })
             .orderBy('assignment.createdAt', 'DESC')
-            .getMany();
+            .skip(skip)   // Offset
+            .take(limit)
+            .getManyAndCount();
 
         console.log("✅ http://localhost:3000/api/assignment/get");
         return res.status(200).send({
@@ -373,6 +442,7 @@ export const getTeacherAssignments = async (req: AuthRequest, res: Response) => 
                     description: record.description,
                     students: record.haveAssignment.map(ass => ({
                         id: ass.student.id,
+                        grades: ass.student.grades,
                         isComplete: ass.isComplete,
                         isRead: ass.isRead,
                     })),
@@ -408,10 +478,21 @@ export const getAssignmentDetails = async (req: AuthRequest, res: Response) => {
             return res.status(400).json({ message: "Invalid assignment id" });
         }
 
-        const assignment = await assignmentRepository.findOne({
-            where: { id: assignmentId },
-            relations: ['teacher', 'haveAssignment', 'class', 'haveAssignment.student']
-        });
+        const assignment = await assignmentRepository.createQueryBuilder('assignment')
+            .leftJoinAndSelect('assignment.teacher', 'teacher')
+            .leftJoinAndSelect('assignment.class', 'class')
+            .leftJoinAndSelect('assignment.haveAssignment', 'haveAssignment')
+            .leftJoinAndSelect('haveAssignment.student', 'student')
+            .leftJoinAndSelect('student.user', 'user')
+            // We only join the grade that matches THIS assignment ID
+            .leftJoinAndSelect(
+                'student.grades',
+                'grade',
+                'grade.assignment_id = :assignmentId',
+                { assignmentId }
+            )
+            .where('assignment.id = :assignmentId', { assignmentId })
+            .getOne();
 
         if (!assignment) {
             console.log("❌ http://localhost:3000/api/assignment/details");
@@ -429,7 +510,9 @@ export const getAssignmentDetails = async (req: AuthRequest, res: Response) => {
                 description: assignment.description,
                 students: assignment.haveAssignment.map(ha => ({
                     id: ha.student.id,
+                    name: ha.student.user.name,
                     isComplete: ha.isComplete,
+                    grade: ha.student.grades[0],
                     isRead: ha.isRead,
                 })),
                 createdAt: assignment.createdAt,
@@ -607,6 +690,7 @@ export const getStudentsAssignment = async (req: AuthRequest, res: Response) => 
 }
 
 export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Response) => {
+
     const haveAssignmentRepository = AppDataSource.getRepository(HaveAssignment);
     const studentRepository = AppDataSource.getRepository(Student);
 
@@ -615,6 +699,7 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
         const role = req?.user.role;
         const classId = req.params.classId;
         const studentUserId = req.params.id;
+        console.log("studentUserId: ",studentUserId);
 
         const offset = parseInt(req.query.offset as string) || 0;
         const limit = parseInt(req.query.limit as string) || 10;
@@ -622,6 +707,10 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
 
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        if (!classId) {
+            return res.status(401).json({ message: "Class id is required" });
         }
 
         // 2. Security Check: Only teachers can access this specific route
@@ -635,43 +724,79 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
 
 
         // 3. Find student by their profile ID
-        const student = await studentRepository.findOne({
+        // const student = await studentRepository.findOne({
+        //     where: {
+        //         user: {
+        //             id: parseInt(studentUserId.toString()),
+        //         },
+        //     },
+        //     relations: ['haveAssignment', 'haveAssignment.assignment', 'haveAssignment.assignment.class']
+        // });
+
+        // if (!student) {
+        //     return res.status(404).json({ message: "Student not found" });
+        // }
+
+        const studenttest = await studentRepository.findOne({
             where: {
                 user: {
-                    id: parseInt(studentUserId),
+                    id: parseInt(studentUserId.toString()),
                 },
+                haveAssignment: {
+                    assignment:{
+                        class:{
+                            id: parseInt(classId.toString())
+                        }
+                    }
+                }
             },
-            relations: ['haveAssignment', 'haveAssignment.assignment', 'haveAssignment.assignment.class']
+            order: {
+                haveAssignment: {
+                    assignment: {
+                        createdAt: "DESC"
+                    }
+                }
+            },
+            relations: [
+                'haveAssignment',
+                'haveAssignment.assignment',
+                'haveAssignment.student',
+                'haveAssignment.assignment.grades',
+                'haveAssignment.assignment.class',
+                // 'studyIn.class'
+            ]
         });
 
-        if (!student) {
+        if (!studenttest) {
             return res.status(404).json({ message: "Student not found" });
         }
 
-        // ✅ Filter first
-        const filtered = student.haveAssignment.filter(
-            (item) => item.assignment.class.id === parseInt(classId)
-        );
+        const properModel = studenttest?.haveAssignment.map((ha) => {
+            return {
+                id: ha.assignment.id,
+                title: ha.assignment.title,
+                description: ha.assignment.description,
+                pages: ha.assignment.pages,
+                type: ha.assignment.type,
+                createdAt: ha.assignment.createdAt,
+                dueDate: ha.assignment.dueDate,
+                class: ha.assignment.class,
+                haveAssignment: [{
+                    ...ha.student,
+                    isRead: ha.isRead,
+                    isComplete: ha.isComplete,
+                    grade: ha.assignment.grades.length > 0?ha.assignment.grades[0]:null
+                }]
+            }
+        });
 
-        // ✅ Apply pagination
-        const paginated = filtered.slice(offset, offset + limit);
-
-        const properJson = paginated.map((item) => ({
-            ...item.assignment,
-            haveAssignment: [
-                {
-                    isComplete: item.isComplete,
-                    isRead: item.isRead,
-                    id: studentUserId,
-                },
-            ],
-        }));
+        const paginated = properModel.slice(offset, offset + limit);
 
         return res.status(200).json({
-            total: filtered.length,
+            total: paginated.length,
             offset,
             limit,
-            assignments: properJson
+            assignments: paginated
         });
 
     } catch (e) {
@@ -835,6 +960,73 @@ export const getStudentStats = async (req: AuthRequest, res: Response) => {
     } catch (e) {
         console.error(e);
         return res.status(500).json({ message: "Failed to get stats" });
+    }
+};
+
+export const getAssignmentDetailsOfStudent = async (req: AuthRequest, res: Response) => {
+    const assignmentRepository = AppDataSource.getRepository(Assignment);
+
+    try {
+        const teacherId = req.user?.id;
+        const assignmentId = Number(req.params.id);
+        const studentId = req.params.studentId; // UUID from student table
+
+        if (!teacherId) return res.status(401).json({ message: "Unauthorized" });
+
+        // Use QueryBuilder to filter the specific student and their specific grade
+        const assignment = await assignmentRepository.createQueryBuilder('assignment')
+            .leftJoinAndSelect('assignment.class', 'class')
+            .leftJoinAndSelect('assignment.teacher', 'teacher')
+            .leftJoinAndSelect('assignment.haveAssignment', 'haveAssignment')
+            .leftJoinAndSelect('haveAssignment.student', 'student')
+            // .leftJoinAndSelect('student.user', 'user',)
+            // Filter the join so we only get the specific student requested
+            .andWhere('student.id = :studentId', { studentId })
+            // Join only the grade belonging to this specific assignment
+            .leftJoinAndSelect(
+                'student.grades',
+                'grade',
+                'grade.assignment_id = assignment.id'
+            )
+            .where('assignment.id = :assignmentId', { assignmentId })
+            .getOne();
+
+        if (!assignment) {
+            return res.status(404).json({ message: 'Assignment or Student record not found' });
+        }
+
+        // Security check: Ensure this teacher owns the assignment
+        if (assignment.teacher.id !== teacherId) {
+            return res.status(403).json({ message: "Forbidden" });
+        }
+
+        // Since we filtered the QueryBuilder, haveAssignment[0] is our target student
+        const ha = assignment.haveAssignment[0];
+
+        return res.status(200).json({
+            id: assignment.id,
+            title: assignment.title,
+            description: assignment.description,
+            createdAt: assignment.createdAt,
+            dueDate: assignment.dueDate,
+            type: assignment.type,
+            pages: assignment.pages,
+            classId: assignment.class?.id,
+            // The specific student data
+            studentData: {
+                id: ha.student.id,
+                // name: ha.student.user.name,
+                isComplete: ha.isComplete,
+                isRead: ha.isRead,
+                grade: ha.student.grades && ha.student.grades.length > 0
+                    ? ha.student.grades[0]
+                    : null
+            }
+        });
+
+    } catch (e) {
+        console.error(`❌ Error: ${e}`);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 
