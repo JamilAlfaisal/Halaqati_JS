@@ -5,6 +5,8 @@ import { Student } from '../model/Student';
 import { Class } from '../model/Class';
 import { AuthRequest } from '../middleware/middleware';
 import { StudyIn } from '../model/Study_in';
+import { register } from 'module';
+import { In, Between, MoreThanOrEqual } from 'typeorm';
 
 // const studentRepository = AppDataSource.getRepository(Student);
 // const userRepository = AppDataSource.getRepository(User);
@@ -431,6 +433,7 @@ export const getClassDetails = async (req: AuthRequest, res: Response) => {
 export const getStudentClasses = async (req: AuthRequest, res: Response) => {
     const studyInRepository = AppDataSource.getRepository(StudyIn);
     const studentRepository = AppDataSource.getRepository(Student);
+    const classRepository = AppDataSource.getRepository(Class);
 
     try {
         const userId = req.user?.id;
@@ -447,35 +450,87 @@ export const getStudentClasses = async (req: AuthRequest, res: Response) => {
         }
 
         const student = await studentRepository.findOne({
-            where: { user: { id: userId } },
+            where: { id: userId },
+            relations: ["studyIn.class"]
         });
 
         if (!student) {
             console.log("❌ http://localhost:3000/api/class/get_student_classes");
             return res.status(404).json({ message: "Student not found" });
         }
+    
 
-        const studyInRecords = await studyInRepository.find({
-            where: { student: { id: student.id } },
-            relations: ["class", "class.teacher"],
-        });
+        const classesIds = student.studyIn.reduce<number[]>((acc, current) => {
+            return [...acc, current.class.id];
+        }, []);
 
-        const classes = studyInRecords.map((record) => ({
-            id: record.class.id,
-            name: record.class.name,
-            description: record.class.description,
-            location: record.class.location,
-            startTime: record.class.startTime,
-            endTime: record.class.endTime,
-            days: record.class.days,
+    
+        const allClasses = await classRepository.createQueryBuilder("class")
+            .leftJoinAndSelect("class.teacher", "teacher")
+            .leftJoinAndSelect("class.studyInRecords", "studyInRecord")
+            .leftJoinAndSelect("studyInRecord.student", "student")
+            .leftJoinAndSelect("student.user", "user")
+            .where("class.id IN (:...classesIds)", { classesIds })
+            .orderBy("studyInRecord.cumulativeGrade", "DESC") // ✅ Explicitly order the records
+            .getMany();
+
+
+        // const studyInRecords = await studyInRepository.find({
+        //     where: { student: { id: student.id } },
+        //     relations: ["class", "class.teacher", "student", "student.user"],
+        // });
+
+        const classes = allClasses.map((aClass) => ({
+            id: aClass.id,
+            name: aClass.name,
+            description: aClass.description,
+            location: aClass.location,
+            startTime: aClass.startTime,
+            endTime: aClass.endTime,
+            days: aClass.days,
             teacher: {
-                id: record.class.teacher.id,
-                name: record.class.teacher.name,
-                phone: record.class.teacher.phone,
-                email: record.class.teacher.email,
-                picProfile: record.class.teacher.picProfile,
+                id: aClass.teacher.id,
+                name: aClass.teacher.name,
+                phone: aClass.teacher.phone,
+                email: aClass.teacher.email,
+                picProfile: aClass.teacher.picProfile,
             },
+            studyIn: [
+                ...aClass.studyInRecords.map((record) => ({
+                    id: record.id,
+                    totalWeightPoints: record.totalWeightPoints,
+                    cumulativeGrade: record.cumulativeGrade,
+                    registeredAt: record.registeredAt,
+                    student: {
+                        id: record.student.id,
+                        name: record.student.user.name,
+                        email: record.student.user.email,
+                        dob: record.student.user.dob,
+                        createdAt: record.student.user.createdAt,
+                        memorizedJuz: record.student.memorized_juz,
+                        picProfile: record.student.user.picProfile,
+                        phone: record.student.user.phone,
+                    }
+                }))
+            ]
         }));
+
+        // const classes = studyInRecords.map((record) => ({
+        //     id: record.class.id,
+        //     name: record.class.name,
+        //     description: record.class.description,
+        //     location: record.class.location,
+        //     startTime: record.class.startTime,
+        //     endTime: record.class.endTime,
+        //     days: record.class.days,
+        //     teacher: {
+        //         id: record.class.teacher.id,
+        //         name: record.class.teacher.name,
+        //         phone: record.class.teacher.phone,
+        //         email: record.class.teacher.email,
+        //         picProfile: record.class.teacher.picProfile,
+        //     },
+        // }));
 
         console.log("✅ http://localhost:3000/api/class/get_student_classes");
         return res.status(200).json({

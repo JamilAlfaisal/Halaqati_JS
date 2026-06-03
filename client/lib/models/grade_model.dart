@@ -26,7 +26,7 @@ class GradeModel {
     return GradeModel(
       id: json['id'] as String? ?? '',
       score: double.tryParse(json['score']?.toString() ?? '0.0') ?? 0.0,
-      weight: json['weight'] as int? ?? 1,
+      weight: json['weight'] as int? ?? 0,
       description: json['description'] as String?,
       dateTime: json['dateTime'] != null
           ? DateTime.parse(json['dateTime'] as String)

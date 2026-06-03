@@ -117,10 +117,10 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
                       final students = assignments[index].students;
                       final AssignedStudents? assignedStudent = students.firstWhereOrNull(
                         (student) {
+                          print(student.student.name);
                           return student.student.id.toString() == studentId.toString();
                         },
                       );
-
                       return AssignmentList(
                         title: assignments[index].title,
                         isRead: assignedStudent?.isRead??false,

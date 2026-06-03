@@ -484,7 +484,7 @@ export const getAssignmentDetails = async (req: AuthRequest, res: Response) => {
             .leftJoinAndSelect('assignment.haveAssignment', 'haveAssignment')
             .leftJoinAndSelect('haveAssignment.student', 'student')
             .leftJoinAndSelect('student.user', 'user')
-            // We only join the grade that matches THIS assignment ID
+
             .leftJoinAndSelect(
                 'student.grades',
                 'grade',
@@ -531,9 +531,25 @@ export const getAssignmentDetails = async (req: AuthRequest, res: Response) => {
                 },
             });
 
+            const assignmentStudentVersion = await assignmentRepository.createQueryBuilder('assignment')
+                .leftJoinAndSelect('assignment.teacher', 'teacher')
+                .leftJoinAndSelect('assignment.class', 'class')
+                .leftJoinAndSelect('assignment.haveAssignment', 'haveAssignment')
+                .leftJoinAndSelect('haveAssignment.student', 'student')
+                .leftJoinAndSelect('student.user', 'user')
+                .leftJoinAndSelect(
+                    'assignment.grades', 
+                    'grade', 
+                    'grade.student_id = :userId',
+                    { userId }
+                )
+                .where('assignment.id = :assignmentId', { assignmentId })
+                .getOne();
+
             if (!haveAssignment) {
                 return res.status(403).json({ message: "Forbidden" });
             }
+            console.log("wowwowowo")
             console.log("✅ http://localhost:3000/api/assignment/details");
             return res.status(200).json({
                 id: assignment.id,
@@ -543,9 +559,26 @@ export const getAssignmentDetails = async (req: AuthRequest, res: Response) => {
                 dueDate: assignment.dueDate,
                 type: assignment.type,
                 pages: assignment.pages,
-                classId: assignment.class.id,
                 isComplete: haveAssignment.isComplete,
-                isRead: haveAssignment.isRead
+                isRead: haveAssignment.isRead,
+                grade: assignmentStudentVersion?.grades[0],
+                class: {
+                    id: assignment.class.id,
+                    name: assignment.class.name
+                },
+                teacher: {
+                    id: assignment.teacher.id,
+                    name: assignment.teacher.name,
+                    phone: assignment.teacher.phone,
+                    email: assignment.teacher.email                    
+                },
+                haveAssignment: assignment.haveAssignment.map((record) => ({
+                    isComplete: record.isComplete,
+                    isRead: record.isRead,
+                    ...record.student.user,
+                    memorized_juz: record.student.memorized_juz,
+                    grade: {...record?.student?.grades[0]}
+                }))
             });
         }
         console.log("❌ http://localhost:3000/api/assignment/details");
@@ -699,7 +732,6 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
         const role = req?.user.role;
         const classId = req.params.classId;
         const studentUserId = req.params.id;
-        console.log("studentUserId: ",studentUserId);
 
         const offset = parseInt(req.query.offset as string) || 0;
         const limit = parseInt(req.query.limit as string) || 10;
@@ -713,7 +745,6 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
             return res.status(401).json({ message: "Class id is required" });
         }
 
-        // 2. Security Check: Only teachers can access this specific route
         if (role !== "teacher") {
             return res.status(403).json({ message: "Forbidden: Teachers only" });
         }
@@ -722,50 +753,22 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
             return res.status(400).json({ message: "Student ID is required" });
         }
 
+        const studenttest = await studentRepository.createQueryBuilder('student')
 
-        // 3. Find student by their profile ID
-        // const student = await studentRepository.findOne({
-        //     where: {
-        //         user: {
-        //             id: parseInt(studentUserId.toString()),
-        //         },
-        //     },
-        //     relations: ['haveAssignment', 'haveAssignment.assignment', 'haveAssignment.assignment.class']
-        // });
+            .leftJoinAndSelect('student.haveAssignment', 'haveAssignment')
+            .leftJoinAndSelect('haveAssignment.assignment', 'assignment')
+            .leftJoinAndSelect('assignment.class', 'class')
+            .leftJoinAndSelect(
+                'assignment.grades', 
+                'grade', 
+                'grade.student_id = student.id'
+            )
 
-        // if (!student) {
-        //     return res.status(404).json({ message: "Student not found" });
-        // }
+            .where('student.id = :studentId', { studentId: parseInt(studentUserId.toString()) })
+            .andWhere('class.id = :classId', { classId: parseInt(classId.toString()) })
 
-        const studenttest = await studentRepository.findOne({
-            where: {
-                user: {
-                    id: parseInt(studentUserId.toString()),
-                },
-                haveAssignment: {
-                    assignment:{
-                        class:{
-                            id: parseInt(classId.toString())
-                        }
-                    }
-                }
-            },
-            order: {
-                haveAssignment: {
-                    assignment: {
-                        createdAt: "DESC"
-                    }
-                }
-            },
-            relations: [
-                'haveAssignment',
-                'haveAssignment.assignment',
-                'haveAssignment.student',
-                'haveAssignment.assignment.grades',
-                'haveAssignment.assignment.class',
-                // 'studyIn.class'
-            ]
-        });
+            .orderBy('assignment.createdAt', 'DESC')
+            .getOne();
 
         if (!studenttest) {
             return res.status(404).json({ message: "Student not found" });
@@ -782,7 +785,7 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
                 dueDate: ha.assignment.dueDate,
                 class: ha.assignment.class,
                 haveAssignment: [{
-                    ...ha.student,
+                    id: studenttest.id,
                     isRead: ha.isRead,
                     isComplete: ha.isComplete,
                     grade: ha.assignment.grades.length > 0?ha.assignment.grades[0]:null

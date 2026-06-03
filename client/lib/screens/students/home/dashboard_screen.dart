@@ -86,7 +86,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 }
 
                 return CustomErrorWidget(
-                  providerToInvalidate: studentDashboard,
+                  providerToInvalidate: studentClassesProvider,
                 );
               },
             ),

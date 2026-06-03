@@ -115,7 +115,7 @@ class Grades extends ConsumerWidget {
               Icon(Icons.history_edu, size: 64, color: Colors.grey.shade300),
               const SizedBox(height: 16),
               Text(
-                "No grades recorded yet".tr(),
+                "not_graded_yet".tr(),
                 style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
               ),
               const SizedBox(height: 8),

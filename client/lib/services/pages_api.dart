@@ -8,7 +8,6 @@ import 'package:halqati/models/juz_model.dart'; // Adjust path
 
 class PagesApi extends BaseApi {
 
-  /// Fetches all page progress for a specific student within a Juz' (Chapter)
   Future<JuzModel> getPagesByChapter({
     required String token,
     required String studentId,

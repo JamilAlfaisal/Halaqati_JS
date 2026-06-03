@@ -85,20 +85,7 @@ class Event {
     } else if (json['halaqaClass'] != null) {
       halaqaClass = ClassModel.fromJson(json['halaqaClass']);
     } else {
-      halaqaClass = ClassModel(
-        id: "0",
-        teacher: teacher,
-        name: "undefined".tr(),
-        description: "undefined".tr(),
-        location: "undefined".tr(),
-        startTime: "undefined".tr(),
-        endTime: "undefined".tr(),
-        days: const [],
-        students: const [],
-        events: const [],
-        assignments: const [],
-        attendanceRecords: const [],
-      );
+      halaqaClass = ClassModel.emptyClass();
     }
 
     return Event(

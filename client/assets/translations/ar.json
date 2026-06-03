@@ -31,7 +31,7 @@
   "about_us":"من نحن",
   "report_issues":"الابلاغ عن مشاكل",
   "logout": "تسجيل الخروج",
-  "teacher":"معلم",
+  "teacher":"الشيخ",
   "select_days":"اختر الأيام",
   "created_success":"تم الانشاء بنجاح",
   "updated_success":"تم التحديث بنجاح",
@@ -104,6 +104,9 @@
   "see_grade":"معاينة العلامة",
   "You_unselect_student_already_have_grade":"لا يمكن ازالة تلميذ لديه علامة",
   "not_graded_yet":"لم يتم وضع علامه",
+
+  "whatsapp":"واتساب",
+  "call":"مكالمة",
 
     "weekdays": {
       "1": "الإثنين",

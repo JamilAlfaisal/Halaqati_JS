@@ -179,31 +179,8 @@ class EventDetailsNotifier extends AsyncNotifier<Event?> {
             description: description,
             dueDate: HelperMethods.parseDate(dueDate),
             createdDate: DateTime.now(),
-            teacher: Teacher(
-              id: "0",
-              name: "undefined".tr(),
-              email: "undefined".tr(),
-              phone: "undefined".tr(), role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
-            ),
-            halaqaClass: ClassModel(
-              id: "0",
-              teacher: Teacher(
-                id: "undefined".tr(),
-                name: "undefined".tr(),
-                email: "undefined".tr(),
-                phone: "undefined".tr(), role: 'teacher', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: [],
-              ),
-              name: "undefined".tr(),
-              description: "undefined".tr(),
-              location: "undefined".tr(),
-              startTime: "undefined".tr(),
-              endTime: "undefined".tr(),
-              days: const [],
-              students: const [],
-              events: const [],
-              assignments: const [],
-              attendanceRecords: const [],
-            ),
+            teacher: Teacher.emptyTeacher(),
+            halaqaClass: ClassModel.emptyClass(),
           )
         );
         return await ref.read(eventApiProvider).getEventDetails(token, eventId);

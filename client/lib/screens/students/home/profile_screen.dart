@@ -4,14 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/core/utils/auth_utils.dart';
 import 'package:halqati/models/student.dart';
+import 'package:halqati/provider/pages_provider.dart';
 import 'package:halqati/provider/student_providers/student_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
 import 'package:halqati/widgets/buttons/page_number.dart';
 import 'package:halqati/widgets/cards/personal_user_details.dart';
+import 'package:halqati/widgets/chapter_toggle_widget.dart';
 import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/loading_widget.dart';
 import 'package:halqati/widgets/profile/student_profile_left.dart';
-
+import 'package:halqati/utils/juz_data.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -23,6 +25,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
+    final languageCode = context.locale.languageCode;
     final asyncStudent = ref.watch(studentDashboard);
     final List<int> pages = List.generate(30, (index) => index + 1);
 
@@ -42,6 +45,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           return RefreshIndicator(
             onRefresh: () async {
               ref.invalidate(studentDashboard);
+              ref.invalidate(pagesProvider);
             },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,26 +76,53 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                       SizedBox(height: 10,),
-                      SizedBox(
-                        height: 200,
-                        child: GridView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: pages.length,
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4,
-                              crossAxisSpacing: 5,
-                              mainAxisSpacing:5,
-                              childAspectRatio: 1.1,
+                      Container(
+                        height: MediaQuery.of(context).size.height*0.65,
+                        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.white,
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 8,
+                              spreadRadius: 1,
+                              offset: Offset(0, 3),
                             ),
+                          ],
+                        ),
+                        child: ListView.builder(
+                            itemCount: JuzData.juzNamesArabic.length,
                             itemBuilder: (context, index){
-                              return PageNumber(
-                                onPressed: (){},
-                                num: pages[index],
-                                selected: memorizedJuz.contains(pages[index].toString()),
+                              return ChapterToggleWidget(
+                                chapterNumber: index + 1,
+                                isMemorized: memorizedJuz.contains(pages[index].toString()),
+                                title: languageCode == "en"?JuzData.juzNamesEnglish[index]:JuzData.juzNamesArabic[index],
+                                isStudent: true,
                               );
                             }
                         ),
-                      )
+                      ),
+                      // SizedBox(
+                      //   height: 200,
+                      //   child: GridView.builder(
+                      //       scrollDirection: Axis.horizontal,
+                      //       itemCount: pages.length,
+                      //       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      //         crossAxisCount: 4,
+                      //         crossAxisSpacing: 5,
+                      //         mainAxisSpacing:5,
+                      //         childAspectRatio: 1.1,
+                      //       ),
+                      //       itemBuilder: (context, index){
+                      //         return PageNumber(
+                      //           onPressed: (){},
+                      //           num: pages[index],
+                      //           selected: memorizedJuz.contains(pages[index].toString()),
+                      //         );
+                      //       }
+                      //   ),
+                      // )
                     ],
                   ),
                 ),

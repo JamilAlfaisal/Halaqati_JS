@@ -42,7 +42,7 @@ class AssignmentNotifier extends AsyncNotifier<List<Assignment>?> {
     try {
       final data = await ref
           .read(assignmentApiProvider)
-          .getAssignmentOneStudentIassignments(
+          .getAssignmentOneStudentIsAssignments(
         token,
         studentId,
         classId,
