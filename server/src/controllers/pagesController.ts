@@ -248,7 +248,13 @@ export class PagesController {
     }
 
     public async getPagesByJuz(req: AuthRequest, res: Response): Promise<Response> {
-        const { studentId, chapter } = req.body;
+        var { studentId, chapter } = req.body;
+        const userId = req.user?.id;
+        const role = req.user?.role;
+
+        if (role == "student"){
+            studentId = userId;
+        }
 
         if (!studentId || !chapter) {
             console.log("❌ http://localhost:3000/api/pages/get-by-chapter - Missing Fields");

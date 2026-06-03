@@ -17,8 +17,10 @@ class StudentAssignmentTile extends ConsumerWidget {
   final String id;
   final double? score;
   final int? weight;
+
+  // Both are now optional — omit them to render without a checkbox
   final bool isSelected;
-  final ValueChanged<bool?> onToggle;
+  final ValueChanged<bool?>? onToggle;
 
   const StudentAssignmentTile({
     super.key,
@@ -29,45 +31,55 @@ class StudentAssignmentTile extends ConsumerWidget {
     this.weight,
     this.title,
     this.studentId,
-    required this.isSelected,
-    required this.onToggle,
+    this.isSelected = false,   // sensible default when checkbox is hidden
+    this.onToggle,             // null → no checkbox rendered
   });
 
   @override
-  Widget build(BuildContext context, ref) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final assignmentId = ref.read(selectedAssignmentProvider).toString();
     final theme = Theme.of(context);
     final hasGrade = weight != 0;
+    final showCheckbox = onToggle != null;
 
     return GestureDetector(
-      onTap: hasGrade?(){
+      onTap: hasGrade && showCheckbox
+          ? () {
         ref.read(selectedStudentNameProvider.notifier).setName(name);
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => AddGradeScreen(
-            grade: GradeModel(
-              weight: weight??0,
-              score: score??0,
-              description: description??"",
-              id: id,
-              dateTime: DateTime.now(),
-              assignment: Assignment.emptyAssignment().copyWith(id: assignmentId, title: title)
+          MaterialPageRoute(
+            builder: (context) => AddGradeScreen(
+              grade: GradeModel(
+                weight: weight ?? 0,
+                score: score ?? 0,
+                description: description,
+                id: id,
+                dateTime: DateTime.now(),
+                assignment: Assignment.emptyAssignment()
+                    .copyWith(id: assignmentId, title: title),
+              ),
             ),
-          )),
+          ),
         );
-      }:isSelected?(){
+      }
+          : (isSelected && showCheckbox)
+          ? () {
         ref.read(selectedStudentNameProvider.notifier).setName(name);
-        print(studentId);
-        ref.watch(selectedStudentIdProvider.notifier).select(studentId??"");
+        ref
+            .read(selectedStudentIdProvider.notifier)
+            .select(studentId ?? "");
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => SetGradeOnAssignment(
               assignmentId: assignmentId,
-              assignmentName: title??"",
-            )
+              assignmentName: title ?? "",
+            ),
           ),
         );
+      } : !showCheckbox ? (){
+        print("showCheckbox method is called");
       }:null,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8),
@@ -89,29 +101,36 @@ class StudentAssignmentTile extends ConsumerWidget {
           ],
         ),
         child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          leading: Checkbox(
+          contentPadding:
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          // Checkbox is only rendered when onToggle is provided
+          leading: showCheckbox
+              ? Checkbox(
             value: isSelected,
             onChanged: onToggle,
             activeColor: theme.colorScheme.primary,
-            side: BorderSide(color: theme.colorScheme.secondary, width: 2),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          ),
+            side: BorderSide(
+                color: theme.colorScheme.secondary, width: 2),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4)),
+          )
+              : null,
           title: Text(
             name,
             maxLines: 1,
-            overflow: TextOverflow.ellipsis, // Prevents long names from breaking layout
+            overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodyLarge?.copyWith(
-              color: isSelected ? theme.colorScheme.primary : Colors.black87,
+              color:
+              isSelected ? theme.colorScheme.primary : Colors.black87,
               fontSize: 16,
             ),
           ),
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 6.0),
             child: hasGrade
-                ? Wrap( // Changed Row to Wrap to fix the overflow
-              spacing: 8.0, // Horizontal space between chips
-              runSpacing: 4.0, // Vertical space if they wrap to next line
+                ? Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
               children: [
                 _InfoChip(
                   label: 'Grade: ${score!.toStringAsFixed(1)}/20',
@@ -132,7 +151,6 @@ class StudentAssignmentTile extends ConsumerWidget {
               ),
             ),
           ),
-          // Removed trailing icon (chevron) as requested
         ),
       ),
     );
@@ -144,7 +162,8 @@ class _InfoChip extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-  const _InfoChip({required this.label, required this.icon, required this.color});
+  const _InfoChip(
+      {required this.label, required this.icon, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +174,7 @@ class _InfoChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min, // Vital for use inside Wrap
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 12, color: color),
           const SizedBox(width: 4),

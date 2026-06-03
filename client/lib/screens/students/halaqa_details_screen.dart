@@ -6,6 +6,7 @@ import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/cards/halaqah_info_card.dart';
 import 'package:halqati/widgets/cards/study_time_card.dart';
 import 'package:halqati/widgets/cards/teacher_details_card.dart';
+import 'package:halqati/widgets/lists/student_info_list.dart';
 
 class HalaqaDetailsScreen extends ConsumerWidget {
   const HalaqaDetailsScreen({super.key});
@@ -114,8 +115,44 @@ class HalaqaDetailsScreen extends ConsumerWidget {
           ),
 
           const SizedBox(height: 20),
+          Text(
+            "${"students".tr()}",
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          const SizedBox(height: 20),
+          Container(
+            height: MediaQuery.of(context).size.height*0.65,
+            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.white,
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: ListView.builder(
+              itemCount: selectedClass.studyIn.length,
+              itemBuilder: (context, index){
+                return StudentInfoList(
+                  name: selectedClass.studyIn[index].student.name,
+                  chaptersMemorized: selectedClass.studyIn[index].student.memorizedJuz.length,
+                  cumulativeGpa: double.parse(selectedClass.studyIn[index].cumulativeGrade),
+                  phone: selectedClass.studyIn[index].student.phone,
+                  totalPoints: selectedClass.studyIn[index].totalWeightPoints,
+                  studentId: selectedClass.studyIn[index].student.id,
+                  profilePicUrl: selectedClass.studyIn[index].student.picProfile,
+                );
+              }
+            ),
+          ),
 
           /// 🔹 Teacher Details
+          const SizedBox(height: 20),
           Text(
             "${"teacher".tr()}",
             style: Theme.of(context).textTheme.bodyLarge,

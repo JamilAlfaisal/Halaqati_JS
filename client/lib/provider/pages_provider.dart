@@ -23,7 +23,9 @@ class PagesNotifier extends AsyncNotifier<JuzModel?> {
   // ─────────────────────────────────────────────────────────────────────────
   Future<void> fetchChapterPages(String chapter) async {
     final tokenValue = ref.read(tokenProvider).value;
-    final studentId = ref.read(selectedStudentIdProvider);
+    final studentId = ref.read(selectedStudentIdProvider) ?? "0";
+
+    print("studentId: ${studentId}");
 
     if (tokenValue == null || studentId == null) {
       state = AsyncError("Auth or Student missing", StackTrace.current);

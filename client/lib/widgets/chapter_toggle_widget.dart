@@ -15,11 +15,13 @@ class ChapterToggleWidget extends ConsumerWidget {
   final int chapterNumber;
   final String title;
   final bool isMemorized;
+  final bool isStudent;
 
   const ChapterToggleWidget({
     required this.chapterNumber,
     required this.title,
     required this.isMemorized,
+    this.isStudent = false,
     super.key,
   });
 
@@ -139,7 +141,8 @@ class ChapterToggleWidget extends ConsumerWidget {
                       return PageGridItem(
                         pageNumber: currentPage,
                         detail: detail,
-                        onTap: () {
+                        isStudent: isStudent,
+                        onTap: isStudent == false?() {
                           final isPageMemorized =
                               detail.id != null && detail.id!.isNotEmpty;
                           ref
@@ -150,7 +153,7 @@ class ChapterToggleWidget extends ConsumerWidget {
                             isCurrentlySelected: isPageMemorized,
                           );
                           return ref.invalidate(studentsProvider);
-                        },
+                        }:(){},
                         onReview: () {
                           ref.read(pagesProvider.notifier).updatePageReview(
                             currentPage,
@@ -182,6 +185,7 @@ class ChapterToggleWidget extends ConsumerWidget {
 class PageGridItem extends StatelessWidget {
   final int pageNumber;
   final PageProgressModel detail;
+  final bool isStudent;
   final VoidCallback onTap;
   final VoidCallback onReview;
 
@@ -189,6 +193,7 @@ class PageGridItem extends StatelessWidget {
     required this.pageNumber,
     required this.onTap,
     required this.onReview,
+    this.isStudent = false,
     required this.detail,
     super.key,
   });
@@ -357,7 +362,7 @@ class PageGridItem extends StatelessWidget {
                 ),
               ),
 
-              if (isMemorized)
+              if (isMemorized && !isStudent)
                 Padding(
                   padding: const EdgeInsets.only(left: 8),
                   child: OutlinedButton.icon(

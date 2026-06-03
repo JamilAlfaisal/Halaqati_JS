@@ -3,6 +3,7 @@ import 'package:halqati/models/grade_model.dart';
 import 'package:halqati/models/student.dart';
 import 'package:halqati/models/teacher.dart';
 import 'package:halqati/models/class_model.dart';
+import 'package:halqati/test/printJson.dart';
 import 'package:halqati/utils/helper_methods.dart';
 
 class AssignedStudents {
@@ -19,6 +20,7 @@ class AssignedStudents {
   });
 
   factory AssignedStudents.fromJson(Map<String, dynamic> json) {
+    printJson(json, "AssignedStudents.fromJson");
     return AssignedStudents(
 
       student: Student.fromJson(json),
@@ -64,10 +66,11 @@ class Assignment {
   final List<String> pages;
   final DateTime createdDate;
   final List<AssignedStudents> students;
-
-  /// ✅ NEW
   final Teacher teacher;
   final ClassModel halaqaClass;
+
+  /// ✅ NEW — nullable, may not exist for all assignments
+  final GradeModel? grade;
 
   Assignment({
     required this.id,
@@ -78,10 +81,11 @@ class Assignment {
     required this.pages,
     required this.createdDate,
     required this.students,
-
-    /// ✅ NEW
     required this.teacher,
     required this.halaqaClass,
+
+    /// ✅ NEW
+    this.grade,
   });
 
   Assignment copyWith({
@@ -93,10 +97,11 @@ class Assignment {
     List<String>? pages,
     DateTime? createdDate,
     List<AssignedStudents>? students,
-
-    /// ✅ NEW
     Teacher? teacher,
     ClassModel? halaqaClass,
+
+    /// ✅ NEW — use a sentinel to distinguish "set to null" vs "not provided"
+    Object? grade = _undefined,
   }) {
     return Assignment(
       id: id ?? this.id,
@@ -107,12 +112,17 @@ class Assignment {
       pages: pages ?? this.pages,
       createdDate: createdDate ?? this.createdDate,
       students: students ?? this.students,
-
-      /// ✅ NEW
       teacher: teacher ?? this.teacher,
       halaqaClass: halaqaClass ?? this.halaqaClass,
+
+      /// ✅ NEW — allows explicitly passing null to clear the grade
+      grade: identical(grade, _undefined)
+          ? this.grade
+          : grade as GradeModel?,
     );
   }
+
+  static const Object _undefined = Object();
 
   static String _getTerm(Map<String, dynamic> json, List<String> terms) {
     final String foundKey = terms.firstWhere(
@@ -122,7 +132,6 @@ class Assignment {
     return foundKey;
   }
 
-  /// 🔐 Safe date parser
   static DateTime _parseDate(dynamic value) {
     try {
       if (value == null || value.toString().isEmpty) {
@@ -135,8 +144,6 @@ class Assignment {
   }
 
   factory Assignment.fromJson(Map<String, dynamic> json) {
-
-    /// ✅ Teacher handling
     Teacher teacher;
     if (json['teacher'] != null) {
       teacher = Teacher.fromJson(json['teacher']);
@@ -144,7 +151,6 @@ class Assignment {
       teacher = Teacher.emptyTeacher();
     }
 
-    /// ✅ Class handling
     ClassModel halaqaClass;
     if (json['class'] != null) {
       halaqaClass = ClassModel.fromJson(json['class']);
@@ -153,6 +159,18 @@ class Assignment {
     } else {
       halaqaClass = ClassModel.emptyClass();
     }
+
+    /// ✅ NEW — safe grade parsing, null if absent or malformed
+    GradeModel? grade;
+    try {
+      if (json['grade'] != null) {
+        grade = GradeModel.fromJson(json['grade']);
+      }
+    } catch (_) {
+      grade = null;
+    }
+
+    printJson(json, "Assignment.fromJson");
 
     return Assignment(
       id: HelperMethods.getTerms(json, ["id", "assignmentId"]),
@@ -166,10 +184,11 @@ class Assignment {
       as List)
           .map((s) => AssignedStudents.fromJson(s))
           .toList(),
-
-      /// ✅ NEW
       teacher: teacher,
       halaqaClass: halaqaClass,
+
+      /// ✅ NEW
+      grade: grade,
     );
   }
 
@@ -183,25 +202,27 @@ class Assignment {
       'pages': pages,
       'createdDate': createdDate.toIso8601String(),
       'students': students.map((s) => s.toJson()).toList(),
-
-      /// ✅ NEW
       'teacher': teacher.toJson(),
       'class': halaqaClass.toJson(),
+
+      /// ✅ NEW — omitted from JSON entirely when null
+      if (grade != null) 'grade': grade!.toJson(),
     };
   }
 
-  static Assignment emptyAssignment(){
+  static Assignment emptyAssignment() {
     return Assignment(
-        id: '',
-        title: '',
-        dueDate: DateTime(2017, 9, 7, 17, 30),
-        type: '',
-        description: '',
-        pages: [],
-        createdDate: DateTime(2017, 9, 7, 17, 30),
-        students: [],
-        teacher: Teacher.emptyTeacher(),
-        halaqaClass: ClassModel.emptyClass()
+      id: '',
+      title: '',
+      dueDate: DateTime(2017, 9, 7, 17, 30),
+      type: '',
+      description: '',
+      pages: [],
+      createdDate: DateTime(2017, 9, 7, 17, 30),
+      students: [],
+      teacher: Teacher.emptyTeacher(),
+      halaqaClass: ClassModel.emptyClass(),
+      grade: null, // ✅ explicitly null
     );
   }
 }

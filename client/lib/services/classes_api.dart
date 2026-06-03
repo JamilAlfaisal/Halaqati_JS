@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/teacher.dart';
+import 'package:halqati/test/printJson.dart';
 import 'package:http/http.dart' as http;
 import 'package:halqati/models/student.dart';
 import 'package:halqati/models/class_model.dart';
@@ -147,22 +148,7 @@ class ClassesApi extends BaseApi{
         if (data != null) {
           return ClassModel.fromJson(data['class']);
         }
-        return new ClassModel(
-            id: "",
-            name: "",
-            description: '',
-            location: '',
-            startTime: '',
-            endTime: '',
-            days: [],
-            students: [],
-            events: [],
-            assignments: [],
-            attendanceRecords: [],
-            teacher: Teacher(id: '', name: '', phone: '', email: '', role: '', dob: DateTime.now(), createdAt: DateTime.now(), picProfile: '', createdClasses: []
-
-            )
-        );
+        return ClassModel.emptyClass();
       } else {
         throw ApiException(
           'Failed to fetch class details: ${response.statusCode}',
@@ -415,12 +401,10 @@ class ClassesApi extends BaseApi{
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
         if (data['classes'] != null && data['classes'] is List) {
           List<ClassModel> classes = (data['classes'] as List)
-              .map((json) => ClassModel.fromJson(json))
-              .toList();
-
+            .map((json) => ClassModel.fromJson(json))
+            .toList();
           return classes;
         }
 

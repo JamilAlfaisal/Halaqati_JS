@@ -1,7 +1,7 @@
 import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/event.dart';
 
-enum FeedType { assignment, event }
+enum FeedType { nullItem, assignment, event }
 
 class FeedItem {
   final FeedType type;
@@ -29,6 +29,10 @@ class FeedItem {
         data: Event.fromJson(json['data']),
       );
     }
+  }
+
+  static FeedItem emptyFeedItem (){
+    return new FeedItem(type: FeedType.nullItem, createdAt: DateTime.now(), data: {});
   }
 }
 

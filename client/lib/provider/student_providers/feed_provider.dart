@@ -5,6 +5,7 @@ import 'package:halqati/models/FeedItem.dart';
 import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/event.dart';
 import 'package:halqati/provider/is_loading_more_provider.dart';
+import 'package:halqati/provider/services_providers/assignment_api_provider.dart';
 import 'package:halqati/provider/services_providers/event_api_provider.dart';
 import 'package:halqati/provider/student_providers/selected_feed_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
@@ -106,6 +107,51 @@ class FeedNotifier extends AsyncNotifier<List<FeedItem>?> {
     } catch (_) {
       return null;
     }
+  }
+
+  Future<FeedItem?> getSelectedItemFromBackEnd () async {
+
+    final selected = ref.read(selectedFeedItemProvider);
+    final token = ref.read(tokenProvider).value ??"";
+
+    if (!state.hasValue || state.value == null || selected == null) {
+      return null;
+    }
+
+    try {
+      final api = ref.read(assignmentApiProvider);
+      if (selected.type == FeedType.assignment){
+
+        final assignment = await api.getAssignmentDetails(token, selected.id);
+
+        FeedItem item  = new FeedItem(
+          type: FeedType.assignment,
+          createdAt: assignment.createdDate,
+          data: assignment
+        );
+        return item;
+      }
+      return state.value!.firstWhere(
+            (item) {
+          // if (selected.type == FeedType.assignment &&
+          //     item.type == FeedType.assignment) {
+          //   final assignment = item.data as Assignment;
+          //   return assignment.id == selected.id;
+          // }
+
+          if (selected.type == FeedType.event &&
+              item.type == FeedType.event) {
+            final event = item.data as Event;
+            return event.id == selected.id;
+          }
+
+          return false;
+        },
+      );
+    } catch (_) {
+      return null;
+    }
+
   }
 
   void markAsRead(int assignmentId, int studentId) {

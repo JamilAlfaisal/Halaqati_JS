@@ -106,6 +106,7 @@ class AssignmentApi extends BaseApi{
     }
   }
 
+
   Future<Assignment> getAssignmentDetails(String token, String assignmentId) async {
     final url = Uri.parse('$baseUrl/assignment/details/$assignmentId');
     try {
@@ -196,7 +197,7 @@ class AssignmentApi extends BaseApi{
     }
   }
 
-  Future<List<Assignment>?> getAssignmentOneStudentIassignments(
+  Future<List<Assignment>?> getAssignmentOneStudentIsAssignments(
       String token,
       String studentId,
       String classId, {

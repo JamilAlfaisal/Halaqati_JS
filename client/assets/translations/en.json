@@ -105,6 +105,9 @@
   "see_grade":"See Grade",
   "You_unselect_student_already_have_grade":"Not possible to remove student has grade",
   "not_graded_yet":"Not Graded Yet",
+
+  "whatsapp":"WhatsApp",
+  "call":"Call",
   
 
   "weekdays": {

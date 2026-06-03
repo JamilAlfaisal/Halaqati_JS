@@ -1,232 +1,105 @@
-# Halaqati_JS
+# Halaqati
+# 💡 Halaqat Al Hamidi: Student Progress & Feedback System
+
+**Halaqat Al Hamidi** is a specialized management system designed to streamline the process of tracking student progress, managing assignments, and delivering personalized feedback, primarily for subjects that involve **memorization and revision** (such as Quran, poetry, or other memory-intensive curricula).
+
+It fosters transparent communication and enables teachers to provide targeted, data-driven support, helping students visualize and own their learning journey.
 
 ---
 
-# 📦 Express + TypeScript + TypeORM + MySQL (XAMPP) — Project Summary
+## ✨ Features
 
-## 🧠 Project Overview
+The application is structured around two main user roles, each with a tailored set of tools to achieve their core goals.
 
-This project is a **Node.js backend server** built with:
+### 🧑‍🏫 Teacher Portal
 
-* **Express** for HTTP server & routing
-* **TypeScript** for type safety
-* **TypeORM** as the ORM
-* **MySQL** (via **XAMPP**) as the database
-* **ts-node-dev** for hot-reload development
+The Teacher Portal is the command center for class management and personalized instruction.
 
-The goal is to build a scalable backend with proper structure, database entities, and clean dev/prod separation.
+* **Student Management:** Easily add, edit, or remove students from the class roster.
+* **Comprehensive Progress Tracking:**
+    * View a detailed profile and historical record of all feedback and assignments for every student.
+    * Visualize progress over time using charts (e.g., pages memorized, revision completion rate).
+* **Personalized Feedback & Assignment Setting:**
+    * Set **"Pages Memorized"** (total pages successfully completed).
+    * Set **"New Pages to Memorize"** (the new assignment).
+    * Set **"Pages for Revision"** (specific older material the student must review).
+    * Add general notes, qualitative feedback, and set the student's current status/level.
+* **Events Management:** Schedule and note important **"Upcoming Events"**, tests, or deadlines for the class.
+* **Dashboard Overview:** Get a quick summary of all students' statuses and recent activity.
 
----
+### 🎓 Student Portal
 
-## 📁 Project Structure
+The Student Portal provides clarity and motivation by giving students direct access to their learning status and assignments.
 
-```
-server/
-├── node_modules/
-├── src/
-│   ├── controllers/      # (to be added) route logic
-│   ├── docs/             # API / project docs
-│   ├── helper/           # utility functions
-│   ├── model/
-│   │   └── User.ts       # TypeORM entity
-│   ├── router/           # (to be added) express routers
-│   ├── data-source.ts    # TypeORM DataSource config
-│   └── index.ts          # app entry point
-├── dist/                 # compiled JS (after build)
-├── package.json
-└── tsconfig.json
-```
+* **Personal Dashboard:** Clear display of their **Current Level/Status** (e.g., beginner, intermediate) and total **Progress Summary** (e.g., total pages memorized).
+* **Assignment View:** Instant access to **Today's Assignment** (`New Pages to Memorize` and `Pages for Revision`).
+* **Progress History:** Access to a full log of all past feedback and notes provided by the teacher.
+* **Notifications:** Alerts for when new feedback, notes, or assignments have been posted.
+* **Upcoming Events:** View the class events and deadlines set by the teacher.
 
 ---
 
-## ⚙️ Tech Stack & Versions
+## 🚀 Getting Started
 
-* Node.js
-* Express 5
-* TypeScript
-* TypeORM 0.3.x
-* MySQL (XAMPP)
-* mysql2 driver
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
----
+### Prerequisites
 
-## 🧩 Key Configuration Decisions
+* [List any required dependencies, e.g., Node.js, specific database, etc.]
+* Flutter SDK
 
-### 1️⃣ Module System
+### Installation
 
-* **CommonJS** is used
-* ES-style imports are allowed via TypeScript
-* No `.js` extensions in imports during development
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/JamilAlfaisal/Halaqati.git
+    cd halaqat_al_hamidi
+    ```
 
-```json
-// package.json
-"type": "commonjs"
-```
+2.  **Install dependencies (packages):**
+    > **Note:** As you work on Flutter projects, remember the command to install packages is `flutter pub get`.
 
-```json
-// tsconfig.json
-"module": "CommonJS"
-```
+    ```bash
+    flutter pub get 
+    ```
 
----
-
-### 2️⃣ TypeScript Configuration (Simplified & Stable)
-
-* Removed `verbatimModuleSyntax`
-* Enabled decorators for TypeORM
-* Strict type checking enabled
-
-```json
-{
-  "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "module": "CommonJS",
-    "target": "ES2020",
-    "moduleResolution": "Node",
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "strict": true,
-    "skipLibCheck": true
-  }
-}
-```
+3.  **Run the application:**
+    ```bash
+    flutter run
+    ```
 
 ---
 
-## 🚀 App Entry Point (`index.ts`)
+## ⚙️ Data Structure Overview
 
-* Initializes Express
-* Connects to MySQL using TypeORM
-* Starts server **only after DB connection succeeds**
+The system relies on a connected structure of key data points:
 
-```ts
-AppDataSource.initialize()
-  .then(() => {
-    app.listen(3000);
-  })
-  .catch(console.error);
-```
+| Data Type | Key Fields | Relationship |
+| :--- | :--- | :--- |
+| **Student Profile** | Name, ID, Current Status/Level | Managed by Teacher |
+| **Teacher Profile** | Name, List of Managed Students | Manages Students |
+| **Feedback/Assignment Record** | Date, Pages Memorized (Total), New Pages (Assignment), Pages for Revision (Assignment), Teacher's Notes | One-to-many relationship with Student Profile |
+| **Events Data** | Event Name, Date, Description | Shared across all students in the class |
 
 ---
 
-## 🗄️ Database Setup (MySQL via XAMPP)
+## 🛠️ Technology Stack
 
-### ✅ What the server does
+[Example Stack - customize this section]
 
-* Automatically creates **tables** using TypeORM entities
-* Uses `synchronize: true` **only in development**
-
-### ❌ What it does NOT do
-
-* Create the database itself
-
-### Manual step (one-time):
-
-```sql
-CREATE DATABASE halaqati;
-```
+* **Frontend:** Flutter (Dart)
+* **Backend:** [e.g., Firebase, Node.js/Express, Django]
+* **Database:** [e.g., Firestore, PostgreSQL, MongoDB]
+* **State Management:** [e.g., Provider, Bloc, Riverpod]
 
 ---
 
-## 🔌 TypeORM Data Source
+## 🤝 Contribution
 
-```ts
-export const AppDataSource = new DataSource({
-  type: "mysql",
-  host: "localhost",
-  port: 3306,
-  username: "root",
-  password: "",
-  database: "halaqati",
-  entities: [User],
-  synchronize: true // dev only
-});
-```
+We welcome contributions! Please feel free to submit pull requests or open issues to improve the system.
 
 ---
 
-## 👤 Example Entity (`User`)
+## 📄 License
 
-```ts
-@Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
-  @Column()
-  name!: string;
-
-  @Column()
-  email!: string;
-}
-```
-
-On server start, this creates:
-
-```
-user
-```
-
-table automatically in MySQL.
-
----
-
-## 🧪 Development Workflow
-
-### Run dev server (hot reload)
-
-```bash
-npm run dev
-```
-
-### Build for production
-
-```bash
-npm run build
-```
-
-### Run production build
-
-```bash
-npm start
-```
-
----
-
-## ⚠️ Important Notes (Best Practices)
-
-### `synchronize: true`
-
-* ✅ OK for development
-* ❌ Dangerous in production (can drop or alter tables)
-* Production should use **migrations**
-
-### Database creation
-
-* Must be created manually (TypeORM does not create DBs)
-
----
-
-## 🛣️ Next Planned Steps
-
-* Add Express routers & controllers
-* Use environment variables (`dotenv`)
-* Implement migrations
-* Add authentication (JWT)
-* Improve error handling & logging
-* Prepare production config
-
----
-
-## 📝 TL;DR
-
-✔ Express + TypeScript server is working
-✔ MySQL connected via XAMPP
-✔ TypeORM entities auto-create tables
-✔ Clean CommonJS + TS setup
-✔ Ready for scaling with routes, auth, and migrations
-
----
-
+This project is licensed under the [Your License Name] - see the `LICENSE.md` file for details.

@@ -1,15 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/models/class_model.dart';
+import 'package:halqati/models/studyIn_Model.dart';
 import 'package:halqati/models/user.dart';
-import 'package:halqati/test/printJson.dart';
 import 'package:halqati/utils/helper_methods.dart';
 
 class Student extends User {
   final List<String> memorizedJuz;
   final DateTime registeredAt;
   final List<ClassModel> enrolledClasses;
-
-  // The copyWith method for immutability
+  final List<StudyIn> studyIn; // <-- Added studyIn attribute
 
   Student({
     required String id,
@@ -23,16 +22,19 @@ class Student extends User {
     required this.registeredAt,
     required this.memorizedJuz,
     required this.enrolledClasses,
-  }):super(
-      id: id,
-      name: name,
-      email: email,
-      phone: phone,
-      role: role,
-      dob: dob,
-      createdAt: createdAt,
-      picProfile: picProfile,
-    );
+    required this.studyIn, // <-- Required in constructor
+  }) : super(
+    id: id,
+    name: name,
+    email: email,
+    phone: phone,
+    role: role,
+    dob: dob,
+    createdAt: createdAt,
+    picProfile: picProfile,
+  );
+
+  // The copyWith method for immutability
   Student copyWith({
     String? id,
     String? name,
@@ -44,7 +46,8 @@ class Student extends User {
     String? picProfile,
     List<String>? memorizedJuz,
     List<ClassModel>? enrolledClasses,
-    DateTime? registeredAt
+    DateTime? registeredAt,
+    List<StudyIn>? studyIn, // <-- Added to copyWith
   }) {
     return Student(
       id: id ?? this.id,
@@ -57,7 +60,8 @@ class Student extends User {
       picProfile: picProfile ?? this.picProfile,
       memorizedJuz: memorizedJuz ?? this.memorizedJuz,
       enrolledClasses: enrolledClasses ?? this.enrolledClasses,
-      registeredAt: registeredAt ?? this.registeredAt
+      registeredAt: registeredAt ?? this.registeredAt,
+      studyIn: studyIn ?? this.studyIn, // <-- Fallback to current state
     );
   }
 
@@ -78,6 +82,10 @@ class Student extends User {
       enrolledClasses: (json['enrolledClasses'] as List?)
           ?.map((e) => ClassModel.fromJson(e as Map<String, dynamic>))
           .toList() ?? [],
+      // Map the incoming studyIn JSON array to a List<StudyIn>
+      studyIn: (json['studyIn'] as List?)
+          ?.map((e) => StudyIn.fromJson(e as Map<String, dynamic>))
+          .toList() ?? [],
     );
   }
 
@@ -88,16 +96,18 @@ class Student extends User {
       'name': name,
       'email': email,
       'role': role,
-      'phone':phone,
+      'phone': phone,
       'dob': dob.toIso8601String(),
       'createdAt': createdAt.toIso8601String(),
       'picProfile': picProfile,
       'scores': memorizedJuz,
       'enrolledClasses': enrolledClasses.map((e) => e.toJson()).toList(),
+      // Serialize the studyIn list back to JSON format
+      'studyIn': studyIn.map((e) => e.toJson()).toList(),
     };
   }
 
-  static Student emptyStudent (){
+  static Student emptyStudent() {
     return Student(
       id: '',
       name: '',
@@ -109,7 +119,8 @@ class Student extends User {
       phone: '',
       registeredAt: DateTime.now(),
       memorizedJuz: [],
-      enrolledClasses: []
+      enrolledClasses: [],
+      studyIn: [], // <-- Initializes as an empty list
     );
   }
 }
