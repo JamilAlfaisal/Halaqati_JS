@@ -170,8 +170,6 @@ class Assignment {
       grade = null;
     }
 
-    printJson(json, "Assignment.fromJson");
-
     return Assignment(
       id: HelperMethods.getTerms(json, ["id", "assignmentId"]),
       title: json['title'] ?? "undefined".tr(),

@@ -42,7 +42,8 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
     final String studentId = ref.watch(selectedStudentIdProvider)??"0";
     final theme = Theme.of(context);
 
-    final isLoadingMore = ref.watch(isLoadingMoreProvider("assignments"));
+    final isLoadingMore = ref.watch(isLoadingMoreProvider("grades"));
+
     return Scaffold(
       appBar: AppbarExtraButton(
         text: halaqahName,

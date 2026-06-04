@@ -13,6 +13,9 @@ class StudentGradeReportModel {
     required this.history,
   });
 
+  void addMoreGrades (List<GradeModel> newHistory){
+    history.addAll(newHistory);
+  }
 
   factory StudentGradeReportModel.fromJson(Map<String, dynamic>? json) {
     if (json == null) return StudentGradeReportModel.empty();

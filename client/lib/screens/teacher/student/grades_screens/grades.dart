@@ -2,18 +2,24 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
+import 'package:halqati/models/FeedItem.dart';
+import 'package:halqati/provider/is_loading_more_provider.dart';
 import 'package:halqati/provider/selected_class_name_provider.dart';
 import 'package:halqati/provider/grades_notifier.dart';
+import 'package:halqati/provider/student_providers/selected_feed_provider.dart';
 import 'package:halqati/provider/teacher_providers/students_provider.dart';
 import 'package:halqati/screens/teacher/student/grades_screens/add_update_grade.dart';
 import 'package:halqati/widgets/appbar/appbar_extra_button.dart';
+import 'package:halqati/widgets/appbar/appbar_with_button.dart';
+import 'package:halqati/widgets/appbar/appbar_with_logo.dart';
 import 'package:halqati/widgets/cards/proccess_data.dart';
 import 'package:halqati/widgets/error_widget.dart';
 import 'package:halqati/widgets/lists/grade.dart';
 import 'package:halqati/widgets/loading_widget.dart';
 
 class Grades extends ConsumerWidget {
-  const Grades({super.key});
+  final bool isStudent;
+  const Grades({super.key, this.isStudent = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,13 +29,19 @@ class Grades extends ConsumerWidget {
     final gradesAsync = ref.watch(gradesProvider);
     final gradesNotifier = ref.watch(gradesProvider.notifier);
 
+    final isLoadingMore = ref.watch(isLoadingMoreProvider("assignments"));
+
+
     return Scaffold(
-      appBar: AppbarExtraButton(
+      appBar: !isStudent ? AppbarExtraButton(
         icon: const Icon(Icons.add_chart_outlined),
         text: halaqahName,
         onPress: () {
           Navigator.of(context).pushNamed("/add_grade_screen");
         },
+        addBackButton: false,
+      ): AppbarWithButton(
+        text: 'grades'.tr(),
         addBackButton: true,
       ),
       body: gradesAsync.when(
@@ -58,10 +70,35 @@ class Grades extends ConsumerWidget {
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
+
+
+                          if (index >= report.history.length) {
+                            if (isLoadingMore || ref.watch(gradesProvider).isLoading) {
+                              return const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  ),
+                                ),
+                              );
+                            }
+                            return Center(
+                              child: IconButton(
+                                onPressed: () {
+                                  ref.read(gradesProvider.notifier).loadMore();
+                                },
+                                icon: const Icon(Icons.expand_more),
+                              ),
+                            );
+                          }
+
                           final grade = report.history[index];
                           return GradeCard(
                             grade: grade,
-                            onTap: () {
+                            onTap: !isStudent?() {
                               Navigator.push(
                                 context,
                                   MaterialPageRoute(builder: (context) => AddGradeScreen(
@@ -69,14 +106,23 @@ class Grades extends ConsumerWidget {
                                   )
                                 ),
                               );
-                            },
-                            onDelete: () {
+                            }:grade.assignment!=null?(){
+                              ref.read(selectedFeedItemProvider.notifier).select(
+                                SelectedFeedItem(
+                                  id: grade.assignment?.id ?? "0",
+                                  type: FeedType.assignment,
+                                ),
+                              );
+                              Navigator.of(context)
+                                  .pushNamed("/assignment_details_screen");
+                            }:null,
+                            onDelete: !isStudent?() {
                               gradesNotifier.deleteGrade(
                                   report.history[index].id);
-                            },
+                            }:null,
                           );
                         },
-                        childCount: report.history.length,
+                        childCount: report.history.length + (ref.watch(gradesProvider.notifier).hasMore?1:0),
                       ),
                     ),
                   ),
@@ -90,7 +136,7 @@ class Grades extends ConsumerWidget {
             }
 
             return CustomErrorWidget(
-              providerToInvalidate: studentsProvider,
+              providerToInvalidate: gradesProvider,
             );
           },
           loading: () => LoadingWidget()

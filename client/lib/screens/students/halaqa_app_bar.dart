@@ -1,0 +1,53 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:halqati/models/student_states_model.dart';
+import 'package:halqati/provider/student_providers/student_state_provider.dart';
+import 'package:halqati/screens/students/halaqa_details_screen.dart';
+import 'package:halqati/screens/students/home/dashboard_screen.dart';
+import 'package:halqati/screens/students/home/profile_screen.dart';
+import 'package:halqati/screens/students/home/events_screen.dart';
+import 'package:halqati/screens/common_screens/settings_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:halqati/screens/teacher/student/grades_screens/grades.dart';
+
+class HalaqaAppBar extends ConsumerStatefulWidget {
+  const HalaqaAppBar({super.key});
+
+  @override
+  ConsumerState<HalaqaAppBar> createState() => _HomeAppBarState();
+}
+
+class _HomeAppBarState extends ConsumerState<HalaqaAppBar> {
+  int currentIndex = 0;
+  final screen = const [
+    HalaqaDetailsScreen(),
+    Grades(isStudent: true,),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+      body: screen[currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentIndex,
+        onTap: (index){
+          setState(() {
+            currentIndex = index;
+          });
+        },
+
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.class_),
+            label: "classes".tr(),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assessment_outlined),
+            label: "grades".tr(),
+          ),
+        ],
+      ),
+    );
+  }
+}

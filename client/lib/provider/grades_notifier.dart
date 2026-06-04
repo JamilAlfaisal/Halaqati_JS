@@ -6,6 +6,7 @@ import 'package:halqati/core/utils/auth_utils.dart';
 import 'package:halqati/models/cumulative_grade_model.dart';
 import 'package:halqati/models/grade_model.dart';
 import 'package:halqati/models/teacher.dart';
+import 'package:halqati/provider/is_loading_more_provider.dart';
 import 'package:halqati/provider/services_providers/grades_api_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
 import 'package:halqati/provider/teacher_providers/classes_provider.dart';
@@ -14,13 +15,20 @@ import 'package:halqati/provider/teacher_providers/students_provider.dart';
 final gradesProvider = AsyncNotifierProvider<GradesNotifier, StudentGradeReportModel?>(GradesNotifier.new);
 
 class GradesNotifier extends AsyncNotifier<StudentGradeReportModel?> {
+  int _offset = 0;
+  int _limit = 5;
+  bool _hasMore = true;
+
+  bool get hasMore => _hasMore;
 
   @override
   Future<StudentGradeReportModel?> build() async {
-    return await _fetchGrades();
+    _offset = 0;
+    _hasMore = true;
+    return await _fetchGrades(reset: true);
   }
 
-  Future<StudentGradeReportModel?> _fetchGrades() async {
+  Future<StudentGradeReportModel?> _fetchGrades({bool reset = false}) async {
     final tokenAsync = ref.watch(tokenProvider);
 
     final studentId = ref.watch(selectedStudentIdProvider)??"0";
@@ -36,14 +44,48 @@ class GradesNotifier extends AsyncNotifier<StudentGradeReportModel?> {
     try {
       final report = await ref
           .read(gradesApiProvider)
-          .getStudentGrades(token, studentId, classId);
+          .getStudentGrades(token: token, studentId: studentId, classId: classId, limit: _limit, offset: _offset);
 
-      return report;
+      if (reset) {
+        _offset = report?.history.length ?? 0;
+        _hasMore = (report?.history.length ?? 0) == _limit;
+        return report;
+      } else {
+        _offset += report?.history.length ?? 0;
+
+        if ((report?.history.length ?? 0) < _limit) {
+          _hasMore = false;
+        }
+
+        return new StudentGradeReportModel(
+          cumulativeGrade: report.cumulativeGrade,
+          dateOfregistration: report.dateOfregistration,
+          history: [...(state.value?.history??[]), ...report.history],
+          totalWeightPoints: report.totalWeightPoints
+        );
+      }
     } catch (e) {
       if (e is UnauthorizedException) {
         await AuthHelper.handleLogout(ref);
       }
       rethrow;
+    }
+  }
+
+  Future<void> loadMore() async {
+
+    final loadingProvider = isLoadingMoreProvider("grades");
+
+    if (!_hasMore || ref.read(loadingProvider)) return;
+
+    ref.read(loadingProvider.notifier).state = true;
+    try {
+      final newData = await _fetchGrades();
+      state = AsyncData(newData);
+    }catch(e, stack){
+      state = AsyncError(e, stack);
+    }finally {
+      ref.read(loadingProvider.notifier).state = false;
     }
   }
 

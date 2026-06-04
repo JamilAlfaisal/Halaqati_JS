@@ -299,20 +299,29 @@ export class GradesController {
     }
 
     public async getStudentGrades(req: AuthRequest, res: Response): Promise<Response> {
-        const { studentId, classId } = req.params;
+        var { studentId, classId } = req.params;
+
+        const role = req.user?.role;
+        const userId = req.user?.id;
 
         if (!studentId || !classId) {
             return res.status(400).json({ message: 'Student ID and Class ID are required parameters.' });
         }
 
+        if(role == "student"){
+            studentId = userId;
+        }
+
         try {
-            // 1. Fetch the Cumulative stats first for the header/dashboard
             const summary = await AppDataSource.getRepository(StudyIn).findOne({
                 where: { student: { id: Number(studentId) }, class: { id: Number(classId) } }
             });
 
-            // 2. Fetch the detailed grade list with relations
-            const gradeHistory = await AppDataSource.getRepository(Grade).find({
+            const offset = parseInt(req.query.offset as string) || 0;
+            const limit = parseInt(req.query.limit as string) || 10;
+
+
+            const [gradeHistory, totalCount] = await AppDataSource.getRepository(Grade).findAndCount({
                 where: {
                     student: { id: Number(studentId) },
                     class: { id: Number(classId) }
@@ -322,7 +331,7 @@ export class GradesController {
                     id: true,
                     score: true,
                     weight: true,
-                    description: true,
+                    description: role == "teacher",
                     dateTime: true,
                     teacher: {
                         id: true,
@@ -338,7 +347,9 @@ export class GradesController {
                 },
                 order: {
                     dateTime: 'DESC'
-                }
+                },
+                skip: offset,
+                take: limit
             });
 
             return res.status(200).json({
@@ -350,6 +361,12 @@ export class GradesController {
                         totalWeightPoints: summary?.totalWeightPoints || 0
                     },
                     history: gradeHistory
+                },
+                meta: {
+                    totalItems: totalCount,
+                    currentPage: offset,
+                    totalPages: Math.ceil(totalCount / limit),
+                    itemsPerPage: limit
                 }
             });
 

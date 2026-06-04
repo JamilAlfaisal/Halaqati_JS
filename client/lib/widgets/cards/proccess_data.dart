@@ -39,12 +39,12 @@ class GradeSummaryHeader extends StatelessWidget {
                   value: cumulativeGrade.toStringAsFixed(2),
                   subtitle: "${"out_of".tr()} 20",
                   icon: Icons.analytics_rounded,
-                  color: _getGradeColor(),
+                  color: _getGradeColor(context),
                   // Adding a small progress line
                   extra: LinearProgressIndicator(
                     value: cumulativeGrade / 20,
-                    backgroundColor: _getGradeColor().withOpacity(0.1),
-                    color: _getGradeColor(),
+                    backgroundColor: _getGradeColor(context).withOpacity(0.1),
+                    color: _getGradeColor(context),
                     borderRadius: BorderRadius.circular(10),
                     minHeight: 6,
                   ),
@@ -60,7 +60,7 @@ class GradeSummaryHeader extends StatelessWidget {
                   value: DateFormat('MMM yyyy').format(registrationDate),
                   subtitle: "${"total_weight".tr()}: $totalWeight",
                   icon: Icons.calendar_today_rounded,
-                  color: Colors.blueAccent,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
             ],
@@ -126,8 +126,8 @@ class GradeSummaryHeader extends StatelessWidget {
     );
   }
 
-  Color _getGradeColor() {
-    if (cumulativeGrade >= 15) return Colors.teal;
+  Color _getGradeColor(context) {
+    if (cumulativeGrade >= 15) return Theme.of(context).colorScheme.primary;
     if (cumulativeGrade >= 10) return Colors.orange;
     return Colors.redAccent;
   }
