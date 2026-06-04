@@ -11,11 +11,15 @@ class GradesApi extends BaseApi {
 
   /// Fetches the cumulative grade, total points, and grade history
   Future<StudentGradeReportModel> getStudentGrades(
-      String token,
-      String studentId,
-      String classId
+        {
+          required String token,
+          required String studentId,
+          required String classId,
+          int offset = 0,
+          int limit = 10
+        }
       ) async {
-    final url = Uri.parse('$baseUrl/grades/get_grades/$studentId/class/$classId');
+    final url = Uri.parse('$baseUrl/grades/get_grades/$studentId/class/$classId?offset=${offset}&&limit=${limit}');
     try {
       final response = await http.get(
         url,

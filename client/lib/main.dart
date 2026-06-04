@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:halqati/config/app_theme.dart';
 import 'package:halqati/screens/common_screens/about_us_screen.dart';
 import 'package:halqati/screens/common_screens/login_screen.dart';
+import 'package:halqati/screens/students/halaqa_app_bar.dart';
 import 'package:halqati/screens/teacher/halaqah/attendance_screens/attendance_state_screen.dart';
 import 'package:halqati/screens/teacher/halaqah/event_screens/add_event_screen.dart';
 import 'package:halqati/screens/teacher/halaqah/event_screens/event_details_screen.dart';
@@ -150,6 +151,7 @@ class MyApp extends StatelessWidget {
         '/attendance_state_screen': (context) => const AttendanceStateScreen(),
         '/about_us_screen': (context) => const AboutUsScreen(),
         '/add_grade_screen': (context) => const AddGradeScreen(),
+        '/halaqa_app_bar': (context) => const HalaqaAppBar(),
       },
     );
   }

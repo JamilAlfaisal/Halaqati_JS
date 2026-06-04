@@ -8,6 +8,7 @@ class GradeCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
 
+
   const GradeCard({
     super.key,
     required this.grade,
@@ -71,7 +72,7 @@ class GradeCard extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 12, top: 4, bottom: 4),
                   decoration: BoxDecoration(
                     border: Border(
-                      left: BorderSide(color: Colors.blue.shade200, width: 3),
+                      left: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 3),
                     ),
                   ),
                   child: Text(
@@ -93,7 +94,7 @@ class GradeCard extends StatelessWidget {
   }
 
   Widget _buildScoreAvatar(BuildContext context) {
-    final color = _getScoreColor();
+    final color = _getScoreColor(context);
     return Container(
       width: 48,
       height: 48,
@@ -124,8 +125,8 @@ class GradeCard extends StatelessWidget {
     );
   }
 
-  Color _getScoreColor() {
-    if (grade.score >= 15) return Colors.teal;
+  Color _getScoreColor(context) {
+    if (grade.score >= 15) return Theme.of(context).colorScheme.primary;
     if (grade.score >= 10) return Colors.orange;
     return Colors.redAccent;
   }

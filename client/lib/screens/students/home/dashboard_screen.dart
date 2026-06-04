@@ -69,7 +69,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       return ClassListItem(
                         onTap: (){
                           ref.read(selectedClassIdProvider.notifier).select(classes[index].id);
-                          Navigator.of(context).pushNamed("/halaqa_details_screen");
+                          Navigator.of(context).pushNamed("/halaqa_app_bar");
                         },
                         name: classes[index].name,
                         description: classes[index].description,
