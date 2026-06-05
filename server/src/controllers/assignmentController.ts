@@ -726,6 +726,7 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
 
     const haveAssignmentRepository = AppDataSource.getRepository(HaveAssignment);
     const studentRepository = AppDataSource.getRepository(Student);
+    
 
     try {
         const userId = req?.user.id;
@@ -753,6 +754,8 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
             return res.status(400).json({ message: "Student ID is required" });
         }
 
+        
+
         const studenttest = await studentRepository.createQueryBuilder('student')
 
             .leftJoinAndSelect('student.haveAssignment', 'haveAssignment')
@@ -769,9 +772,14 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
 
             .orderBy('assignment.createdAt', 'DESC')
             .getOne();
-
+            
         if (!studenttest) {
-            return res.status(404).json({ message: "Student not found" });
+            return res.status(200).json({
+                total: 0,
+                offset,
+                limit,
+                assignments: []
+            });
         }
 
         const properModel = studenttest?.haveAssignment.map((ha) => {
@@ -793,13 +801,15 @@ export const getStudentAssignmentsByTeacher = async (req: AuthRequest, res: Resp
             }
         });
 
+
         const paginated = properModel.slice(offset, offset + limit);
+        console.log("paginated: ",paginated);
 
         return res.status(200).json({
             total: paginated.length,
             offset,
             limit,
-            assignments: paginated
+            assignments: paginated??[]
         });
 
     } catch (e) {

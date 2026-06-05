@@ -35,7 +35,7 @@ class GradeDetailCard extends StatelessWidget {
 
     final theme = Theme.of(context);
     final double score = grade!.score;
-    final int weight = grade!.weight;         // 1, 2, or 3
+    final int weight = grade!.weight;
     final String? notes = grade!.description!.trim().isEmpty
         ? null
         : grade!.description;
@@ -72,7 +72,7 @@ class GradeDetailCard extends StatelessWidget {
                 Expanded(
                   child: _StatCell(
                     icon: Icons.grade_rounded,
-                    label: 'score'.tr(),
+                    label: 'grade'.tr(),
                     value: '${score.toStringAsFixed(1)} / $maxScore',
                     color: gradeColor,
                   ),
@@ -230,7 +230,7 @@ class _CardHeader extends StatelessWidget {
           Icon(Icons.school_rounded, size: 18, color: gradeColor),
           const SizedBox(width: 8),
           Text(
-            'grade_details'.tr(),
+            'grade'.tr(),
             style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w700,
               color: gradeColor,

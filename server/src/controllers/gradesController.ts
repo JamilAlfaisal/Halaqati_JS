@@ -4,6 +4,7 @@ import { Grade } from '../model/Grade';
 import { StudyIn } from '../model/Study_in';
 import { Assignment } from '../model/Assignment';
 import { AuthRequest } from '../middleware/middleware';
+import { IsNull } from 'typeorm';
 
 export class GradesController {
     public async setGrade(req: AuthRequest, res: Response): Promise<Response> {
@@ -35,14 +36,20 @@ export class GradesController {
             return await AppDataSource.transaction(async (transactionalEntityManager) => {
 
                 if (assignmentId) {
-                    const assignmentExists = await transactionalEntityManager.findOne(Assignment, {
-                        where: { 
-                            id: assignmentId,
-                            haveAssignment: {
-                                student: {id: studentId}
-                            }
-                        }
-                    });
+                    const assignmentExists = await transactionalEntityManager
+                        .createQueryBuilder(Assignment, 'assignment')
+                        .innerJoin('assignment.haveAssignment', 'haveAssignment')
+                        .innerJoin('haveAssignment.student', 'student', 'student.id = :studentId', { studentId })
+                        // Left join the grades ONLY for this specific student
+                        .leftJoin(
+                            'assignment.grades', 
+                            'grade', 
+                            'grade.student_id = :studentId', 
+                            { studentId }
+                        )
+                        .where('assignment.id = :assignmentId', { assignmentId })
+                        .andWhere('grade.id IS NULL')
+                        .getOne();
                     if (!assignmentExists) {
                         console.log("❌ http://localhost:3000/api/grades/set-grade - assignment template could not be found.");
                         return res.status(404).json({ message: 'The referenced assignment template could not be found.' });

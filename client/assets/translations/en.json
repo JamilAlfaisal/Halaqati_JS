@@ -108,6 +108,17 @@
 
   "whatsapp":"WhatsApp",
   "call":"Call",
+  "select_students":"Select Students",
+  "fetch":"Fetch",
+  "grade":"Grade",
+  "weight":"Weight",
+  "percentage":"Percentage",
+  "excellent":"Excellent",
+  "good":"Good",
+  "average":"Average",
+  "needs_improvement":"Needs Improvement",
+  "notes":"Notes",
+  "select_weight":"Select Weight",
   
 
   "weekdays": {

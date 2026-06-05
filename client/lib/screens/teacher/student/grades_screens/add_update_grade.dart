@@ -13,7 +13,6 @@ import 'package:halqati/widgets/buttons/elevated_dark.dart';
 import 'package:halqati/widgets/custom_lable.dart';
 import 'package:halqati/widgets/textfields/text_area.dart';
 import 'package:halqati/widgets/textfields/text_field_normal.dart';
-import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
 
 class AddGradeScreen extends ConsumerStatefulWidget {
   final GradeModel? grade;
@@ -25,8 +24,8 @@ class AddGradeScreen extends ConsumerStatefulWidget {
 
 class _AddGradeScreenState extends ConsumerState<AddGradeScreen> {
   late TextEditingController scoreController;
-  late TextEditingController weightController;
   late TextEditingController descriptionController;
+  late int selectedWeight;
   final _formKey = GlobalKey<FormState>();
   bool ability = true;
 
@@ -34,14 +33,15 @@ class _AddGradeScreenState extends ConsumerState<AddGradeScreen> {
   void initState() {
     super.initState();
     scoreController = TextEditingController(text: widget.grade?.score.toString() ?? "");
-    weightController = TextEditingController(text: widget.grade?.weight.toString() ?? "1");
+    // weightController = TextEditingController(text: widget.grade?.weight.toString() ?? "1");
+    selectedWeight = widget.grade?.weight ?? 1;
     descriptionController = TextEditingController(text: widget.grade?.description ?? "");
   }
 
   @override
   void dispose() {
     scoreController.dispose();
-    weightController.dispose();
+    // weightController.dispose();
     descriptionController.dispose();
     super.dispose();
   }
@@ -50,9 +50,9 @@ class _AddGradeScreenState extends ConsumerState<AddGradeScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final double? score = double.tryParse(scoreController.text);
-    final int? weight = int.tryParse(weightController.text);
+    // final int? weight = selectedWeight;
 
-    if (score == null || weight == null) {
+    if (score == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('invalid_input'.tr()), backgroundColor: Colors.red),
       );
@@ -66,7 +66,7 @@ class _AddGradeScreenState extends ConsumerState<AddGradeScreen> {
       if (widget.grade == null) {
         await notifier.addGrade(
           score: score,
-          weight: weight,
+          weight: selectedWeight,
           description: descriptionController.text,
           assignmentId: null,
         );
@@ -74,7 +74,7 @@ class _AddGradeScreenState extends ConsumerState<AddGradeScreen> {
         await notifier.updateGrade(
           gradeId: widget.grade!.id,
           score: score,
-          weight: weight,
+          weight: selectedWeight,
           description: descriptionController.text,
           assignmentId: assignmentId,
         );
@@ -174,10 +174,44 @@ class _AddGradeScreenState extends ConsumerState<AddGradeScreen> {
                   title: "score".tr(),
                 ),
 
-                TextFieldNormal(
-                  hintText: "1",
-                  textController: weightController,
-                  title: "weight".tr(),
+                // TextFieldNormal(
+                //   hintText: "1",
+                //   textController: weightController,
+                //   title: "weight".tr(),
+                // ),
+
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'select_weight'.tr(),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 12),
+                    SegmentedButton<int>(
+                      segments: const <ButtonSegment<int>>[
+                        ButtonSegment<int>(value: 1, label: Text('1')),
+                        ButtonSegment<int>(value: 2, label: Text('2')),
+                        ButtonSegment<int>(value: 3, label: Text('3')),
+                      ],
+                      selected: <int>{selectedWeight},
+                      onSelectionChanged: (Set<int> newSelection) {
+                        setState(() {
+                          selectedWeight = newSelection.first;
+                        });
+                      },
+                      // Style customizations (Optional)
+                      style: SegmentedButton.styleFrom(
+                        selectedBackgroundColor: Theme.of(context).colorScheme.primary,
+                        selectedForegroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                        side: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
 
                 TextArea(

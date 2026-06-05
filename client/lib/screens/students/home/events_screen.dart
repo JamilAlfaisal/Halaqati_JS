@@ -77,7 +77,6 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                       onRefresh: () async {
                         ref.invalidate(feedProvider);
                         ref.invalidate(studentStatsProvider);
-                        await Future.delayed(Duration(seconds: 1));
                       },
                       child: EmptyStateView()
                     ),
@@ -88,7 +87,6 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                     onRefresh: ()async {
                       ref.invalidate(studentStatsProvider);
                       ref.invalidate(feedProvider);
-                      await Future.delayed(Duration(seconds: 1));
                     },
                     child: ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
