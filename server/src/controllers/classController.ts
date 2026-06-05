@@ -464,6 +464,11 @@ export const getStudentClasses = async (req: AuthRequest, res: Response) => {
             return [...acc, current.class.id];
         }, []);
 
+        if (!classesIds || classesIds.length == 0){
+            console.log("✅ http://localhost:3000/api/class/get_student_classes");
+            return res.status(200).json({ message: "Classes not found" });
+        }
+
     
         const allClasses = await classRepository.createQueryBuilder("class")
             .leftJoinAndSelect("class.teacher", "teacher")
@@ -471,7 +476,7 @@ export const getStudentClasses = async (req: AuthRequest, res: Response) => {
             .leftJoinAndSelect("studyInRecord.student", "student")
             .leftJoinAndSelect("student.user", "user")
             .where("class.id IN (:...classesIds)", { classesIds })
-            .orderBy("studyInRecord.cumulativeGrade", "DESC") // ✅ Explicitly order the records
+            .orderBy("studyInRecord.cumulativeGrade", "DESC")
             .getMany();
 
 

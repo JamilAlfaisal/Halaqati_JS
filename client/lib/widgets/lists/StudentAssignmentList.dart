@@ -133,7 +133,7 @@ class StudentAssignmentTile extends ConsumerWidget {
               runSpacing: 4.0,
               children: [
                 _InfoChip(
-                  label: 'Grade: ${score!.toStringAsFixed(1)}/20',
+                  label: '${"grade".tr()}: ${score!.toStringAsFixed(1)}/20',
                   icon: Icons.grade,
                   color: theme.colorScheme.primary,
                 ),

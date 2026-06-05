@@ -234,7 +234,9 @@ class AssignmentApi extends BaseApi{
           return assignments;
         }
         return [];
-      } else {
+      } if (response.statusCode == 404) {
+        throw ApiException('Students not found', statusCode: 404);
+      }else {
         throw ApiException(
           'Failed to fetch Assignment: ${response.statusCode}',
           statusCode: response.statusCode,

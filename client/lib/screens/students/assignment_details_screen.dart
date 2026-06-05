@@ -146,7 +146,6 @@ class _AssignmentDetailsScreenState
                             ),
                           ),
 
-                          /// ✅ ONLY FOR ASSIGNMENT
                           if (isAssignment)
                             Container(
                               padding: const EdgeInsets.all(8),
@@ -192,7 +191,6 @@ class _AssignmentDetailsScreenState
 
                       const SizedBox(height: 30),
 
-                      /// 🔹 DATE + TYPE
                       DateTypeCard(
                         date: displayDate(dueDate),
                         type: isAssignment
@@ -202,7 +200,6 @@ class _AssignmentDetailsScreenState
 
                       const SizedBox(height: 20),
 
-                      /// 🔹 CLASS + TEACHER
                       Text(
                         "$className • $teacherName",
                         style: Theme.of(context)
@@ -212,7 +209,6 @@ class _AssignmentDetailsScreenState
 
                       const SizedBox(height: 20),
 
-                      /// 🔹 DESCRIPTION
                       Text(
                         "des".tr()
                             .tr(),
@@ -238,7 +234,6 @@ class _AssignmentDetailsScreenState
                         child: Text(description),
                       ),
 
-                      /// 🔥 PAGES ONLY FOR ASSIGNMENT
                       if (isAssignment) ...[
                         const SizedBox(height: 20),
                         Text(

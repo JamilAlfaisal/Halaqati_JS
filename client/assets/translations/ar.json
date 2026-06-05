@@ -107,6 +107,17 @@
 
   "whatsapp":"واتساب",
   "call":"مكالمة",
+  "select_students":"اختر تلاميذ",
+  "fetch":"استدعاء",
+  "grade":"العلامة",
+  "weight":"الوزن",
+  "percentage":"النسبة المأوية",
+  "excellent":"ممتاز",
+  "good":"جيد",
+  "average":"مقبول",
+  "needs_improvement":"تحتاج لتحسين",
+  "notes":"ملاحظات",
+  "select_weight":"اختر وزن العلامة",
 
     "weekdays": {
       "1": "الإثنين",

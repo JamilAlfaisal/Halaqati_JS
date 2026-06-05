@@ -39,6 +39,7 @@ class ChapterToggleWidget extends ConsumerWidget {
             : BorderSide.none,
       ),
       child: ExpansionTile(
+        shape: LinearBorder.none,
         leading: Icon(
           isMemorized ? Icons.verified : Icons.menu_book,
           color: isMemorized ? Theme.of(context).colorScheme.primary : Colors.grey,
