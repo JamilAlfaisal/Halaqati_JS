@@ -11,6 +11,7 @@ import { HaveAssignment } from "./model/Have_assignment";
 import { AboutUs } from "./model/About_us_model";
 import { Grade } from "./model/Grade";
 import { PageProgress } from "./model/pages";
+import { EventConfirmation } from "./model/EventConfirmation";
 
 
 export const AppDataSource = new DataSource({
@@ -31,8 +32,10 @@ export const AppDataSource = new DataSource({
     HaveAssignment,
     AboutUs,
     Grade,
-    PageProgress
+    PageProgress,
+    EventConfirmation
   ],
   // synchronize: true,
   // dropSchema: true
 });
+ 

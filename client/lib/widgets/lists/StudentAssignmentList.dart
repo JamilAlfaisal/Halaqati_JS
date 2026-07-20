@@ -17,6 +17,7 @@ class StudentAssignmentTile extends ConsumerWidget {
   final String id;
   final double? score;
   final int? weight;
+  final int? card;
 
   // Both are now optional — omit them to render without a checkbox
   final bool isSelected;
@@ -29,6 +30,7 @@ class StudentAssignmentTile extends ConsumerWidget {
     required this.id,
     this.score,
     this.weight,
+    this.card,
     this.title,
     this.studentId,
     this.isSelected = false,   // sensible default when checkbox is hidden
@@ -53,6 +55,7 @@ class StudentAssignmentTile extends ConsumerWidget {
               grade: GradeModel(
                 weight: weight ?? 0,
                 score: score ?? 0,
+                card: card,
                 description: description,
                 id: id,
                 dateTime: DateTime.now(),

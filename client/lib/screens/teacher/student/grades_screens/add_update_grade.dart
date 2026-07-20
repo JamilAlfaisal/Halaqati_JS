@@ -10,6 +10,7 @@ import 'package:halqati/provider/selected_student_name.dart';
 import 'package:halqati/provider/student_providers/selected_assignment_notifier.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
+import 'package:halqati/widgets/cards/grade_card_selector.dart';
 import 'package:halqati/widgets/custom_lable.dart';
 import 'package:halqati/widgets/textfields/text_area.dart';
 import 'package:halqati/widgets/textfields/text_field_normal.dart';
@@ -26,6 +27,7 @@ class _AddGradeScreenState extends ConsumerState<AddGradeScreen> {
   late TextEditingController scoreController;
   late TextEditingController descriptionController;
   late int selectedWeight;
+  late int selectedCard;
   final _formKey = GlobalKey<FormState>();
   bool ability = true;
 
@@ -35,6 +37,7 @@ class _AddGradeScreenState extends ConsumerState<AddGradeScreen> {
     scoreController = TextEditingController(text: widget.grade?.score.toString() ?? "");
     // weightController = TextEditingController(text: widget.grade?.weight.toString() ?? "1");
     selectedWeight = widget.grade?.weight ?? 1;
+    selectedCard = widget.grade?.card ?? 0;
     descriptionController = TextEditingController(text: widget.grade?.description ?? "");
   }
 
@@ -67,6 +70,7 @@ class _AddGradeScreenState extends ConsumerState<AddGradeScreen> {
         await notifier.addGrade(
           score: score,
           weight: selectedWeight,
+          card: selectedCard,
           description: descriptionController.text,
           assignmentId: null,
         );
@@ -75,6 +79,7 @@ class _AddGradeScreenState extends ConsumerState<AddGradeScreen> {
           gradeId: widget.grade!.id,
           score: score,
           weight: selectedWeight,
+          card: selectedCard,
           description: descriptionController.text,
           assignmentId: assignmentId,
         );
@@ -212,6 +217,15 @@ class _AddGradeScreenState extends ConsumerState<AddGradeScreen> {
                       ),
                     ),
                   ],
+                ),
+
+                GradeCardSelector(
+                  selectedCard: selectedCard,
+                  onChanged: (int value) {
+                    setState(() {
+                      selectedCard = value;
+                    });
+                  },
                 ),
 
                 TextArea(

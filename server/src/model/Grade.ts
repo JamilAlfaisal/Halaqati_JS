@@ -12,6 +12,12 @@ import { Student } from './Student';   // Assuming Student entity
 import { Class } from './Class';       // Assuming Class entity
 import { Assignment } from './Assignment';
 
+export enum CardType {
+  ONE = 1,
+  TWO = 2,
+  THREE = 3,
+}
+
 @Entity('grades')
 @Check(`"weight" IN (1, 2, 3)`) // Enforces the discrete domain at database level
 @Check(`"score" >= 0 AND "score" <= 20`) // Capped at 20
@@ -27,6 +33,13 @@ export class Grade {
 
     @Column({ type: 'text', nullable: true })
     description!: string;
+
+    @Column({
+    type: 'enum',
+    enum: CardType,
+    default: CardType.ONE,
+    })
+    card!: CardType;
 
     @CreateDateColumn({ name: 'date_time' })
     dateTime!: Date;

@@ -19,6 +19,12 @@ export class Event {
   @Column({ type: "date", nullable: true })
   dueDate!: Date;
 
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  confirmation!: boolean;
+
   @ManyToOne(() => User, (user) => user.events, {
     onDelete: "CASCADE"
   })

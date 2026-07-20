@@ -177,6 +177,7 @@ class _UpdateAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen>
       late String id;
       late String studentId;
       late int weight;
+      late int card;
       for(int i = 0; i < allStudents.length; i++){
         isSelected = false;
         weight = 0;
@@ -184,6 +185,7 @@ class _UpdateAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen>
         description = "";
         id = "";
         studentId = "";
+        card = 0;
         for(int j = 0; j < students.length; j++){
           if (allStudents[i].id == students[j].student.id){
             isSelected = true;
@@ -192,6 +194,7 @@ class _UpdateAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen>
             description = students[j].grade?.description??"";
             id = students[j].grade?.id??"";
             studentId = students[j].student.id;
+            card = students[j].grade?.card??0;
             break;
           }
         }
@@ -201,6 +204,7 @@ class _UpdateAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen>
             "isSelected":isSelected,
             "score": score,
             "weight":weight,
+            "card":card,
             "description":description,
             "id":id,
             "name":allStudents[i].name,
@@ -211,6 +215,7 @@ class _UpdateAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen>
             "isSelected":false,
             "score": 0.0,
             "weight":0,
+            "card":0,
             "description":"",
             "id":"0",
             "name":allStudents[i].name,
@@ -369,6 +374,7 @@ class _UpdateAssignmentScreenState extends ConsumerState<UpdateAssignmentScreen>
                           },
                           score: allStudentsInformation[index]["score"]??0.0,
                           weight: allStudentsInformation[index]["weight"]??0,
+                          card: allStudentsInformation[index]["card"]??0,
                           description: allStudentsInformation[index]["description"],
                           id: allStudentsInformation[index]["id"],
                           title: title.text,

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:halqati/core/exceptions/api_exceptions.dart';
 import 'package:halqati/models/FeedItem.dart';
 import 'package:halqati/models/assignment.dart';
 import 'package:halqati/models/event.dart';
+import 'package:halqati/models/event_confirmation_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:halqati/services/base_api.dart';
 
@@ -114,6 +116,7 @@ class EventApi extends BaseApi{
     required String description,
     required String dueDate,
     required String classId,
+    required bool confirmation,
   }) async {
     final url = Uri.parse('$baseUrl/event/create/${classId}');
 
@@ -121,6 +124,7 @@ class EventApi extends BaseApi{
       "title": title,
       "description": description,
       "dueDate": dueDate,
+      "confirmation": confirmation,
     };
 
     try {
@@ -281,4 +285,97 @@ class EventApi extends BaseApi{
     }
   }
 
+  Future<bool> confirmEvent({
+    required String token,
+    required String eventId,
+    required bool isConfirmed,
+    required String password,
+  }) async {
+    final url = Uri.parse('$baseUrl/event/confirm');
+
+    final Map<String, dynamic> requestBody = {
+      "eventId": eventId,
+      "isConfirmed": isConfirmed,
+      "password": password,
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        return true;
+      } else if (response.statusCode == 401) {
+        throw ApiException('incorrect_password'.tr()); // Custom error for password
+      } else if (response.statusCode == 403) {
+        throw UnauthorizedException();
+      }
+
+      throw ApiException('failed_to_confirm'.tr(), statusCode: response.statusCode);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<EventConfirmationModel>> getEventConfirmations(String token, String eventId) async {
+    final url = Uri.parse('$baseUrl/event/$eventId/confirmations');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 401 || response.statusCode == 403) {
+        throw UnauthorizedException();
+      }
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List list = data['data'] ?? [];
+        return list.map((e) => EventConfirmationModel.fromJson(e)).toList();
+      } else {
+        throw ApiException('failed_to_load_confirmations'.tr(), statusCode: response.statusCode);
+      }
+    } on SocketException {
+      throw NetworkException();
+    } on TimeoutException {
+      throw NetworkException();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool?> getMyEventConfirmation(String token, String eventId) async {
+    final url = Uri.parse('$baseUrl/event/$eventId/my_confirmation');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['status'] as bool?;
+      } else {
+        throw ApiException("Error getting my confirmation", statusCode: response.statusCode);
+      }
+    } on SocketException {
+      throw ApiException("No internet connection");
+    } on FormatException {
+      throw ApiException("Invalid response format");
+    }
+  }
 }

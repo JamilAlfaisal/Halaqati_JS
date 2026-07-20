@@ -10,6 +10,7 @@ import 'package:halqati/provider/student_providers/selected_assignment_notifier.
 import 'package:halqati/provider/teacher_providers/assignment_provider.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
+import 'package:halqati/widgets/cards/grade_card_selector.dart';
 import 'package:halqati/widgets/custom_lable.dart';
 import 'package:halqati/widgets/textfields/text_area.dart';
 import 'package:halqati/widgets/textfields/text_field_normal.dart';
@@ -32,6 +33,7 @@ class _AddGradeScreenState extends ConsumerState<SetGradeOnAssignment> {
   // late TextEditingController weightController = TextEditingController();
   late TextEditingController descriptionController = TextEditingController();
   int selectedWeight = 1;
+  int selectedCard = 0;
   final _formKey = GlobalKey<FormState>();
   bool ability = true;
 
@@ -73,6 +75,7 @@ class _AddGradeScreenState extends ConsumerState<SetGradeOnAssignment> {
         await notifier.addGrade(
           score: score,
           weight: selectedWeight,
+          card: selectedCard,
           description: descriptionController.text,
           assignmentId: widget.assignmentId,
         );
@@ -210,6 +213,15 @@ class _AddGradeScreenState extends ConsumerState<SetGradeOnAssignment> {
                       ),
                     ),
                   ],
+                ),
+
+                GradeCardSelector(
+                  selectedCard: selectedCard,
+                  onChanged: (int value) {
+                    setState(() {
+                      selectedCard = value;
+                    });
+                  },
                 ),
 
                 TextArea(

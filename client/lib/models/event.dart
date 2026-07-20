@@ -10,6 +10,7 @@ class Event {
   final String description;
   final DateTime createdDate;
   final DateTime dueDate;
+  final bool confirmation;
 
   /// ✅ NEW
   final Teacher teacher;
@@ -21,6 +22,7 @@ class Event {
     required this.description,
     required this.createdDate,
     required this.dueDate,
+    required this.confirmation,
 
     /// ✅ NEW
     required this.teacher,
@@ -33,6 +35,7 @@ class Event {
     String? description,
     DateTime? createdDate,
     DateTime? dueDate,
+    bool? confirmation,
 
     /// ✅ NEW
     Teacher? teacher,
@@ -44,6 +47,7 @@ class Event {
       description: description ?? this.description,
       createdDate: createdDate ?? this.createdDate,
       dueDate: dueDate ?? this.dueDate,
+      confirmation: confirmation ?? this.confirmation,
 
       /// ✅ NEW
       teacher: teacher ?? this.teacher,
@@ -95,6 +99,7 @@ class Event {
       createdDate:
       _safeParseDate(json['createdAt'] ?? json['createdDate']),
       dueDate: _safeParseDate(json['dueDate']),
+      confirmation: json['confirmation'] ?? false,
 
       /// ✅ NEW
       teacher: teacher,
@@ -109,6 +114,7 @@ class Event {
       'description': description,
       'createdAt': createdDate.toIso8601String(),
       'dueDate': dueDate.toIso8601String(),
+      'confirmation': confirmation,
 
       /// ✅ NEW
       'teacher': teacher.toJson(),

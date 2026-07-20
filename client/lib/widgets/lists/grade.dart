@@ -7,13 +7,14 @@ class GradeCard extends StatelessWidget {
   final GradeModel grade;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
-
+  final bool isTeacher;
 
   const GradeCard({
     super.key,
     required this.grade,
     this.onTap,
     this.onDelete,
+    this.isTeacher = false,
   });
 
   @override
@@ -56,6 +57,10 @@ class GradeCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  if (isTeacher && grade.card != null) ...[
+                    _buildCardChip(context),
+                    const SizedBox(width: 8),
+                  ],
                   _buildWeightChip(context),
                   if (onDelete != null)
                     IconButton(
@@ -121,6 +126,43 @@ class GradeCard extends StatelessWidget {
       child: Text(
         "W${grade.weight}",
         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black54),
+      ),
+    );
+  }
+
+  Widget _buildCardChip(BuildContext context) {
+    String label = '';
+    Color chipColor = Theme.of(context).colorScheme.primary;
+    
+    switch (grade.card) {
+      case 3:
+        label = 'card_perfect'.tr();
+        break;
+      case 2:
+        label = 'card_very_good'.tr();
+        break;
+      case 1:
+        label = 'card_good'.tr();
+        break;
+      case 0:
+        label = 'card_none'.tr();
+        chipColor = Colors.grey;
+        break;
+      default:
+        label = 'card_none'.tr();
+        chipColor = Colors.grey;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: chipColor.withOpacity(0.1),
+        border: Border.all(color: chipColor.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: chipColor),
       ),
     );
   }

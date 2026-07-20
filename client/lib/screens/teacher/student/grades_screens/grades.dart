@@ -98,6 +98,7 @@ class Grades extends ConsumerWidget {
                           final grade = report.history[index];
                           return GradeCard(
                             grade: grade,
+                            isTeacher: !isStudent,
                             onTap: !isStudent?() {
                               Navigator.push(
                                 context,

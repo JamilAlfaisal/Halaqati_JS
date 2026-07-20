@@ -23,6 +23,7 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
   final TextEditingController des = TextEditingController();
   final TextEditingController date = TextEditingController(text: HelperMethods.formatDate(DateTime.now()));
   final _formKey = GlobalKey<FormState>();
+  bool requireConfirmation = false;
 
   void createEvent() async {
     if (!_formKey.currentState!.validate()) return;
@@ -31,6 +32,7 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
       title: title.text,
       description: des.text,
       dueDate: date.text,
+      confirmation: requireConfirmation,
     );
 
     final state = ref.read(eventProvider);
@@ -84,6 +86,23 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
               selectedDate: date.text.isEmpty
                   ? DateTime.now()
                   : HelperMethods.parseDate(date.text),
+            ),
+            const SizedBox(height: 20),
+            SwitchListTile(
+              title: Text(
+                "confirm_attendance".tr(),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              activeColor: Theme.of(context).colorScheme.primary,
+              value: requireConfirmation,
+              onChanged: (val) {
+                setState(() {
+                  requireConfirmation = val;
+                });
+              },
             ),
             const SizedBox(height: 40),
             ElevatedDark(

@@ -7,7 +7,10 @@ import {
   getEventDetails,
   getTeacherEvents,
   getStudentEvents,
-  getStudentFeed
+  getStudentFeed,
+  confirmEvent,
+  getEventConfirmations,
+  getMyEventConfirmation
 } from "../controllers/eventController";
 
 const router = Router();
@@ -20,5 +23,8 @@ router.get("/get_teacher_events/:id", getTeacherEvents);
 router.get("/get_student_events", getStudentEvents);
 router.get("/details/:id", getEventDetails);
 router.get("/get_student_feed", getStudentFeed);
+router.post("/confirm", confirmEvent);
+router.get("/:id/confirmations", getEventConfirmations);
+router.get("/:id/my_confirmation", getMyEventConfirmation);
 
 export default router;
