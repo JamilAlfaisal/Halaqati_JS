@@ -118,6 +118,23 @@
   "needs_improvement":"تحتاج لتحسين",
   "notes":"ملاحظات",
   "select_weight":"اختر وزن العلامة",
+  "select_card":"اختر البطاقة",
+  "card_perfect":"ممتاز",
+  "card_very_good":"جيد جداً",
+  "card_good":"جيد",
+  "card_none":"لا بطاقة",
+
+  "confirm_attendance": "تأكيد الحضور",
+  "password_required": "كلمة المرور مطلوبة",
+  "enter_password_confirm": "الرجاء إدخال كلمة المرور للتأكيد.",
+  "yes_will_attend": "نعم، سأحضر",
+  "no_will_not_attend": "لا، لن أحضر",
+  "confirmed_students": "الطلاب المؤكدين",
+  "pending": "قيد الانتظار",
+  "incorrect_password": "كلمة المرور غير صحيحة",
+  "failed_to_confirm": "فشل في تأكيد الحدث",
+  "failed_to_load_confirmations": "فشل في تحميل التأكيدات",
+  "change": "تغيير",
 
     "weekdays": {
       "1": "الإثنين",

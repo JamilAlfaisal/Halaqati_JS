@@ -7,7 +7,7 @@ import 'package:halqati/models/event.dart';
 import 'package:halqati/provider/student_providers/feed_provider.dart';
 import 'package:halqati/provider/services_providers/juz_api_provider.dart';
 import 'package:halqati/provider/student_providers/student_state_provider.dart';
-// import 'package:halqati/provider/api_service_provider.dart';
+import 'package:halqati/provider/services_providers/event_api_provider.dart';
 import 'package:halqati/provider/token_notifier.dart';
 import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
@@ -34,25 +34,128 @@ class _AssignmentDetailsScreenState
 
   FeedItem? selectedItem;
   bool isLoading = true;
+  bool? _myConfirmation; // null = pending, true = yes, false = no
+  bool _confirmationLoaded = false;
 
 
   void fetchingFeedItems () async {
     isLoading = true;
     final item = await ref.read(feedProvider.notifier).getSelectedItemFromBackEnd();
 
+    bool? initialConfirmation;
+    if (item?.type == FeedType.event) {
+      final eventData = item?.data as Event?;
+      if (eventData?.confirmation == true) {
+        final token = ref.read(tokenProvider).value ?? "";
+        if (token.isNotEmpty && eventData?.id != null) {
+          try {
+            initialConfirmation = await ref.read(eventApiProvider).getMyEventConfirmation(token, eventData!.id);
+          } catch (e) {
+            debugPrint("Failed to fetch confirmation: $e");
+          }
+        }
+      }
+    }
+
     if (mounted) {
       setState(() {
         selectedItem = item;
+        _myConfirmation = initialConfirmation;
+        _confirmationLoaded = true;
         isLoading = false;
       });
     }
   }
   @override
   void initState() {
-    // TODO: implement initState
     fetchingFeedItems();
     super.initState();
   }
+
+  void _confirmEvent(String eventId, bool isConfirmed) {
+    final passwordController = TextEditingController();
+    // ✅ Capture before dialog opens so context stays valid after pop
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final token = ref.read(tokenProvider).value ?? "";
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        bool isSubmitting = false;
+        return StatefulBuilder(
+          builder: (_, setDialogState) {
+            return AlertDialog(
+              title: Text("password_required".tr()),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("enter_password_confirm".tr()),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: "password".tr(),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isSubmitting
+                      ? null
+                      : () => Navigator.pop(dialogContext),
+                  child: Text("cancel".tr()),
+                ),
+                ElevatedButton(
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          if (passwordController.text.isEmpty) return;
+                          setDialogState(() => isSubmitting = true);
+                          try {
+                            await ref.read(eventApiProvider).confirmEvent(
+                                  token: token,
+                                  eventId: eventId,
+                                  isConfirmed: isConfirmed,
+                                  password: passwordController.text,
+                                );
+                            // ✅ Pop dialog with its own context
+                            Navigator.pop(dialogContext);
+                            // ✅ Update parent state - no invalid context issue
+                            setState(() {
+                              _myConfirmation = isConfirmed;
+                              _confirmationLoaded = true;
+                            });
+                            scaffoldMessenger.showSnackBar(
+                              SnackBar(content: Text("success".tr())),
+                            );
+                          } catch (e) {
+                            setDialogState(() => isSubmitting = false);
+                            scaffoldMessenger.showSnackBar(
+                              SnackBar(content: Text(e.toString())),
+                            );
+                          }
+                        },
+                  child: isSubmitting
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text("confirm_attendance".tr()),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -362,6 +465,83 @@ class _AssignmentDetailsScreenState
                     ),
                   ),
                 ),
+
+              /// 🔥 CONFIRM EVENT (EVENT ONLY)
+              if (!isAssignment && event!.confirmation)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: _confirmationLoaded && _myConfirmation != null
+                      // ✅ Already answered — show status banner
+                      ? Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: _myConfirmation == true
+                                ? Colors.green.shade50
+                                : Colors.red.shade50,
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(
+                              color: _myConfirmation == true ? Colors.green : Colors.red,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                _myConfirmation == true ? Icons.check_circle : Icons.cancel,
+                                color: _myConfirmation == true ? Colors.green : Colors.red,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  _myConfirmation == true
+                                      ? "yes_will_attend".tr()
+                                      : "no_will_not_attend".tr(),
+                                  style: TextStyle(
+                                    color: _myConfirmation == true ? Colors.green : Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _confirmationLoaded = false;
+                                    _myConfirmation = null;
+                                  });
+                                },
+                                child: Text("change".tr()),
+                              )
+                            ],
+                          ),
+                        )
+                      // ✅ Not yet answered — show Yes/No buttons
+                      : Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(context).colorScheme.primary,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                ),
+                                onPressed: () => _confirmEvent(event.id, true),
+                                child: Text("yes_will_attend".tr(), style: const TextStyle(color: Colors.white)),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red.shade400,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                ),
+                                onPressed: () => _confirmEvent(event.id, false),
+                                child: Text("no_will_not_attend".tr(), style: const TextStyle(color: Colors.white)),
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              SizedBox(height: MediaQuery.of(context).padding.bottom), 
+               
             ],
           );
         },

@@ -19,7 +19,7 @@ class GradesApi extends BaseApi {
           int limit = 10
         }
       ) async {
-    final url = Uri.parse('$baseUrl/grades/get_grades/$studentId/class/$classId?offset=${offset}&&limit=${limit}');
+    final url = Uri.parse('$baseUrl/grades/get_grades/$studentId/class/$classId?offset=${offset}&limit=${limit}');
     try {
       final response = await http.get(
         url,
@@ -60,6 +60,7 @@ class GradesApi extends BaseApi {
     String? assignmentId,
     required double score,
     required int weight,
+    int? card,
     String? description,
   }) async {
     final url = Uri.parse('$baseUrl/grades/set_grade');
@@ -70,6 +71,7 @@ class GradesApi extends BaseApi {
       "assignmentId": assignmentId,
       "score": score,
       "weight": weight,
+      "card": card,
       "description": description,
     };
 

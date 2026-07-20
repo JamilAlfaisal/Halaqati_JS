@@ -8,7 +8,7 @@ import { IsNull } from 'typeorm';
 
 export class GradesController {
     public async setGrade(req: AuthRequest, res: Response): Promise<Response> {
-        const { studentId, classId, assignmentId, score, weight, description } = req.body;
+        const { studentId, classId, assignmentId, score, weight, card, description } = req.body;
         const currentTeacherId = req.user?.id;
         const role = req.user?.role;
 
@@ -67,6 +67,7 @@ export class GradesController {
                 const newGrade = new Grade();
                 newGrade.score = Number(score);
                 newGrade.weight = Number(weight);
+                newGrade.card = (card !== undefined && card !== null) ? Number(card) : 0;
                 newGrade.description = description || null;
                 newGrade.student = studentId;
                 newGrade.class = classId;
@@ -118,7 +119,7 @@ export class GradesController {
 
 
     public async updateGrade(req: AuthRequest, res: Response): Promise<Response> {
-        const { gradeId, score: newScore, weight: newWeight, description, assignmentId } = req.body;
+        const { gradeId, score: newScore, weight: newWeight, card: newCard, description, assignmentId } = req.body;
         const role = req.user?.role;
 
         // 1. Core Authorization Check
@@ -192,6 +193,7 @@ export class GradesController {
 
                 oldGrade.score = Number(newScore);
                 oldGrade.weight = Number(newWeight);
+                oldGrade.card = newCard !== undefined ? Number(newCard) : oldGrade.card;
                 oldGrade.description = description !== undefined ? description : oldGrade.description;
                 oldGrade.assignment = assignmentId !== undefined ? (assignmentId || null) : oldGrade.assignment;
 
@@ -338,6 +340,7 @@ export class GradesController {
                     id: true,
                     score: true,
                     weight: true,
+                    card: role == "teacher",
                     description: role == "teacher",
                     dateTime: true,
                     teacher: {

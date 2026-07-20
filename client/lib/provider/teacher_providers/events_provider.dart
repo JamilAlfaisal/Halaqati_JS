@@ -94,6 +94,7 @@ class EventNotifier extends AsyncNotifier<List<Event>?> {
     required String title,
     required String description,
     required String dueDate,
+    required bool confirmation,
   }) async {
     final token = ref.read(tokenProvider).value;
     if (token == null) return;
@@ -107,6 +108,7 @@ class EventNotifier extends AsyncNotifier<List<Event>?> {
         description: description,
         dueDate: dueDate,
         classId: classId,
+        confirmation: confirmation,
       );
       if (success) {
         ref.invalidateSelf();
@@ -161,6 +163,7 @@ class EventDetailsNotifier extends AsyncNotifier<Event?> {
     required String title,
     required String description,
     required String dueDate,
+    required bool confirmation,
   }) async {
     state = const AsyncLoading();
 
@@ -178,6 +181,7 @@ class EventDetailsNotifier extends AsyncNotifier<Event?> {
             title: title,
             description: description,
             dueDate: HelperMethods.parseDate(dueDate),
+            confirmation: confirmation,
             createdDate: DateTime.now(),
             teacher: Teacher.emptyTeacher(),
             halaqaClass: ClassModel.emptyClass(),

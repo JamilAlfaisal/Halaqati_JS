@@ -115,6 +115,7 @@ class GradesNotifier extends AsyncNotifier<StudentGradeReportModel?> {
     String? assignmentId,
     required double score,
     required int weight,
+    int? card,
     String? description,
   }) async {
     final token = ref.read(tokenProvider).value;
@@ -131,6 +132,7 @@ class GradesNotifier extends AsyncNotifier<StudentGradeReportModel?> {
         assignmentId: assignmentId,
         score: score,
         weight: weight,
+        card: card,
         description: description,
       );
 
@@ -149,6 +151,7 @@ class GradesNotifier extends AsyncNotifier<StudentGradeReportModel?> {
     required String gradeId,
     required double score,
     required int weight,
+    int? card,
     String? description,
     String? assignmentId,
   }) async {
@@ -164,6 +167,7 @@ class GradesNotifier extends AsyncNotifier<StudentGradeReportModel?> {
         id: gradeId,
         score: score,
         weight: weight,
+        card: card,
         description: description,
         dateTime: DateTime.now(),
         teacher: Teacher.emptyTeacher(),

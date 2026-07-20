@@ -119,7 +119,23 @@
   "needs_improvement":"Needs Improvement",
   "notes":"Notes",
   "select_weight":"Select Weight",
-  
+  "select_card":"Select Card",
+  "card_perfect":"Perfect",
+  "card_very_good":"Very Good",
+  "card_good":"Good",
+  "card_none":"None",
+
+  "confirm_attendance": "Confirm Attendance",
+  "password_required": "Password Required",
+  "enter_password_confirm": "Please enter your password to confirm.",
+  "yes_will_attend": "Yes, will attend",
+  "no_will_not_attend": "No, will not attend",
+  "confirmed_students": "Confirmed Students",
+  "pending": "Pending",
+  "incorrect_password": "Incorrect password",
+  "failed_to_confirm": "Failed to confirm event",
+  "failed_to_load_confirmations": "Failed to load confirmations",
+  "change": "Change",
 
   "weekdays": {
     "1": "Monday",

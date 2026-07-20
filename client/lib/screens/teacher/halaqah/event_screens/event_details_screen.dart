@@ -8,9 +8,11 @@ import 'package:halqati/utils/helper_methods.dart';
 import 'package:halqati/widgets/appbar/appbar_with_button.dart';
 import 'package:halqati/widgets/buttons/elevated_dark.dart';
 import 'package:halqati/widgets/error_widget.dart';
+import 'package:halqati/provider/teacher_providers/event_confirmations_provider.dart';
 import 'package:halqati/widgets/loading_widget.dart';
 import 'package:halqati/widgets/textfields/custome_date_picker.dart';
 import 'package:halqati/widgets/textfields/text_area.dart';
+import 'package:halqati/widgets/textfields/text_field_normal.dart';
 import 'package:halqati/widgets/textfields/text_field_normal.dart';
 
 class EventDetailsScreen extends ConsumerStatefulWidget {
@@ -26,6 +28,7 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
   TextEditingController date = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _initialized = false;
+  bool _requireConfirmation = false;
 
 
 
@@ -40,6 +43,7 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
         title: title.text,
         description: des.text,
         dueDate: date.text,
+        confirmation: _requireConfirmation,
       );
       final state = ref.read(eventDetailsProvider);
 
@@ -74,12 +78,17 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
             des.text = event.description;
             title.text = event.title;
             date.text = HelperMethods.formatDate(event.dueDate);
+            _requireConfirmation = event.confirmation;
           }
 
 
           return RefreshIndicator(
             onRefresh: () async {
               _initialized = false;
+              if (event?.id != null) {
+                // Ensure confirmations reload correctly
+                ref.invalidate(eventConfirmationsProvider(event!.id));
+              }
               ref.invalidate(eventDetailsProvider);
               await ref.refresh(eventDetailsProvider.future);
             },
@@ -113,17 +122,99 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                     selectedDate: HelperMethods.parseDate(date.text),
                   ),
                   SizedBox(height: 20,),
-                  ElevatedDark(
-                    onPressed: () {
-                      updateEvent();
+                  SwitchListTile(
+                    title: Text(
+                      "confirm_attendance".tr(),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    activeColor: Theme.of(context).colorScheme.primary,
+                    value: _requireConfirmation,
+                    onChanged: (val) {
+                      setState(() {
+                        _requireConfirmation = val;
+                      });
                     },
-                    text: "update".tr(),
-                    ability: !ref.watch(eventProvider).isLoading,
                   ),
-                ],
+                  SizedBox(height: 10,),
+                    ElevatedDark(
+                      onPressed: () {
+                        updateEvent();
+                      },
+                      text: "update".tr(),
+                      ability: !ref.watch(eventProvider).isLoading,
+                    ),
+                    const SizedBox(height: 30),
+                    if (event?.confirmation == true) ...[
+                      Text(
+                        "confirmed_students".tr(),
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 10),
+                      ref.watch(eventConfirmationsProvider(asyncEvent.value?.id ?? "")).when(
+                        data: (confirmations) {
+                          if (confirmations.isEmpty) {
+                            return Center(child: Text("no_data".tr()));
+                          }
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: confirmations.length,
+                            itemBuilder: (context, index) {
+                              final conf = confirmations[index];
+                              IconData icon;
+                              Color color;
+                              String statusText;
+                              if (conf.status == true) {
+                                icon = Icons.check_circle;
+                                color = Theme.of(context).colorScheme.primary;
+                                statusText = "yes_will_attend".tr();
+                              } else if (conf.status == false) {
+                                icon = Icons.cancel;
+                                color = Colors.red;
+                                statusText = "no_will_not_attend".tr();
+                              } else {
+                                icon = Icons.pending;
+                                color = Colors.orange;
+                                statusText = "pending".tr();
+                              }
+
+                              return ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor: Colors.grey.shade300,
+                                    backgroundImage: conf.picProfile != null && conf.picProfile!.isNotEmpty
+                                        ? NetworkImage(conf.picProfile!)
+                                        : null,
+                                    child: (conf.picProfile == null || conf.picProfile!.isEmpty)
+                                        ? const Icon(Icons.person, color: Colors.grey)
+                                        : null,
+                                  ),
+                                  title: Text(
+                                    conf.studentName,
+                                    style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
+                                  ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(statusText, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+                                    const SizedBox(width: 5),
+                                    Icon(icon, color: color),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        loading: () => const Center(child: CircularProgressIndicator()),
+                        error: (err, stack) => Text("error".tr()),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
-          );
+            );
         },
         loading: () => LoadingWidget(),
         error: (e, stack) {

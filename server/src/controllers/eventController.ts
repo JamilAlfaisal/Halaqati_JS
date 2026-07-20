@@ -8,6 +8,9 @@ import { AuthRequest } from '../middleware/middleware';
 import { StudyIn } from '../model/Study_in';
 import { In } from 'typeorm';
 import { HaveAssignment } from '../model/Have_assignment';
+import { EventConfirmation } from '../model/EventConfirmation';
+import { isMatch } from '../utils/auth';
+
 export const createEvent = async (req: AuthRequest, res: Response) => {
 
     const classRepository = AppDataSource.getRepository(Class);
@@ -54,7 +57,7 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
         }
 
         const newEvent = eventRepository.create({
-            title, description, dueDate, class: { id: classId }, teacher: { id: userId }
+            title, description, dueDate, class: { id: classId }, teacher: { id: userId }, confirmation: req.body.confirmation || false
         });
 
         await eventRepository.save(newEvent);
@@ -65,6 +68,7 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
             title: newEvent.title,
             dueDate: newEvent.dueDate,
             description: newEvent.description,
+            confirmation: newEvent.confirmation,
             classId
         });
 
@@ -101,12 +105,13 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
             return res.status(400).json({ message: "Invalid event id" });
         }
 
-        const { dueDate, description, title } = req.body;
+        const { dueDate, description, title, confirmation } = req.body;
 
         if (
             title === undefined &&
             description === undefined &&
-            dueDate === undefined
+            dueDate === undefined &&
+            confirmation === undefined
         ) {
             return res.status(400).json({ message: "No fields to update" });
         }
@@ -131,6 +136,7 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
         if (title !== undefined) event.title = title;
         if (description !== undefined) event.description = description;
         if (dueDate !== undefined) event.dueDate = dueDate;
+        if (confirmation !== undefined) event.confirmation = confirmation;
 
         await eventRepository.save(event);
 
@@ -140,6 +146,7 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
             title: event.title,
             dueDate: event.dueDate,
             description: event.description,
+            confirmation: event.confirmation,
             classId: event.class.id
         });
 
@@ -251,6 +258,7 @@ export const getEventDetails = async (req: AuthRequest, res: Response) => {
             title: event.title,
             dueDate: event.dueDate,
             description: event.description,
+            confirmation: event.confirmation,
             class: {
                 id: event.class.id,
                 name: event.class.name
@@ -320,6 +328,7 @@ export const getTeacherEvents = async (req: AuthRequest, res: Response) => {
                 title: event.title,
                 dueDate: event.dueDate,
                 description: event.description,
+                confirmation: event.confirmation,
                 createdAt: event.createdAt,
                 class: {
                     id: event.class.id,
@@ -400,6 +409,7 @@ export const getStudentEvents = async (req: AuthRequest, res: Response) => {
                 createdAt: event.createdAt,
                 dueDate: event.dueDate,
                 description: event.description,
+                confirmation: event.confirmation,
                 class: {
                     id: event.class.id,
                     name: event.class.name
@@ -506,6 +516,7 @@ export const getStudentFeed = async (req: AuthRequest, res: Response) => {
                 createdAt: event.createdAt,
                 dueDate: event.dueDate,
                 description: event.description,
+                confirmation: event.confirmation,
                 class: {
                     id: event.class.id,
                     name: event.class.name
@@ -539,3 +550,159 @@ export const getStudentFeed = async (req: AuthRequest, res: Response) => {
         return res.status(500).json({ message: "Failed to get feed" });
     }
 };
+
+export const confirmEvent = async (req: AuthRequest, res: Response) => {
+    const eventConfirmationRepo = AppDataSource.getRepository(EventConfirmation);
+    const eventRepository = AppDataSource.getRepository(Event);
+    const studentRepository = AppDataSource.getRepository(Student);
+    const userRepository = AppDataSource.getRepository(User);
+
+    try {
+        const userId = req.user.id;
+        const role = req.user.role;
+        const { eventId, isConfirmed, password } = req.body;
+
+        if (role !== "student") return res.status(403).json({ message: "Forbidden" });
+        if (!eventId || isConfirmed === undefined || !password) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const user = await userRepository.findOne({ 
+            where: { id: userId },
+            select: ['id', 'password']
+        });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const isMatched = await isMatch(password, user.password);
+        if (!isMatched) {
+            return res.status(401).json({ message: "Incorrect password" });
+        }
+
+        const student = await studentRepository.findOneBy({ user: { id: userId } });
+        if (!student) return res.status(404).json({ message: "Student not found" });
+
+        const event = await eventRepository.findOneBy({ id: Number(eventId) });
+        if (!event) return res.status(404).json({ message: "Event not found" });
+
+        let confirmation = await eventConfirmationRepo.findOne({
+            where: { event: { id: Number(eventId) }, student: { id: student.id } }
+        });
+
+        if (confirmation) {
+            await eventConfirmationRepo.update(confirmation.id, { isConfirmed: Boolean(isConfirmed) });
+            confirmation.isConfirmed = Boolean(isConfirmed);
+        } else {
+            confirmation = eventConfirmationRepo.create({
+                event: { id: Number(eventId) },
+                student: { id: student.id },
+                isConfirmed: Boolean(isConfirmed)
+            });
+            await eventConfirmationRepo.save(confirmation);
+        }
+
+        return res.status(200).json({
+            message: "Confirmation updated successfully",
+            data: confirmation
+        });
+
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const getEventConfirmations = async (req: AuthRequest, res: Response) => {
+    const eventConfirmationRepo = AppDataSource.getRepository(EventConfirmation);
+    const studyInRepo = AppDataSource.getRepository(StudyIn);
+    const eventRepository = AppDataSource.getRepository(Event);
+
+    try {
+        const userId = req.user.id;
+        const role = req.user.role;
+        const eventId = Number(req.params.id);
+
+        if (role !== "teacher") return res.status(403).json({ message: "Forbidden" });
+        if (isNaN(eventId)) return res.status(400).json({ message: "Invalid event id" });
+
+        const event = await eventRepository.findOne({
+            where: { id: eventId },
+            relations: ['class', 'teacher']
+        });
+
+        if (!event) return res.status(404).json({ message: "Event not found" });
+        if (event.teacher.id !== userId) return res.status(403).json({ message: "Forbidden: Not your event" });
+
+        // Get all students enrolled in the class
+        const enrollments = await studyInRepo.find({
+            where: { class: { id: event.class.id } },
+            relations: ['student', 'student.user']
+        });
+
+        // Get all confirmations for this event
+        const confirmations = await eventConfirmationRepo.find({
+            where: { event: { id: eventId } },
+            relations: ['student']
+        });
+
+        const confirmationMap = new Map();
+        confirmations.forEach(c => {
+            confirmationMap.set(c.student.id, c.isConfirmed);
+        });
+
+        const result = enrollments.map(enrollment => {
+            const student = enrollment.student;
+            const status = confirmationMap.has(student.id) 
+                ? confirmationMap.get(student.id) 
+                : null; // null means pending
+
+            return {
+                studentId: student.id,
+                studentName: student.user.name,
+                picProfile: student.user.picProfile,
+                status: status
+            };
+        });
+
+        return res.status(200).json({
+            message: "Confirmations retrieved successfully",
+            data: result
+        });
+
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const getMyEventConfirmation = async (req: AuthRequest, res: Response) => {
+    const eventConfirmationRepo = AppDataSource.getRepository(EventConfirmation);
+    const studentRepository = AppDataSource.getRepository(Student);
+
+    try {
+        const userId = req.user.id;
+        const role = req.user.role;
+        const eventId = Number(req.params.id);
+
+        if (role !== "student") return res.status(403).json({ message: "Forbidden" });
+        if (isNaN(eventId)) return res.status(400).json({ message: "Invalid event id" });
+
+        const student = await studentRepository.findOneBy({ user: { id: userId } });
+        if (!student) return res.status(404).json({ message: "Student not found" });
+
+        const confirmation = await eventConfirmationRepo.findOne({
+            where: {
+                event: { id: eventId },
+                student: { id: student.id }
+            }
+        });
+
+        return res.status(200).json({
+            message: "Confirmation retrieved successfully",
+            status: confirmation ? confirmation.isConfirmed : null
+        });
+
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};

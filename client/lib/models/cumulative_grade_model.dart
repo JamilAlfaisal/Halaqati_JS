@@ -24,7 +24,7 @@ class StudentGradeReportModel {
 
     return StudentGradeReportModel(
       cumulativeGrade: double.tryParse(stats?['cumulativeGrade']?.toString() ?? '0.0') ?? 0.0,
-      totalWeightPoints: stats?['totalWeightPoints'] as int? ?? 0,
+      totalWeightPoints: int.tryParse(stats?['totalWeightPoints']?.toString() ?? '0') ?? 0,
       history: json['history'] is List
           ? (json['history'] as List)
           .map((gradeJson) => GradeModel.fromJson(gradeJson as Map<String, dynamic>))
