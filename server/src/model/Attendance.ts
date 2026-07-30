@@ -25,17 +25,15 @@ export class Attendance {
   @ManyToMany(() => Student, (student) => student.attendance)
   @JoinTable({
     name: 'student_attendance',
-    joinColumn: {
+    joinColumns: [{
       name: 'attendanceId',
       referencedColumnName: 'id',
-      foreignKeyConstraintName: 'FK_15ed2cec4b795ab0c19087c5557', // Optional: matches your DB
-      onDelete: 'CASCADE',
-    },
-    inverseJoinColumn: {
+      foreignKeyConstraintName: 'FK_15ed2cec4b795ab0c19087c5557',
+    }],
+    inverseJoinColumns: [{
       name: 'studentId',
       referencedColumnName: 'id',
-      onDelete: 'CASCADE',
-    },
+    }],
   })
   students!: Student[];
 }

@@ -526,3 +526,64 @@ export const getAttendanceStatsByClass = async (req: AuthRequest, res: Response)
         return res.status(500).json({ message: "Failed to get attendance stats" });
     }
 };
+
+// Admin-only: attendance count per student within a date range, using a single grouped query
+export const getAttendanceCountByDateRange = async (req: AuthRequest, res: Response) => {
+    const role = req.user?.role;
+    const userId = req.user?.id;
+
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    if (role !== "admin") return res.status(403).json({ message: "Forbidden" });
+
+    const classId = Number(req.params.classId);
+    const { startDate, endDate } = req.query;
+
+    if (isNaN(classId)) return res.status(400).json({ message: "Invalid classId" });
+    if (!startDate || !endDate) return res.status(400).json({ message: "startDate and endDate are required" });
+
+    try {
+        const start = new Date(startDate as string);
+        const end = new Date(endDate as string);
+        end.setHours(23, 59, 59, 999);
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            return res.status(400).json({ message: "Invalid date format. Use YYYY-MM-DD." });
+        }
+
+        // Grouped query: count attendance records per student in this class and date range
+        const rows: { studentId: number; studentName: string; attendanceCount: string }[] =
+            await AppDataSource.query(
+                `SELECT
+                    s.id AS studentId,
+                    u.name AS studentName,
+                    COUNT(DISTINCT a.id) AS attendanceCount
+                 FROM study_in si
+                 INNER JOIN student s ON s.id = si.studentId
+                 INNER JOIN user u ON u.id = s.id
+                 LEFT JOIN student_attendance sa ON sa.studentId = s.id
+                 LEFT JOIN attendance a ON a.id = sa.attendanceId
+                    AND a.classId = ?
+                    AND a.date >= ?
+                    AND a.date <= ?
+                 WHERE si.classId = ?
+                 GROUP BY s.id, u.name
+                 ORDER BY u.name`,
+                [classId, start, end, classId]
+            );
+
+        return res.status(200).json({
+            classId,
+            startDate,
+            endDate,
+            students: rows.map(r => ({
+                studentId: r.studentId,
+                studentName: r.studentName,
+                attendanceCount: Number(r.attendanceCount),
+            }))
+        });
+
+    } catch (e) {
+        console.error("❌ getAttendanceCountByDateRange", e);
+        return res.status(500).json({ message: "Failed to get attendance counts" });
+    }
+};

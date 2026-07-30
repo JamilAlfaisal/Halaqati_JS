@@ -3,6 +3,7 @@ import "reflect-metadata";
 import { AppDataSource } from "./data-source";
 import * as admin from 'firebase-admin';
 import dotenv from "dotenv";
+import cors from "cors";
 
 
 const serviceAccount = require("../service_key.json");
@@ -16,6 +17,26 @@ export const messaging = admin.messaging();
 dotenv.config();
 const app = express();
 const PORT = 3000;
+
+// Allow the admin dashboard dev server (and preview) to reach the API.
+// In production, replace with your actual deployed dashboard origin.
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:4173',
+  ...(process.env.DASHBOARD_ORIGIN ? [process.env.DASHBOARD_ORIGIN] : [])
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile apps, curl, Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    }
+  },
+  credentials: true,
+}));
 
 app.use(express.json());
 

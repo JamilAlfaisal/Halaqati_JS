@@ -26,7 +26,7 @@ export class User {
   phone!: string;
 
   @Column({ nullable: false, unique: false, select: true })
-  role!: string;
+  role!: 'teacher' | 'student' | 'admin';
 
   @Column({ type: "date", nullable: true })
   dob!: Date;

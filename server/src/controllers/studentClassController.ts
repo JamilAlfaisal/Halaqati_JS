@@ -27,7 +27,7 @@ export const addStudentToClass = async (req:AuthRequest, res: Response) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if(role != "teacher"){
+        if(role !== "teacher" && role !== "admin"){
             console.log("❌ http://localhost:3000/api/student_class/add");
             return res.status(403).json({message:"Forbidden"})
         }
@@ -47,7 +47,8 @@ export const addStudentToClass = async (req:AuthRequest, res: Response) => {
             return res.status(404).json({message:"class was not found"});
         }
 
-        if (teacherClass.teacher.id != userId){
+        // Only teachers must own the class; admins can add students to any class
+        if (role === "teacher" && teacherClass.teacher.id != userId){
             console.log("❌ http://localhost:3000/api/student_class/add");
             return res.status(403).json({message:"You do not have permission to add students to this class."});
         }

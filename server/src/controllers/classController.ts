@@ -29,12 +29,12 @@ export const createClass = async (req: AuthRequest, res: Response) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if (role != "teacher") {
+        if (role !== "teacher" && role !== "admin") {
             console.log("❌ http://localhost:3000/api/class/create");
             return res.status(403).json({ message: "Forbidden" })
         }
 
-        const { startTime, endTime, days, description, location, name } = req.body
+        const { startTime, endTime, days, description, location, name, teacherId } = req.body
         console.log(days);
 
         if (!name) {
@@ -47,11 +47,16 @@ export const createClass = async (req: AuthRequest, res: Response) => {
             return res.status(400).json({ message: "Days must be an array" });
         }
 
-        const teacher = await userRepository.findOneBy({ id: userId });
+        if (role === 'admin' && !teacherId) {
+            return res.status(400).json({ message: "teacherId is required when created by admin" });
+        }
+
+        const targetTeacherId = role === 'admin' ? teacherId : userId;
+        const teacher = await userRepository.findOne({ where: { id: targetTeacherId, role: 'teacher' } });
 
         if (!teacher) {
             console.log("❌ http://localhost:3000/api/class/create");
-            return res.status(404).json({ message: "User not found" })
+            return res.status(404).json({ message: "Teacher not found" })
         }
 
         const newClass = classRepository.create({
@@ -102,7 +107,7 @@ export const updateClass = async (req: AuthRequest, res: Response) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if (role != "teacher") {
+        if (role !== "teacher" && role !== "admin") {
             console.log("❌ http://localhost:3000/api/class/update");
             return res.status(403).json({ message: "Forbidden" })
         }
@@ -137,7 +142,7 @@ export const updateClass = async (req: AuthRequest, res: Response) => {
             return res.status(404).json({ message: "Class not found" });
         }
 
-        if (existingClass.teacher.id != userId) {
+        if (role !== "admin" && existingClass.teacher.id != userId) {
             console.log("❌ http://localhost:3000/api/class/update");
             return res.status(403).json({ message: "Not class owner" });
         }
@@ -196,7 +201,7 @@ export const deleteClass = async (req: AuthRequest, res: Response) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if (role != "teacher") {
+        if (role !== "teacher" && role !== "admin") {
             console.log("❌ http://localhost:3000/api/class/delete");
             return res.status(403).json({ message: "Forbidden" })
         }
@@ -219,7 +224,7 @@ export const deleteClass = async (req: AuthRequest, res: Response) => {
             return res.status(404).json({ message: "Class not found" });
         }
 
-        if (existingClass.teacher.id != userId) {
+        if (role !== "admin" && existingClass.teacher.id != userId) {
             console.log("❌ http://localhost:3000/api/class/delete");
             return res.status(403).json({ message: "Not class owner" });
         }
@@ -398,6 +403,11 @@ export const getClassDetails = async (req: AuthRequest, res: Response) => {
             console.log("❌ http://localhost:3000/api/class/details");
             return res.status(404).json({ message: 'Class not found' })
         }
+        if (role === "admin") {
+            console.log("✅ http://localhost:3000/api/class/details");
+            return res.status(200).json({ class: classDetails });
+        }
+
         if (role === "teacher") {
             if (classDetails.teacher.id !== userId) {
                 console.log("❌ http://localhost:3000/api/class/details");
@@ -545,5 +555,77 @@ export const getStudentClasses = async (req: AuthRequest, res: Response) => {
         console.log("❌ http://localhost:3000/api/class/get_student_classes");
         console.error(`❌ ${e}`);
         return res.status(500).json({ message: "Failed to get student classes" });
+    }
+};
+
+export const getAllClasses = async (req: AuthRequest, res: Response) => {
+    const classRepository = AppDataSource.getRepository(Class);
+
+    try {
+        const userId = req.user?.id;
+        const role = req.user?.role;
+
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        if (role !== "admin") {
+            return res.status(403).json({ message: "Forbidden" });
+        }
+
+        const allClasses = await classRepository.find({
+            relations: [
+                'teacher',
+                'studyInRecords',
+                'studyInRecords.student'
+            ]
+        });
+
+        const properJson = allClasses.map((c) => ({
+            id: c.id ?? "0",
+            name: c.name,
+            description: c.description,
+            days: c.days,
+            teacherId: c.teacher?.id ?? "0",
+            teacherName: c.teacher?.name ?? "Unknown",
+            startTime: c.startTime,
+            endTime: c.endTime,
+            location: c.location,
+            studentsCount: (c.studyInRecords ?? []).length
+        }));
+
+        return res.status(200).json({
+            classes: properJson,
+        });
+    } catch (e) {
+        console.error(`❌ ${e}`);
+        return res.status(500).json({ message: "Failed to get all classes" });
+    }
+};
+
+export const getAllTeachers = async (req: AuthRequest, res: Response) => {
+    const userRepository = AppDataSource.getRepository(User);
+
+    try {
+        const userId = req.user?.id;
+        const role = req.user?.role;
+
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        if (role !== "admin") {
+            return res.status(403).json({ message: "Forbidden" });
+        }
+
+        const teachers = await userRepository.find({
+            where: { role: 'teacher' },
+            select: { id: true, name: true, phone: true, email: true, picProfile: true }
+        });
+
+        return res.status(200).json({ teachers });
+    } catch (e) {
+        console.error(`❌ ${e}`);
+        return res.status(500).json({ message: "Failed to get teachers" });
     }
 };

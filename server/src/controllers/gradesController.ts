@@ -385,4 +385,70 @@ export class GradesController {
             return res.status(500).json({ message: 'Internal server error while retrieving grade history.' });
         }
     }
+
+    // Admin-only: get CGPA and card type counts per student within a date range
+    public async getGradesStatsByDateRange(req: AuthRequest, res: Response): Promise<Response> {
+        const role = req.user?.role;
+        const userId = req.user?.id;
+
+        if (!userId) return res.status(401).json({ message: "Unauthorized" });
+        if (role !== "admin") return res.status(403).json({ message: "Forbidden" });
+
+        const classId = Number(req.params.classId);
+        const { startDate, endDate } = req.query;
+
+        if (isNaN(classId)) return res.status(400).json({ message: "Invalid classId" });
+        if (!startDate || !endDate) return res.status(400).json({ message: "startDate and endDate are required" });
+
+        try {
+            const start = new Date(startDate as string);
+            const end = new Date(endDate as string);
+            end.setHours(23, 59, 59, 999);
+
+            if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+                return res.status(400).json({ message: "Invalid date format. Use YYYY-MM-DD." });
+            }
+
+            // Grouped query for CGPA (from study_in) and card counts (from grades in the date range)
+            const rows: any[] = await AppDataSource.query(
+                `SELECT 
+                    s.id AS studentId,
+                    u.name AS studentName,
+                    si.cumulative_grade AS cgpa,
+                    SUM(CASE WHEN g.card = '1' THEN 1 ELSE 0 END) AS perfectCount,
+                    SUM(CASE WHEN g.card = '2' THEN 1 ELSE 0 END) AS veryGoodCount,
+                    SUM(CASE WHEN g.card = '3' THEN 1 ELSE 0 END) AS goodCount
+                 FROM study_in si
+                 INNER JOIN student s ON s.id = si.studentId
+                 INNER JOIN user u ON u.id = s.id
+                 LEFT JOIN grades g ON g.student_id = s.id 
+                    AND g.class_id = ?
+                    AND g.date_time >= ? 
+                    AND g.date_time <= ?
+                 WHERE si.classId = ?
+                 GROUP BY s.id, u.name, si.cumulative_grade
+                 ORDER BY u.name`,
+                [classId, start, end, classId]
+            );
+
+            return res.status(200).json({
+                classId,
+                startDate,
+                endDate,
+                students: rows.map(r => ({
+                    studentId: r.studentId,
+                    studentName: r.studentName,
+                    cgpa: Number(r.cgpa),
+                    cards: {
+                        perfect: Number(r.perfectCount), // ممتاز
+                        veryGood: Number(r.veryGoodCount), // جيد جداً
+                        good: Number(r.goodCount) // جيد
+                    }
+                }))
+            });
+        } catch (error) {
+            console.error('Error fetching grades stats:', error);
+            return res.status(500).json({ message: 'Internal server error while retrieving grades stats.' });
+        }
+    }
 }

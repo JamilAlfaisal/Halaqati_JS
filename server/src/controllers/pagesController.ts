@@ -317,4 +317,111 @@ export class PagesController {
             return res.status(500).json({ message: 'An internal server error occurred while retrieving chapter details.' });
         }
     }
+
+    // Admin: Get student list with Juz count for a class
+    public async getAdminClassPageProgressSummary(req: AuthRequest, res: Response): Promise<Response> {
+        const role = req.user?.role;
+        if (role !== "admin") return res.status(403).json({ message: "Forbidden" });
+
+        const classId = Number(req.params.classId);
+        if (isNaN(classId)) return res.status(400).json({ message: "Invalid classId" });
+
+        try {
+            const rows = await AppDataSource.query(
+                `SELECT 
+                    s.id AS studentId,
+                    u.name AS studentName,
+                    s.memorized_juz AS memorizedJuzJson
+                 FROM study_in si
+                 INNER JOIN student s ON s.id = si.studentId
+                 INNER JOIN user u ON u.id = s.id
+                 WHERE si.classId = ?
+                 ORDER BY u.name`,
+                [classId]
+            );
+
+            const students = rows.map((r: any) => {
+                let juzCount = 0;
+                if (r.memorizedJuzJson && typeof r.memorizedJuzJson === 'string') {
+                    const items = r.memorizedJuzJson.split(',').filter((x: string) => x.trim() !== '');
+                    juzCount = items.length;
+                }
+                return {
+                    studentId: r.studentId,
+                    studentName: r.studentName,
+                    juzCount
+                };
+            });
+
+            return res.status(200).json({ classId, students });
+        } catch (error) {
+            console.error('Error fetching page progress summary:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    }
+
+    // Admin: Get exact page progress rows for a specific student in a class (Lazy loaded)
+    public async getAdminStudentPageProgress(req: AuthRequest, res: Response): Promise<Response> {
+        const role = req.user?.role;
+        if (role !== "admin") return res.status(403).json({ message: "Forbidden" });
+
+        const classId = req.params.classId as string;
+        const studentId = req.params.studentId as string;
+
+        if (!studentId || !classId) return res.status(400).json({ message: "Missing params" });
+
+        try {
+            const progress = await AppDataSource.getRepository(PageProgress).find({
+                where: { studentId: studentId, classId: classId },
+                order: { pageNumber: "ASC" },
+                select: ["pageNumber", "markingDate", "reviewDate"]
+            });
+
+            return res.status(200).json({ studentId, progress });
+        } catch (error) {
+            console.error('Error fetching student page progress:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    }
+
+    // Admin: Get a global directory of all students with their juz count
+    public async getAdminGlobalStudentDirectory(req: AuthRequest, res: Response): Promise<Response> {
+        const role = req.user?.role;
+        if (role !== "admin") return res.status(403).json({ message: "Forbidden" });
+
+        try {
+            const rows = await AppDataSource.query(
+                `SELECT 
+                    s.id AS studentId,
+                    u.name AS studentName,
+                    s.memorized_juz AS memorizedJuzJson,
+                    GROUP_CONCAT(c.name SEPARATOR ', ') AS className
+                 FROM student s
+                 INNER JOIN user u ON u.id = s.id
+                 LEFT JOIN study_in si ON si.studentId = s.id
+                 LEFT JOIN class c ON c.id = si.classId
+                 GROUP BY s.id, u.name, s.memorized_juz
+                 ORDER BY u.name`
+            );
+
+            const students = rows.map((r: any) => {
+                let juzCount = 0;
+                if (r.memorizedJuzJson && typeof r.memorizedJuzJson === 'string') {
+                    const items = r.memorizedJuzJson.split(',').filter((x: string) => x.trim() !== '');
+                    juzCount = items.length;
+                }
+                return {
+                    studentId: r.studentId,
+                    studentName: r.studentName,
+                    className: r.className || 'غير مسجل',
+                    juzCount
+                };
+            });
+
+            return res.status(200).json(students);
+        } catch (error) {
+            console.error('Error fetching global student directory:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    }
 }
